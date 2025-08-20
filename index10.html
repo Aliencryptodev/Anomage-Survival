@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>Anoma Survival</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+  :root { --ui-bg: rgba(0,0,0,.55); --ui-pill:#0b1220; --ui-border:#3b4252; }
+  html,body{height:100%;margin:0;background:#0e0f13;color:#e6ebef;font:14px/1.2 system-ui,Segoe UI,Roboto,Arial}
+  #topbar{position:fixed;left:0;right:0;top:0;padding:8px 10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));z-index:6}
+  .pill{padding:2px 6px;border:1px solid var(--ui-border);border-radius:999px;background:var(--ui-pill);font:12px monospace}
+  .ok{color:#9fef00}
+  #hud{position:fixed;top:8px;right:10px;font:13px monospace;opacity:.92;text-align:right;z-index:6}
+  #hud div{margin-bottom:2px}
+  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  canvas{background:#101014;image-rendering:pixelated;border:1px solid #1f2630;box-shadow:0 0 0 1px #000}
+  #overlay,#start{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;color:#fff;font-weight:700;z-index:10;text-align:center}
+  #start h1 {
+  font-size: 48px !important; 
+  margin: 0 0 20px 0 !important;
+  letter-spacing: 2px;
+}
+
+#start > div {
+  font-size: 18px !important;
+  margin-bottom: 30px !important;
+}
+
+#charSelect {
+  gap: 40px !important;
+  margin-bottom: 30px !important;
+}
+
+#charSelect .char {
+  padding: 20px 24px !important;
+  font-size: 18px !important;
+  gap: 12px !important;
+}
+
+#charSelect canvas {
+  width: 96px !important;
+  height: 96px !important;
+  border: 2px solid #444 !important;
+}
+
+#chosen {
+  font-size: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+#btnStart {
+  padding: 16px 32px !important;
+  font-size: 18px !important;
+}
+  #overlay.show,#start.show{display:flex}
+  .btn{margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #888;background:#151515;color:#fff;cursor:pointer;font:14px/1 monospace}
+  #warn{position:fixed;bottom:10px;left:10px;right:10px;padding:10px;border:1px dashed #555;border-radius:8px;background:#111c;display:none;z-index:7}
+  #warn.show{display:block}
+  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;font:12px monospace;z-index:7}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+  <!-- TOP -->
+  <div id="topbar">
+    <div class="pill">WASD/←→↑↓ Move</div>
+    <div class="pill">Click shoots — 1🔥 2⚡ 3❄ 4🌑</div>
+    <div class="pill" id="spritesState">Sprites <span id="progress">loading…</span></div>
+  </div>
+  <div id="hud">
+    <div>Map <span id="biome">1</span> · Life <span id="hp">100</span></div>
+    <div>Kills <span id="kills">0</span>/50 · Boss <span id="boss">—</span></div>
+    <div>Essence <span id="pts">0</span> · <span id="wname">Fire</span> Lv <span id="wlv">1</span></div>
+  </div>
+
+  <!-- VIEWPORT + CANVAS RESPONSIVE -->
+  <div id="viewport"><canvas id="game" width="960" height="540"></canvas></div>
+
+  <!-- OVERLAY Muerte / Info -->
+  <div id="overlay">
+    <div id="overlay-text" style="font-size:28px;letter-spacing:.5px;"></div>
+    <div id="overlay-sub" style="opacity:.9;margin-top:6px;"></div>
+    <button id="overlay-btn" class="btn">Continue</button>
+  </div>
+
+  <!-- START SCREEN: selección ANOMAGE / SHRIMP -->
+  <div id="start" class="show">
+    <h1 style="margin:0 0 6px 0;">ANOMA SURVIVAL</h1>
+    <div style="opacity:.9;margin-bottom:10px">Choose your character and press <b>Play</b></div>
+
+    <div id="charSelect" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:10px">
+      <button class="char btn" data-hero="anomage" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span>ANOMAGE</span>
+        <canvas id="prev-anomage" width="64" height="64" style="image-rendering:pixelated;border:1px solid #444;background:#111"></canvas>
+      </button>
+      <button class="char btn" data-hero="shrimp" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span>SHRIMP</span>
+        <canvas id="prev-shrimp" width="64" height="64" style="image-rendering:pixelated;border:1px solid #444;background:#111"></canvas>
+      </button>
+    </div>
+
+    <div id="chosen" style="margin-bottom:6px;opacity:.9">Selected: <b id="chosenName">ANOMAGE</b></div>
+    <button id="btnStart" class="btn">Play</button>
+  </div>
+
+  <!-- Sprites.json file loader (CORS en file://) -->
+  <div id="warn" style="display:none !important;">
+    <span>No se pudo cargar <b>assets/Sprites.json</b> (CORS en <code>file://</code>). Usando rutas por defecto.</span>
+    <button id="btn-pick" class="btn" style="padding:6px 10px;margin-top:0">Cargar Sprites.json…</button>
+    <input id="file-pick" type="file" accept="application/json" style="display:none"/>
+  </div>
+  <div id="toast"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>
