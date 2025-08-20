@@ -1,0 +1,156 @@
+{
+  "mage": {
+    "idle": [
+      "assets/Sprites/image/mage_idle_1.png",
+      "assets/Sprites/image/mage_idle_2.png"
+    ],
+    "down": [
+      "assets/Sprites/image/mage_down_1.png",
+      "assets/Sprites/image/mage_down_2.png",
+      "assets/Sprites/image/mage_down_3.png",
+      "assets/Sprites/image/mage_down_4.png"
+    ],
+    "up": [
+      "assets/Sprites/image/mage_up_1.png",
+      "assets/Sprites/image/mage_up_2.png",
+      "assets/Sprites/image/mage_up_3.png",
+      "assets/Sprites/image/mage_up_4.png"
+    ],
+    "left": [
+      "assets/Sprites/image/mage_left_1.png",
+      "assets/Sprites/image/mage_left_2.png",
+      "assets/Sprites/image/mage_left_3.png",
+      "assets/Sprites/image/mage_left_4.png"
+    ],
+    "right": [
+      "assets/Sprites/image/mage_right_1.png",
+      "assets/Sprites/image/mage_right_2.png",
+      "assets/Sprites/image/mage_right_3.png",
+      "assets/Sprites/image/mage_right_4.png"
+    ]
+  },
+
+  "spells": {
+    "fireball": [
+      "assets/Sprites/image_spells/fireball_1.png",
+      "assets/Sprites/image_spells/fireball_2.png",
+      "assets/Sprites/image_spells/fireball_3.png",
+      "assets/Sprites/image_spells/fireball_4.png"
+    ],
+    "ice": [
+      "assets/Sprites/image_spells/ice_shard_1.png",
+      "assets/Sprites/image_spells/ice_shard_2.png",
+      "assets/Sprites/image_spells/ice_shard_3.png",
+      "assets/Sprites/image_spells/ice_shard_4.png"
+    ],
+    "lightning": [
+      "assets/Sprites/image_spells/lightning_1.png",
+      "assets/Sprites/image_spells/lightning_2.png",
+      "assets/Sprites/image_spells/lightning_3.png",
+      "assets/Sprites/image_spells/lightning_4.png"
+    ],
+    "dark": [
+      "assets/Sprites/image_spells/dark_blast_1.png",
+      "assets/Sprites/image_spells/dark_blast_2.png",
+      "assets/Sprites/image_spells/dark_blast_3.png",
+      "assets/Sprites/image_spells/dark_blast_4.png"
+    ]
+  },
+
+  "enemies": {
+    "skeleton": [
+      "assets/Sprites/enemies/skeleton/skeleton_walk_1.png",
+      "assets/Sprites/enemies/skeleton/skeleton_walk_2.png"
+    ],
+    "orc": [
+      "assets/Sprites/enemies/orc/orc_walk_1.png",
+      "assets/Sprites/enemies/orc/orc_walk_2.png"
+    ],
+    "bat": [
+      "assets/Sprites/enemies/bat/bat_fly_1.png",
+      "assets/Sprites/enemies/bat/bat_fly_2.png"
+    ],
+    "ghost": [
+      "assets/Sprites/enemies/ghost/ghost_float_1.png",
+      "assets/Sprites/enemies/ghost/ghost_float_2.png"
+    ],
+    "shrimp": [
+      "assets/Sprites/enemies/shrimp/shrimp_walk_1.png",
+      "assets/Sprites/enemies/shrimp/shrimp_walk_2.png"
+    ]
+  },
+
+  "bosses": {
+    "demon": {
+      "idle": [
+        "assets/Sprites/boss_demon/boss_demon_idle1.png",
+        "assets/Sprites/boss_demon/boss_demon_idle2.png"
+      ],
+      "attack": [
+        "assets/Sprites/boss_demon/boss_demon_attack1.png",
+        "assets/Sprites/boss_demon/boss_demon_attack2.png"
+      ],
+      "hurt": ["assets/Sprites/boss_demon/boss_demon_hurt.png"],
+      "death": ["assets/Sprites/boss_demon/boss_demon_death.png"]
+    },
+    "ent": {
+      "idle": [
+        "assets/Sprites/boss_ent/boss_ent_idle1.png",
+        "assets/Sprites/boss_ent/boss_ent_idle2.png"
+      ],
+      "attack": [
+        "assets/Sprites/boss_ent/boss_ent_attack1.png",
+        "assets/Sprites/boss_ent/boss_ent_attack2.png"
+      ],
+      "hurt": ["assets/Sprites/boss_ent/boss_ent_hurt.png"],
+      "death": ["assets/Sprites/boss_ent/boss_ent_death.png"]
+    },
+    "golem": {
+      "idle": [
+        "assets/Sprites/boss_golem/boss_golem_idle1.png",
+        "assets/Sprites/boss_golem/boss_golem_idle2.png"
+      ],
+      "attack": [
+        "assets/Sprites/boss_golem/boss_golem_attack1.png",
+        "assets/Sprites/boss_golem/boss_golem_attack2.png"
+      ],
+      "hurt": ["assets/Sprites/boss_golem/boss_golem_hurt.png"],
+      "death": ["assets/Sprites/boss_golem/boss_golem_death.png"]
+    },
+    "lich": {
+      "idle": [
+        "assets/Sprites/boss_lich/boss_lich_idle1.png",
+        "assets/Sprites/boss_lich/boss_lich_idle2.png"
+      ],
+      "attack": [
+        "assets/Sprites/boss_lich/boss_lich_attack1.png",
+        "assets/Sprites/boss_lich/boss_lich_attack2.png"
+      ],
+      "hurt": ["assets/Sprites/boss_lich/boss_lich_hurt.png"],
+      "death": ["assets/Sprites/boss_lich/boss_lich_death.png"]
+    },
+    "necro": {
+      "idle": [
+        "assets/Sprites/boss_necro/boss_necro_idle1.png",
+        "assets/Sprites/boss_necro/boss_necro_idle2.png"
+      ],
+      "attack": [
+        "assets/Sprites/boss_necro/boss_necro_attack1.png",
+        "assets/Sprites/boss_necro/boss_necro_attack2.png"
+      ],
+      "hurt": ["assets/Sprites/boss_necro/boss_necro_hurt.png"],
+      "death": ["assets/Sprites/boss_necro/boss_necro_death.png"]
+    }
+  },
+
+  "items": {
+    "health_potion": {
+      "frames": ["assets/Sprites/items/health_potion.png"],
+      "size": [32, 32]
+    },
+    "mana_potion": {
+      "frames": ["assets/Sprites/items/mana_potion.png"],
+      "size": [32, 32]
+    }
+  }
+}
