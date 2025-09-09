@@ -59,88 +59,87 @@
   #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;font:12px monospace;z-index:7}
   #toast.show{opacity:1}
 
-/* Añadir al final del CSS existente en index.html */
+/* Reemplazar el CSS anterior con este - que coincida con el estilo del juego */
 
-/* Fuente pixelada para pantalla de inicio */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-/* Solo aplicar a la pantalla de inicio */
 #start {
-  background: #1a1a2e !important;
-  font-family: 'Press Start 2P', monospace !important;
+  background: #0e0f13 !important;
+  color: #e6ebef !important;
+  font-family: system-ui, Segoe UI, Roboto, Arial !important;
 }
 
 #start h1 {
-  color: #f39c12 !important;
-  text-shadow: 2px 2px 0 #000, 0 0 10px #f39c12 !important;
+  color: #e6ebef !important;
   font-size: 48px !important;
   margin: 0 0 20px 0 !important;
   letter-spacing: 2px !important;
+  text-shadow: none !important;
+  font-weight: 700 !important;
 }
 
 #start > div {
-  color: #e94560 !important;
-  font-size: 12px !important;
+  color: #e6ebef !important;
+  opacity: 0.9 !important;
+  font-size: 18px !important;
   margin-bottom: 30px !important;
 }
 
 #charSelect .char {
-  background: #16213e !important;
-  border: 2px solid #0f3460 !important;
-  color: #d4af37 !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 10px !important;
+  background: #151515 !important;
+  border: 1px solid #888 !important;
+  color: #fff !important;
+  font-family: system-ui, Segoe UI, Roboto, Arial !important;
+  font-size: 18px !important;
   padding: 20px 24px !important;
   gap: 12px !important;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
 }
 
 #charSelect .char:hover {
-  background: #2d1f1f !important;
-  border-color: #8b4513 !important;
-  transform: translateY(-2px) !important;
+  background: #252525 !important;
+  border-color: #aaa !important;
 }
 
 #charSelect .char.selected {
-  border: 2px solid #f39c12 !important;
-  background: #2a1a0a !important;
-  box-shadow: 0 0 10px #f39c12 !important;
+  border: 2px solid #9fef00 !important;
+  background: #1a1a1a !important;
+  box-shadow: 0 0 10px rgba(159, 239, 0, 0.3) !important;
 }
 
 #charSelect canvas {
-  border: 2px solid #0f3460 !important;
-  background: #000 !important;
+  border: 1px solid #444 !important;
+  background: #111 !important;
 }
 
 #chosen {
-  color: #d4af37 !important;
-  font-size: 12px !important;
+  color: #e6ebef !important;
+  font-size: 20px !important;
   margin-bottom: 20px !important;
+  opacity: 0.9 !important;
 }
 
 #chosenName {
-  color: #f39c12 !important;
-  text-shadow: 0 0 5px #f39c12 !important;
+  color: #9fef00 !important;
+  font-weight: bold !important;
 }
 
 #btnStart {
-  background: #16213e !important;
-  border: 2px solid #0f3460 !important;
-  color: #d4af37 !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 12px !important;
+  background: #151515 !important;
+  border: 1px solid #888 !important;
+  color: #fff !important;
+  font-family: system-ui, Segoe UI, Roboto, Arial !important;
+  font-size: 18px !important;
   padding: 16px 32px !important;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
 }
 
 #btnStart:hover {
-  background: #2d1f1f !important;
-  border-color: #8b4513 !important;
-  transform: translateY(-1px) !important;
+  background: #252525 !important;
 }
 
 #btnStart.ready {
-  background: #4CAF50 !important;
+  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
   border-color: #4CAF50 !important;
   color: #fff !important;
   animation: pulse 2s infinite !important;
@@ -151,6 +150,7 @@
   70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
   100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
 }
+
 </style>
 </head>
 <body>
@@ -208,5 +208,6 @@
   <script src="optimization.js"></script>
 </body>
 </html>
+
 
 
