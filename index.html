@@ -5,94 +5,48 @@
 <title>Anoma Survival</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <style>
-/* ===== UI RETRO OVERHAUL - Estilo Pixel Art ===== */
+/* ===== UI ESTILO DIABLO 2 - DARK GOTHIC ===== */
 
-/* Fuente pixelada */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* Fuentes góticas */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Creepster&display=swap');
 
-/* Variables de colores retro */
 :root {
-  --retro-bg: #1a1a2e;
-  --retro-panel: #16213e;
-  --retro-border: #0f3460;
-  --retro-text: #e94560;
-  --retro-accent: #f39c12;
-  --retro-green: #27ae60;
-  --retro-blue: #3498db;
-  --retro-red: #e74c3c;
-  --retro-shadow: rgba(0, 0, 0, 0.8);
-  --pixel-border: 2px solid #0f3460;
+  /* Paleta Diablo 2 */
+  --d2-bg: #0a0a0a;
+  --d2-panel: linear-gradient(135deg, #1a1a1a 0%, #2d1f1f 50%, #1a1a1a 100%);
+  --d2-border: #8b4513;
+  --d2-border-dark: #3d2914;
+  --d2-text: #d4af37;
+  --d2-text-light: #f5deb3;
+  --d2-red: #cc2936;
+  --d2-blue: #4169e1;
+  --d2-green: #228b22;
+  --d2-orange: #ff8c00;
+  --d2-shadow: rgba(0, 0, 0, 0.9);
   
-  /* Variables originales para compatibilidad */
-  --ui-bg: rgba(0,0,0,.55); 
-  --ui-pill:#0b1220; 
-  --ui-border:#3b4252;
+  /* Efectos */
+  --d2-glow: 0 0 8px;
+  --d2-text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Reset y base */
 html, body {
-  height: 100%;
-  margin: 0;
-  background: var(--retro-bg);
-  color: var(--retro-text);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
+  background: var(--d2-bg);
+  color: var(--d2-text);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  overflow: hidden;
 }
 
-/* OCULTAR elementos innecesarios cuando el juego esté activo */
-#topbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  padding: 8px 10px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));
-  z-index: 6;
-  transition: opacity 0.5s ease;
-}
-
+/* OCULTAR UI original completamente */
 #topbar.hidden {
   display: none !important;
-}
-
-.pill {
-  padding: 2px 6px;
-  border: 1px solid var(--ui-border);
-  border-radius: 999px;
-  background: var(--ui-pill);
-  font: 12px monospace;
-}
-
-.ok {
-  color: #9fef00;
-}
-
-#hud {
-  position: fixed;
-  top: 8px;
-  right: 10px;
-  font: 13px monospace;
-  opacity: .92;
-  text-align: right;
-  z-index: 6;
-  transition: opacity 0.5s ease;
 }
 
 #hud.hidden {
   display: none !important;
 }
 
-#hud div {
-  margin-bottom: 2px;
-}
-
-/* Contenedor principal del HUD retro */
+/* Contenedor principal del HUD */
 #gameHUD {
   position: fixed;
   top: 0;
@@ -109,493 +63,424 @@ html, body {
   opacity: 1;
 }
 
-/* Panel superior izquierdo - Stats del jugador */
-.hud-panel-top-left {
+/* Panel superior - Orbes estilo Diablo 2 */
+.d2-orb-panel {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: var(--retro-panel);
-  border: var(--pixel-border);
-  padding: 8px;
-  min-width: 180px;
-  box-shadow: 2px 2px 0 var(--retro-shadow);
-}
-
-/* Panel superior derecho - Info del mapa */
-.hud-panel-top-right {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: var(--retro-panel);
-  border: var(--pixel-border);
-  padding: 8px;
-  text-align: right;
-  box-shadow: -2px 2px 0 var(--retro-shadow);
-}
-
-/* Panel inferior - Armas y controles */
-.hud-panel-bottom {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--retro-panel);
-  border: var(--pixel-border);
-  padding: 8px;
+  top: 20px;
   display: flex;
-  gap: 12px;
-  align-items: center;
-  box-shadow: 0 -2px 0 var(--retro-shadow);
+  gap: 20px;
+  z-index: 101;
 }
 
-/* Barras de vida y maná estilo retro */
-.stat-bar {
+.d2-orb-panel.left {
+  left: 30px;
+}
+
+.d2-orb-panel.right {
+  right: 30px;
+}
+
+/* Orbes de vida y maná */
+.d2-orb {
   position: relative;
-  width: 120px;
-  height: 12px;
-  background: #000;
-  border: 1px solid var(--retro-border);
-  margin: 2px 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 50%);
+  border: 4px solid var(--d2-border);
+  box-shadow: 
+    inset 0 0 20px rgba(0,0,0,0.5),
+    var(--d2-glow) var(--d2-border),
+    0 0 30px rgba(0,0,0,0.8);
   overflow: hidden;
+  cursor: pointer;
 }
 
-.stat-bar-fill {
-  height: 100%;
-  transition: width 0.3s ease;
-  position: relative;
+.d2-orb.health {
+  background-color: var(--d2-red);
+  background-image: 
+    radial-gradient(circle at 30% 30%, rgba(255,100,100,0.8), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(150,0,0,0.6), transparent 40%);
 }
 
-.stat-bar-fill.hp {
-  background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #27ae60 100%);
-  background-size: 8px 100%;
-  animation: barShine 2s infinite;
+.d2-orb.mana {
+  background-color: var(--d2-blue);
+  background-image: 
+    radial-gradient(circle at 30% 30%, rgba(100,150,255,0.8), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(0,0,150,0.6), transparent 40%);
 }
 
-.stat-bar-fill.mana {
-  background: linear-gradient(90deg, #3498db 0%, #5dade2 50%, #3498db 100%);
-  background-size: 8px 100%;
-  animation: barShine 2s infinite;
+/* Relleno de orbes */
+.d2-orb-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: height 0.3s ease;
+  border-radius: 0 0 50px 50px;
 }
 
-@keyframes barShine {
-  0%, 100% { background-position: 0 0; }
-  50% { background-position: 8px 0; }
+.d2-orb.health .d2-orb-fill {
+  background: linear-gradient(0deg, 
+    #cc2936 0%, 
+    #ff4444 30%, 
+    #ff6666 60%, 
+    #ffaaaa 100%);
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.3);
 }
 
-.stat-text {
+.d2-orb.mana .d2-orb-fill {
+  background: linear-gradient(0deg, 
+    #4169e1 0%, 
+    #6495ed 30%, 
+    #87ceeb 60%, 
+    #b0e0e6 100%);
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.3);
+}
+
+/* Texto en orbes */
+.d2-orb-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 10px;
   color: #fff;
-  font-size: 6px;
-  text-shadow: 1px 1px 0 #000;
-  z-index: 1;
+  text-shadow: var(--d2-text-shadow);
+  z-index: 2;
+  pointer-events: none;
 }
 
-/* Selector de armas estilo retro */
-.weapon-selector {
+/* Panel central superior - Info del juego */
+.d2-info-panel {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--d2-panel);
+  border: 3px solid var(--d2-border);
+  border-radius: 15px;
+  padding: 12px 20px;
+  box-shadow: 
+    inset 0 0 15px rgba(0,0,0,0.5),
+    0 0 20px rgba(0,0,0,0.8);
+  text-align: center;
+  min-width: 300px;
+}
+
+.d2-title {
+  font-family: 'Creepster', cursive;
+  font-size: 14px;
+  color: var(--d2-orange);
+  text-shadow: var(--d2-glow) var(--d2-orange);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.d2-stats-row {
   display: flex;
-  gap: 4px;
+  justify-content: space-between;
+  margin: 4px 0;
+  font-size: 10px;
 }
 
-.weapon-slot {
-  width: 32px;
-  height: 32px;
-  background: #000;
-  border: var(--pixel-border);
+.d2-stat-label {
+  color: var(--d2-text-light);
+  text-shadow: var(--d2-text-shadow);
+}
+
+.d2-stat-value {
+  color: var(--d2-text);
+  font-weight: 600;
+  text-shadow: var(--d2-text-shadow);
+}
+
+.d2-stat-value.special {
+  color: var(--d2-orange);
+  text-shadow: var(--d2-glow) var(--d2-orange);
+}
+
+.d2-stat-value.danger {
+  color: var(--d2-red);
+  animation: dangerPulse 1s infinite;
+}
+
+@keyframes dangerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Panel inferior - Cinturón de habilidades estilo Diablo 2 */
+.d2-skill-belt {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--d2-panel);
+  border: 4px solid var(--d2-border);
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 
+    inset 0 0 20px rgba(0,0,0,0.7),
+    0 0 30px rgba(0,0,0,0.9);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Slots de habilidades */
+.d2-skill-slot {
+  width: 50px;
+  height: 50px;
+  background: 
+    linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  border: 3px solid var(--d2-border-dark);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.1s;
+  transition: all 0.2s ease;
   position: relative;
+  box-shadow: 
+    inset 0 0 10px rgba(0,0,0,0.8),
+    0 2px 5px rgba(0,0,0,0.5);
   pointer-events: auto;
 }
 
-.weapon-slot:hover {
-  background: var(--retro-border);
-  transform: translateY(-1px);
+.d2-skill-slot:hover {
+  border-color: var(--d2-border);
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 0 0 10px rgba(0,0,0,0.8),
+    0 4px 15px rgba(0,0,0,0.8),
+    var(--d2-glow) var(--d2-border);
 }
 
-.weapon-slot.active {
-  background: var(--retro-accent);
-  border-color: var(--retro-text);
-  box-shadow: 0 0 8px var(--retro-accent);
+.d2-skill-slot.active {
+  border-color: var(--d2-orange);
+  background: linear-gradient(135deg, #3a2a1a 0%, #2a1a0a 50%, #1a0a0a 100%);
+  box-shadow: 
+    inset 0 0 15px rgba(255,140,0,0.3),
+    var(--d2-glow) var(--d2-orange),
+    0 0 20px var(--d2-orange);
 }
 
-.weapon-slot::before {
-  content: attr(data-key);
+/* Iconos de habilidades */
+.d2-skill-icon {
+  font-size: 20px;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+}
+
+/* Números de tecla */
+.d2-skill-key {
   position: absolute;
   top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  background: var(--d2-border);
+  border: 2px solid var(--d2-text);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--d2-text);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Indicador de nivel de habilidad */
+.d2-skill-level {
+  position: absolute;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 4px;
-  color: var(--retro-accent);
-}
-
-/* Iconos de armas */
-.weapon-icon {
-  font-size: 12px;
-  filter: drop-shadow(1px 1px 0 #000);
-}
-
-/* Info del mapa estilo retro */
-.map-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 6px;
-}
-
-.map-title {
-  color: var(--retro-accent);
+  background: var(--d2-red);
+  color: #fff;
   font-size: 8px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--d2-border);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Separador en el cinturón */
+.d2-belt-separator {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(0deg, 
+    transparent 0%, 
+    var(--d2-border) 20%, 
+    var(--d2-border) 80%, 
+    transparent 100%);
+  margin: 0 5px;
+}
+
+/* Info adicional en el cinturón */
+.d2-belt-info {
+  margin-left: 15px;
+  text-align: center;
+}
+
+.d2-belt-title {
+  font-size: 8px;
+  color: var(--d2-text-light);
+  text-shadow: var(--d2-text-shadow);
   margin-bottom: 2px;
 }
 
-.info-line {
-  display: flex;
-  justify-content: space-between;
-  min-width: 120px;
+.d2-belt-value {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--d2-orange);
+  text-shadow: var(--d2-glow) var(--d2-orange);
 }
 
-.info-label {
-  color: #bbb;
-}
-
-.info-value {
-  color: var(--retro-text);
-}
-
-.info-value.special {
-  color: var(--retro-accent);
-}
-
-/* Efectos especiales */
-.pixel-glow {
-  box-shadow: 
-    0 0 2px var(--retro-accent),
-    inset 0 0 2px rgba(255, 255, 255, 0.1);
-}
-
-.scanlines::before {
-  content: '';
+/* Barra de boss estilo Diablo 2 */
+.d2-boss-container {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 1px,
-    rgba(0, 0, 0, 0.1) 1px,
-    rgba(0, 0, 0, 0.1) 2px
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Animaciones de texto retro */
-@keyframes textBlink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.3; }
-}
-
-.blink {
-  animation: textBlink 1s infinite;
-}
-
-/* Boss bar estilo retro */
-.boss-bar-container {
-  position: absolute;
-  top: 50px;
+  top: 120px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--retro-panel);
-  border: var(--pixel-border);
-  padding: 6px;
-  box-shadow: 0 2px 0 var(--retro-shadow);
+  background: var(--d2-panel);
+  border: 4px solid var(--d2-red);
+  border-radius: 15px;
+  padding: 10px 20px;
+  box-shadow: 
+    inset 0 0 20px rgba(0,0,0,0.8),
+    var(--d2-glow) var(--d2-red),
+    0 0 40px rgba(204,41,54,0.6);
+  min-width: 400px;
 }
 
-.boss-bar {
-  width: 200px;
-  height: 16px;
+.d2-boss-name {
+  text-align: center;
+  font-family: 'Creepster', cursive;
+  font-size: 16px;
+  color: var(--d2-red);
+  text-shadow: var(--d2-glow) var(--d2-red);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.d2-boss-bar {
+  width: 100%;
+  height: 20px;
   background: #000;
-  border: 1px solid var(--retro-border);
+  border: 2px solid var(--d2-border);
+  border-radius: 10px;
   overflow: hidden;
   position: relative;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
 }
 
-.boss-bar-fill {
+.d2-boss-fill {
   height: 100%;
-  background: linear-gradient(90deg, #e74c3c 0%, #c0392b 50%, #e74c3c 100%);
-  background-size: 16px 100%;
-  animation: bossBarPulse 1s infinite;
+  background: linear-gradient(90deg, 
+    var(--d2-red) 0%, 
+    #ff4444 30%, 
+    var(--d2-red) 70%, 
+    #aa1122 100%);
+  background-size: 20px 100%;
+  animation: bossBarFlow 2s linear infinite;
   transition: width 0.5s ease;
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.3);
 }
 
-@keyframes bossBarPulse {
-  0%, 100% { background-position: 0 0; }
-  50% { background-position: 16px 0; }
+@keyframes bossBarFlow {
+  0% { background-position: 0 0; }
+  100% { background-position: 20px 0; }
 }
 
-.boss-name {
-  text-align: center;
-  color: var(--retro-red);
-  font-size: 6px;
-  margin-bottom: 2px;
-  text-shadow: 1px 1px 0 #000;
+/* Toast estilo Diablo 2 */
+#toast {
+  background: var(--d2-panel) !important;
+  border: 3px solid var(--d2-orange) !important;
+  color: var(--d2-orange) !important;
+  font-family: 'Cinzel', serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-shadow: var(--d2-glow) var(--d2-orange) !important;
+  box-shadow: 
+    inset 0 0 15px rgba(0,0,0,0.5),
+    var(--d2-glow) var(--d2-orange),
+    0 0 20px rgba(0,0,0,0.8) !important;
+  border-radius: 10px !important;
+  padding: 10px 15px !important;
 }
 
-/* Efectos de partículas en UI */
-.particle-effect {
+/* Efectos de partículas mejorados */
+.d2-particle {
   position: absolute;
   pointer-events: none;
-  animation: particleFloat 2s ease-out forwards;
-}
-
-@keyframes particleFloat {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-30px) scale(0.5);
-  }
-}
-
-/* Estilos para pantallas de inicio y overlay (mantener compatibilidad) */
-#viewport {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-canvas {
-  background: #101014;
-  image-rendering: pixelated;
-  border: 1px solid #1f2630;
-  box-shadow: 0 0 0 1px #000;
-  transition: opacity 0.5s ease;
-}
-
-canvas.loaded {
-  opacity: 1;
-}
-
-#overlay, #start {
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  background: #000;
-  color: #fff;
-  font-weight: 700;
-  z-index: 10;
-  text-align: center;
-  font-family: 'Press Start 2P', monospace;
-}
-
-#start h1 {
-  font-size: 48px !important;
-  margin: 0 0 20px 0 !important;
-  letter-spacing: 2px;
-  color: var(--retro-accent);
-}
-
-#start > div {
-  font-size: 18px !important;
-  margin-bottom: 30px !important;
-}
-
-#charSelect {
-  gap: 40px !important;
-  margin-bottom: 30px !important;
-}
-
-#charSelect .char {
-  padding: 20px 24px !important;
-  font-size: 18px !important;
-  gap: 12px !important;
-  background: var(--retro-panel) !important;
-  border: var(--pixel-border) !important;
-  color: var(--retro-text) !important;
-  transition: all 0.3s ease;
-}
-
-#charSelect .char:hover {
-  transform: translateY(-2px);
-  background: #202040 !important;
-}
-
-#charSelect .char.selected {
-  border: 2px solid #9fef00 !important;
-  background: #1a1a1a !important;
-  box-shadow: 0 0 10px rgba(159, 239, 0, 0.5);
-}
-
-#charSelect canvas {
-  width: 96px !important;
-  height: 96px !important;
-  border: 2px solid #444 !important;
-}
-
-#chosen {
-  font-size: 20px !important;
-  margin-bottom: 20px !important;
-  color: var(--retro-accent);
-}
-
-#btnStart {
-  padding: 16px 32px !important;
-  font-size: 18px !important;
-  background: var(--retro-panel) !important;
-  border: var(--pixel-border) !important;
-  color: var(--retro-text) !important;
-  transition: all 0.3s ease;
-}
-
-#btnStart.ready {
-  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
-  border-color: #4CAF50 !important;
-  animation: pulse 2s infinite;
-  color: #fff !important;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-}
-
-#overlay.show, #start.show {
-  display: flex;
-}
-
-.btn {
-  margin-top: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #888;
-  background: #151515;
-  color: #fff;
-  cursor: pointer;
-  font: 14px/1 'Press Start 2P', monospace;
-  transition: all 0.3s ease;
-}
-
-.btn:hover {
-  background: #252525;
-  transform: translateY(-1px);
-}
-
-/* Loading spinner */
-.loading-spinner {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid #333;
-  border-radius: 50%;
-  border-top-color: #9fef00;
-  animation: spin 1s ease-in-out infinite;
-  margin-left: 6px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Loading progress bar */
-#loadingProgress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 3px;
-  background: linear-gradient(90deg, #ff6b35, #9fef00, #4CAF50);
-  transition: width 0.3s ease;
+  font-size: 14px;
+  color: var(--d2-orange);
+  text-shadow: var(--d2-glow) var(--d2-orange);
+  animation: d2ParticleFloat 3s ease-out forwards;
   z-index: 1000;
 }
 
-#warn {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  padding: 10px;
-  border: 1px dashed #555;
-  border-radius: 8px;
-  background: #111c;
-  display: none;
-  z-index: 7;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 6px;
+@keyframes d2ParticleFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.3) rotate(360deg);
+  }
 }
 
-#warn.show {
-  display: block;
-}
-
-/* Toast mejorado estilo retro */
-#toast {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 18px;
-  background: var(--retro-panel) !important;
-  border: var(--pixel-border) !important;
-  color: var(--retro-accent) !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 6px !important;
-  text-shadow: 1px 1px 0 #000 !important;
-  box-shadow: 2px 2px 0 var(--retro-shadow) !important;
-  padding: 6px 10px;
-  border-radius: 8px;
-  opacity: 0;
-  transition: .2s;
-  pointer-events: none;
-  z-index: 7;
-}
-
-#toast.show {
-  opacity: 1;
-}
-
-/* Responsive adjustments */
+/* Responsive para Diablo 2 UI */
 @media (max-width: 768px) {
-  .hud-panel-top-left,
-  .hud-panel-top-right {
-    position: relative;
-    margin: 4px;
+  .d2-orb {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .d2-orb-text {
+    font-size: 8px;
+  }
+  
+  .d2-skill-slot {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .d2-skill-icon {
+    font-size: 16px;
+  }
+  
+  .d2-info-panel {
+    min-width: 250px;
+    padding: 8px 15px;
+  }
+  
+  .d2-title {
+    font-size: 12px;
+  }
+}
+
+/* Animación de entrada para toda la UI */
+.d2-enter-animation {
+  animation: d2UIEnter 1s ease-out forwards;
+}
+
+@keyframes d2UIEnter {
+  0% {
+    opacity: 0;
     transform: scale(0.8);
   }
-  
-  .hud-panel-bottom {
-    position: relative;
-    transform: scale(0.8);
-    margin: 4px auto;
-  }
-  
-  #charSelect {
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-  
-  #charSelect .char {
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto;
-  }
-  
-  #start h1 {
-    font-size: 36px !important;
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 </style>
@@ -656,3 +541,4 @@ canvas.loaded {
   <script src="retro-ui.js"></script>
 </body>
 </html>
+
