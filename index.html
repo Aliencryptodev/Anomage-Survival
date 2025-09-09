@@ -5,239 +5,59 @@
 <title>Anoma Survival</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <style>
-
-/* ===== SOLUCIÓN SIMPLE - Solo CSS Mejorado ===== */
-
-/* Fuente retro básica */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-
-:root {
-  --ui-bg: rgba(15, 20, 35, 0.9);
-  --ui-border: #4a90e2;
-  --ui-text: #00ff88;
-  --ui-accent: #ff6b35;
-  --ui-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+  :root { --ui-bg: rgba(0,0,0,.55); --ui-pill:#0b1220; --ui-border:#3b4252; }
+  html,body{height:100%;margin:0;background:#0e0f13;color:#e6ebef;font:14px/1.2 system-ui,Segoe UI,Roboto,Arial}
+  #topbar{position:fixed;left:0;right:0;top:0;padding:8px 10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));z-index:6}
+  .pill{padding:2px 6px;border:1px solid var(--ui-border);border-radius:999px;background:var(--ui-pill);font:12px monospace}
+  .ok{color:#9fef00}
+  #hud{position:fixed;top:8px;right:10px;font:13px monospace;opacity:.92;text-align:right;z-index:6}
+  #hud div{margin-bottom:2px}
+  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  canvas{background:#101014;image-rendering:pixelated;border:1px solid #1f2630;box-shadow:0 0 0 1px #000}
+  #overlay,#start{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;color:#fff;font-weight:700;z-index:10;text-align:center}
+  #start h1 {
+  font-size: 48px !important; 
+  margin: 0 0 20px 0 !important;
+  letter-spacing: 2px;
 }
 
-html, body {
-  background: #0a0a0a;
-  font-family: 'Orbitron', monospace;
+#start > div {
+  font-size: 18px !important;
+  margin-bottom: 30px !important;
 }
 
-/* Ocultar el topbar de sprites - YA NO SE NECESITA */
-#topbar {
-  display: none !important;
+#charSelect {
+  gap: 40px !important;
+  margin-bottom: 30px !important;
 }
 
-/* Mejorar HUD existente */
-#hud {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  background: var(--ui-bg);
-  border: 2px solid var(--ui-border);
-  border-radius: 10px;
-  padding: 15px 20px;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  color: var(--ui-text);
-  box-shadow: var(--ui-shadow);
-  backdrop-filter: blur(10px);
-  z-index: 1000;
-  min-width: 220px;
+#charSelect .char {
+  padding: 20px 24px !important;
+  font-size: 18px !important;
+  gap: 12px !important;
 }
 
-#hud div {
-  margin-bottom: 8px;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(74, 144, 226, 0.3);
+#charSelect canvas {
+  width: 96px !important;
+  height: 96px !important;
+  border: 2px solid #444 !important;
 }
 
-#hud div:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-/* Estilizar valores específicos */
-#biome, #hp, #kills, #boss, #pts, #wname, #wlv {
-  color: var(--ui-accent);
-  font-weight: 700;
-  text-shadow: 0 0 10px var(--ui-accent);
-}
-
-/* Estado del boss especial */
-#hud div:nth-child(2) {
-  position: relative;
-}
-
-#boss {
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 107, 53, 0.2);
-}
-
-/* Barras del jugador mejoradas */
-canvas + div {
-  position: absolute !important;
-  top: 20px !important;
-  left: 20px !important;
-  background: var(--ui-bg) !important;
-  border: 2px solid var(--ui-border) !important;
-  border-radius: 8px !important;
-  padding: 12px !important;
-  box-shadow: var(--ui-shadow) !important;
-  backdrop-filter: blur(10px) !important;
-  z-index: 999 !important;
-}
-
-/* Toast mejorado */
-#toast {
-  background: var(--ui-bg) !important;
-  border: 2px solid var(--ui-accent) !important;
-  color: var(--ui-accent) !important;
-  font-family: 'Orbitron', monospace !important;
-  font-weight: 700 !important;
-  text-shadow: 0 0 10px var(--ui-accent) !important;
-  box-shadow: var(--ui-shadow) !important;
-  border-radius: 8px !important;
-  padding: 12px 18px !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-/* Canvas mejorado */
-canvas {
-  border: 2px solid var(--ui-border) !important;
-  box-shadow: var(--ui-shadow) !important;
-  border-radius: 5px !important;
-}
-
-/* Start screen mejorado */
-#start {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-  font-family: 'Orbitron', monospace;
-}
-
-#start h1 {
-  color: var(--ui-accent) !important;
-  text-shadow: 0 0 20px var(--ui-accent) !important;
-  font-weight: 900 !important;
-}
-
-.char {
-  background: var(--ui-bg) !important;
-  border: 2px solid var(--ui-border) !important;
-  color: var(--ui-text) !important;
-  font-family: 'Orbitron', monospace !important;
-  transition: all 0.3s ease !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.char:hover {
-  border-color: var(--ui-accent) !important;
-  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5) !important;
-  transform: translateY(-3px) !important;
-}
-
-.char.selected {
-  border-color: var(--ui-accent) !important;
-  background: rgba(255, 107, 53, 0.1) !important;
-  box-shadow: 0 0 25px rgba(255, 107, 53, 0.7) !important;
+#chosen {
+  font-size: 20px !important;
+  margin-bottom: 20px !important;
 }
 
 #btnStart {
-  background: var(--ui-bg) !important;
-  border: 2px solid var(--ui-border) !important;
-  color: var(--ui-text) !important;
-  font-family: 'Orbitron', monospace !important;
-  font-weight: 700 !important;
-  transition: all 0.3s ease !important;
-  backdrop-filter: blur(10px) !important;
+  padding: 16px 32px !important;
+  font-size: 18px !important;
 }
-
-#btnStart:hover {
-  border-color: var(--ui-accent) !important;
-  color: var(--ui-accent) !important;
-  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5) !important;
-}
-
-#btnStart.ready {
-  background: linear-gradient(135deg, #00ff88, #4CAF50) !important;
-  border-color: #00ff88 !important;
-  color: #000 !important;
-  animation: pulse 2s infinite !important;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-}
-
-/* Overlay mejorado */
-#overlay {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
-  font-family: 'Orbitron', monospace;
-}
-
-#overlay-text {
-  color: var(--ui-accent) !important;
-  text-shadow: 0 0 20px var(--ui-accent) !important;
-}
-
-#overlay-btn {
-  background: var(--ui-bg) !important;
-  border: 2px solid var(--ui-border) !important;
-  color: var(--ui-text) !important;
-  font-family: 'Orbitron', monospace !important;
-}
-
-/* Indicadores de progreso */
-.ok {
-  color: var(--ui-text) !important;
-  text-shadow: 0 0 10px var(--ui-text) !important;
-}
-
-/* Efectos hover sutiles */
-#hud:hover {
-  border-color: var(--ui-accent);
-  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  #hud {
-    font-size: 10px;
-    padding: 10px 15px;
-    min-width: 180px;
-  }
-  
-  #start h1 {
-    font-size: 36px !important;
-  }
-}
-
-/* Animaciones sutiles */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-#hud {
-  animation: fadeIn 0.5s ease-out;
-}
-
-/* Loading progress bar simple */
-#loadingProgress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 3px;
-  background: linear-gradient(90deg, var(--ui-border), var(--ui-accent), var(--ui-text));
-  transition: width 0.3s ease;
-  z-index: 10000;
-}
-  
+  #overlay.show,#start.show{display:flex}
+  .btn{margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #888;background:#151515;color:#fff;cursor:pointer;font:14px/1 monospace}
+  #warn{position:fixed;bottom:10px;left:10px;right:10px;padding:10px;border:1px dashed #555;border-radius:8px;background:#111c;display:none;z-index:7}
+  #warn.show{display:block}
+  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;font:12px monospace;z-index:7}
+  #toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -293,8 +113,6 @@ canvas {
 
   <script src="game.js"></script>
   <script src="optimization.js"></script>
-  <script src="retro-ui.js"></script>
 </body>
 </html>
-
 
