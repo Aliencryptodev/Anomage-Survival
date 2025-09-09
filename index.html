@@ -5,20 +5,409 @@
 <title>Anoma Survival</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <style>
-  :root { --ui-bg: rgba(0,0,0,.55); --ui-pill:#0b1220; --ui-border:#3b4252; }
-  html,body{height:100%;margin:0;background:#0e0f13;color:#e6ebef;font:14px/1.2 system-ui,Segoe UI,Roboto,Arial}
-  #topbar{position:fixed;left:0;right:0;top:0;padding:8px 10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));z-index:6}
-  .pill{padding:2px 6px;border:1px solid var(--ui-border);border-radius:999px;background:var(--ui-pill);font:12px monospace}
-  .ok{color:#9fef00}
-  #hud{position:fixed;top:8px;right:10px;font:13px monospace;opacity:.92;text-align:right;z-index:6}
-  #hud div{margin-bottom:2px}
-  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-  canvas{background:#101014;image-rendering:pixelated;border:1px solid #1f2630;box-shadow:0 0 0 1px #000}
-  #overlay,#start{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;color:#fff;font-weight:700;z-index:10;text-align:center}
-  #start h1 {
-  font-size: 48px !important; 
+/* ===== UI RETRO OVERHAUL - Estilo Pixel Art ===== */
+
+/* Fuente pixelada */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Variables de colores retro */
+:root {
+  --retro-bg: #1a1a2e;
+  --retro-panel: #16213e;
+  --retro-border: #0f3460;
+  --retro-text: #e94560;
+  --retro-accent: #f39c12;
+  --retro-green: #27ae60;
+  --retro-blue: #3498db;
+  --retro-red: #e74c3c;
+  --retro-shadow: rgba(0, 0, 0, 0.8);
+  --pixel-border: 2px solid #0f3460;
+  
+  /* Variables originales para compatibilidad */
+  --ui-bg: rgba(0,0,0,.55); 
+  --ui-pill:#0b1220; 
+  --ui-border:#3b4252;
+}
+
+/* Reset y base */
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--retro-bg);
+  color: var(--retro-text);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* OCULTAR elementos innecesarios cuando el juego esté activo */
+#topbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 8px 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));
+  z-index: 6;
+  transition: opacity 0.5s ease;
+}
+
+#topbar.hidden {
+  display: none !important;
+}
+
+.pill {
+  padding: 2px 6px;
+  border: 1px solid var(--ui-border);
+  border-radius: 999px;
+  background: var(--ui-pill);
+  font: 12px monospace;
+}
+
+.ok {
+  color: #9fef00;
+}
+
+#hud {
+  position: fixed;
+  top: 8px;
+  right: 10px;
+  font: 13px monospace;
+  opacity: .92;
+  text-align: right;
+  z-index: 6;
+  transition: opacity 0.5s ease;
+}
+
+#hud.hidden {
+  display: none !important;
+}
+
+#hud div {
+  margin-bottom: 2px;
+}
+
+/* Contenedor principal del HUD retro */
+#gameHUD {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#gameHUD.active {
+  opacity: 1;
+}
+
+/* Panel superior izquierdo - Stats del jugador */
+.hud-panel-top-left {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--retro-panel);
+  border: var(--pixel-border);
+  padding: 8px;
+  min-width: 180px;
+  box-shadow: 2px 2px 0 var(--retro-shadow);
+}
+
+/* Panel superior derecho - Info del mapa */
+.hud-panel-top-right {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--retro-panel);
+  border: var(--pixel-border);
+  padding: 8px;
+  text-align: right;
+  box-shadow: -2px 2px 0 var(--retro-shadow);
+}
+
+/* Panel inferior - Armas y controles */
+.hud-panel-bottom {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--retro-panel);
+  border: var(--pixel-border);
+  padding: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 -2px 0 var(--retro-shadow);
+}
+
+/* Barras de vida y maná estilo retro */
+.stat-bar {
+  position: relative;
+  width: 120px;
+  height: 12px;
+  background: #000;
+  border: 1px solid var(--retro-border);
+  margin: 2px 0;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.stat-bar-fill.hp {
+  background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #27ae60 100%);
+  background-size: 8px 100%;
+  animation: barShine 2s infinite;
+}
+
+.stat-bar-fill.mana {
+  background: linear-gradient(90deg, #3498db 0%, #5dade2 50%, #3498db 100%);
+  background-size: 8px 100%;
+  animation: barShine 2s infinite;
+}
+
+@keyframes barShine {
+  0%, 100% { background-position: 0 0; }
+  50% { background-position: 8px 0; }
+}
+
+.stat-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 6px;
+  text-shadow: 1px 1px 0 #000;
+  z-index: 1;
+}
+
+/* Selector de armas estilo retro */
+.weapon-selector {
+  display: flex;
+  gap: 4px;
+}
+
+.weapon-slot {
+  width: 32px;
+  height: 32px;
+  background: #000;
+  border: var(--pixel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s;
+  position: relative;
+  pointer-events: auto;
+}
+
+.weapon-slot:hover {
+  background: var(--retro-border);
+  transform: translateY(-1px);
+}
+
+.weapon-slot.active {
+  background: var(--retro-accent);
+  border-color: var(--retro-text);
+  box-shadow: 0 0 8px var(--retro-accent);
+}
+
+.weapon-slot::before {
+  content: attr(data-key);
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4px;
+  color: var(--retro-accent);
+}
+
+/* Iconos de armas */
+.weapon-icon {
+  font-size: 12px;
+  filter: drop-shadow(1px 1px 0 #000);
+}
+
+/* Info del mapa estilo retro */
+.map-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 6px;
+}
+
+.map-title {
+  color: var(--retro-accent);
+  font-size: 8px;
+  margin-bottom: 2px;
+}
+
+.info-line {
+  display: flex;
+  justify-content: space-between;
+  min-width: 120px;
+}
+
+.info-label {
+  color: #bbb;
+}
+
+.info-value {
+  color: var(--retro-text);
+}
+
+.info-value.special {
+  color: var(--retro-accent);
+}
+
+/* Efectos especiales */
+.pixel-glow {
+  box-shadow: 
+    0 0 2px var(--retro-accent),
+    inset 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.scanlines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.1) 1px,
+    rgba(0, 0, 0, 0.1) 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Animaciones de texto retro */
+@keyframes textBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+.blink {
+  animation: textBlink 1s infinite;
+}
+
+/* Boss bar estilo retro */
+.boss-bar-container {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--retro-panel);
+  border: var(--pixel-border);
+  padding: 6px;
+  box-shadow: 0 2px 0 var(--retro-shadow);
+}
+
+.boss-bar {
+  width: 200px;
+  height: 16px;
+  background: #000;
+  border: 1px solid var(--retro-border);
+  overflow: hidden;
+  position: relative;
+}
+
+.boss-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c 0%, #c0392b 50%, #e74c3c 100%);
+  background-size: 16px 100%;
+  animation: bossBarPulse 1s infinite;
+  transition: width 0.5s ease;
+}
+
+@keyframes bossBarPulse {
+  0%, 100% { background-position: 0 0; }
+  50% { background-position: 16px 0; }
+}
+
+.boss-name {
+  text-align: center;
+  color: var(--retro-red);
+  font-size: 6px;
+  margin-bottom: 2px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Efectos de partículas en UI */
+.particle-effect {
+  position: absolute;
+  pointer-events: none;
+  animation: particleFloat 2s ease-out forwards;
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.5);
+  }
+}
+
+/* Estilos para pantallas de inicio y overlay (mantener compatibilidad) */
+#viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+canvas {
+  background: #101014;
+  image-rendering: pixelated;
+  border: 1px solid #1f2630;
+  box-shadow: 0 0 0 1px #000;
+  transition: opacity 0.5s ease;
+}
+
+canvas.loaded {
+  opacity: 1;
+}
+
+#overlay, #start {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #000;
+  color: #fff;
+  font-weight: 700;
+  z-index: 10;
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+}
+
+#start h1 {
+  font-size: 48px !important;
   margin: 0 0 20px 0 !important;
   letter-spacing: 2px;
+  color: var(--retro-accent);
 }
 
 #start > div {
@@ -35,6 +424,21 @@
   padding: 20px 24px !important;
   font-size: 18px !important;
   gap: 12px !important;
+  background: var(--retro-panel) !important;
+  border: var(--pixel-border) !important;
+  color: var(--retro-text) !important;
+  transition: all 0.3s ease;
+}
+
+#charSelect .char:hover {
+  transform: translateY(-2px);
+  background: #202040 !important;
+}
+
+#charSelect .char.selected {
+  border: 2px solid #9fef00 !important;
+  background: #1a1a1a !important;
+  box-shadow: 0 0 10px rgba(159, 239, 0, 0.5);
 }
 
 #charSelect canvas {
@@ -46,18 +450,154 @@
 #chosen {
   font-size: 20px !important;
   margin-bottom: 20px !important;
+  color: var(--retro-accent);
 }
 
 #btnStart {
   padding: 16px 32px !important;
   font-size: 18px !important;
+  background: var(--retro-panel) !important;
+  border: var(--pixel-border) !important;
+  color: var(--retro-text) !important;
+  transition: all 0.3s ease;
 }
-  #overlay.show,#start.show{display:flex}
-  .btn{margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #888;background:#151515;color:#fff;cursor:pointer;font:14px/1 monospace}
-  #warn{position:fixed;bottom:10px;left:10px;right:10px;padding:10px;border:1px dashed #555;border-radius:8px;background:#111c;display:none;z-index:7}
-  #warn.show{display:block}
-  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;font:12px monospace;z-index:7}
-  #toast.show{opacity:1}
+
+#btnStart.ready {
+  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+  border-color: #4CAF50 !important;
+  animation: pulse 2s infinite;
+  color: #fff !important;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+#overlay.show, #start.show {
+  display: flex;
+}
+
+.btn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #888;
+  background: #151515;
+  color: #fff;
+  cursor: pointer;
+  font: 14px/1 'Press Start 2P', monospace;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: #252525;
+  transform: translateY(-1px);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #333;
+  border-radius: 50%;
+  border-top-color: #9fef00;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Loading progress bar */
+#loadingProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, #ff6b35, #9fef00, #4CAF50);
+  transition: width 0.3s ease;
+  z-index: 1000;
+}
+
+#warn {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  padding: 10px;
+  border: 1px dashed #555;
+  border-radius: 8px;
+  background: #111c;
+  display: none;
+  z-index: 7;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+}
+
+#warn.show {
+  display: block;
+}
+
+/* Toast mejorado estilo retro */
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  background: var(--retro-panel) !important;
+  border: var(--pixel-border) !important;
+  color: var(--retro-accent) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 6px !important;
+  text-shadow: 1px 1px 0 #000 !important;
+  box-shadow: 2px 2px 0 var(--retro-shadow) !important;
+  padding: 6px 10px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: .2s;
+  pointer-events: none;
+  z-index: 7;
+}
+
+#toast.show {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hud-panel-top-left,
+  .hud-panel-top-right {
+    position: relative;
+    margin: 4px;
+    transform: scale(0.8);
+  }
+  
+  .hud-panel-bottom {
+    position: relative;
+    transform: scale(0.8);
+    margin: 4px auto;
+  }
+  
+  #charSelect {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  #charSelect .char {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  
+  #start h1 {
+    font-size: 36px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -113,6 +653,6 @@
 
   <script src="game.js"></script>
   <script src="optimization.js"></script>
+  <script src="retro-ui.js"></script>
 </body>
 </html>
-
