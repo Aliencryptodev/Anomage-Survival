@@ -150,168 +150,324 @@
   100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
 }
 
-/* MEJORAS VISUALES DEL JUEGO */
+/* Reemplazar TODAS las mejoras anteriores con esto - Estilo 16-bit SNES auténtico */
 
-/* OPCIÓN 1: Ocultar elementos innecesarios */
+/* Fuente pixel art 16-bit */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Paleta de colores 16-bit SNES */
+:root {
+  --snes-blue: #0038a8;
+  --snes-purple: #7038a8;
+  --snes-white: #fcfcfc;
+  --snes-yellow: #fcfc00;
+  --snes-red: #f83800;
+  --snes-green: #00b800;
+  --snes-dark: #181818;
+  --snes-gray: #9c9c9c;
+  --snes-border: #606060;
+}
+
+/* Ocultar topbar */
 #topbar {
   display: none !important;
 }
 
-/* OPCIÓN 3: Mejorar HUD de información (esquina derecha) */
+/* HUD estilo 16-bit SNES */
 #hud {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  background: rgba(20, 25, 35, 0.95);
-  border: 2px solid #4a90e2;
-  border-radius: 12px;
-  padding: 18px 22px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 13px;
-  color: #e6f3ff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(15px);
-  z-index: 1000;
-  min-width: 240px;
-  border-image: linear-gradient(135deg, #4a90e2, #357abd) 1;
-  opacity: 1;
-  text-align: left;
+  position: fixed !important;
+  top: 8px !important;
+  right: 8px !important;
+  background: var(--snes-blue) !important;
+  border: 2px solid var(--snes-white) !important;
+  padding: 8px !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+  color: var(--snes-white) !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  z-index: 1000 !important;
+  min-width: 160px !important;
+  text-align: left !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
 }
 
 #hud div {
-  margin-bottom: 10px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(74, 144, 226, 0.3);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 4px !important;
+  padding: 2px 0 !important;
+  border-bottom: 1px solid var(--snes-gray) !important;
+  display: block !important;
+  line-height: 12px !important;
 }
 
 #hud div:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
 }
 
-/* Iconos y valores específicos */
-#hud div:nth-child(1)::before { content: "🗺️ "; }
-#hud div:nth-child(2)::before { content: "⚔️ "; }
-#hud div:nth-child(3)::before { content: "✨ "; }
-
-/* Valores destacados */
-#biome, #hp, #kills, #boss, #pts, #wname, #wlv {
-  color: #00ff88;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
-  padding: 2px 8px;
-  background: rgba(0, 255, 136, 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(0, 255, 136, 0.3);
+/* Quitar iconos, solo texto 16-bit */
+#hud div::before {
+  content: none !important;
 }
 
-/* Estado del boss con color especial */
+/* Valores destacados estilo 16-bit */
+#biome {
+  color: var(--snes-yellow) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+#hp {
+  color: var(--snes-red) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+#kills {
+  color: var(--snes-white) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+}
+
 #boss {
-  color: #ff6b35;
-  background: rgba(255, 107, 53, 0.1);
-  border-color: rgba(255, 107, 53, 0.3);
-  text-shadow: 0 0 8px rgba(255, 107, 53, 0.6);
+  color: var(--snes-red) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
 }
 
-/* Arma activa destacada */
+#pts {
+  color: var(--snes-yellow) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+}
+
 #wname {
-  color: #ffd700;
-  background: rgba(255, 215, 0, 0.1);
-  border-color: rgba(255, 215, 0, 0.3);
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+  color: var(--snes-green) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
 }
 
-/* OPCIÓN 4: Toast mejorado */
-#toast {
-  background: rgba(20, 25, 35, 0.95) !important;
-  border: 2px solid #00ff88 !important;
-  color: #00ff88 !important;
-  font-family: 'Segoe UI', sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 14px !important;
-  text-shadow: 0 0 10px rgba(0, 255, 136, 0.8) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
-  border-radius: 10px !important;
-  padding: 14px 20px !important;
-  backdrop-filter: blur(15px) !important;
+#wlv {
+  color: var(--snes-white) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
 }
 
-/* Canvas con borde mejorado */
+/* Canvas estilo 16-bit */
 canvas {
-  border: 3px solid #4a90e2 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 0 20px rgba(74, 144, 226, 0.4) !important;
+  border: 4px solid var(--snes-white) !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 var(--snes-dark) !important;
+  image-rendering: pixelated !important;
 }
 
-/* Overlay mejorado */
+/* Toast estilo 16-bit */
+#toast {
+  background: var(--snes-purple) !important;
+  border: 2px solid var(--snes-white) !important;
+  color: var(--snes-white) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+  text-shadow: none !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  border-radius: 0 !important;
+  padding: 8px !important;
+  backdrop-filter: none !important;
+}
+
+/* Pantalla de inicio 16-bit */
+#start {
+  background: var(--snes-dark) !important;
+  color: var(--snes-white) !important;
+  font-family: 'Press Start 2P', monospace !important;
+}
+
+#start h1 {
+  color: var(--snes-yellow) !important;
+  font-size: 24px !important;
+  margin: 0 0 16px 0 !important;
+  letter-spacing: 1px !important;
+  text-shadow: 2px 2px 0 var(--snes-dark) !important;
+  font-weight: normal !important;
+}
+
+#start > div {
+  color: var(--snes-white) !important;
+  font-size: 8px !important;
+  margin-bottom: 16px !important;
+  opacity: 1 !important;
+}
+
+#charSelect .char {
+  background: var(--snes-blue) !important;
+  border: 2px solid var(--snes-white) !important;
+  color: var(--snes-white) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+  padding: 12px 16px !important;
+  gap: 8px !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+}
+
+#charSelect .char:hover {
+  background: var(--snes-purple) !important;
+  border-color: var(--snes-yellow) !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+}
+
+#charSelect .char.selected {
+  border: 2px solid var(--snes-yellow) !important;
+  background: var(--snes-purple) !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+}
+
+#charSelect canvas {
+  border: 2px solid var(--snes-white) !important;
+  background: var(--snes-dark) !important;
+  box-shadow: 1px 1px 0 var(--snes-gray) !important;
+}
+
+#chosen {
+  color: var(--snes-white) !important;
+  font-size: 8px !important;
+  margin-bottom: 16px !important;
+  opacity: 1 !important;
+}
+
+#chosenName {
+  color: var(--snes-yellow) !important;
+  font-weight: normal !important;
+}
+
+#btnStart {
+  background: var(--snes-green) !important;
+  border: 2px solid var(--snes-white) !important;
+  color: var(--snes-white) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+  padding: 8px 16px !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+}
+
+#btnStart:hover {
+  background: var(--snes-yellow) !important;
+  color: var(--snes-dark) !important;
+}
+
+#btnStart.ready {
+  background: var(--snes-green) !important;
+  border-color: var(--snes-white) !important;
+  color: var(--snes-white) !important;
+  animation: snes-blink 1s infinite !important;
+}
+
+@keyframes snes-blink {
+  0%, 50% { background: var(--snes-green); }
+  51%, 100% { background: var(--snes-yellow); color: var(--snes-dark); }
+}
+
+/* Overlay estilo 16-bit */
 #overlay {
-  background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(20, 25, 35, 0.95)) !important;
-  backdrop-filter: blur(10px) !important;
+  background: var(--snes-dark) !important;
+  backdrop-filter: none !important;
+  font-family: 'Press Start 2P', monospace !important;
 }
 
 #overlay-text {
-  color: #ff6b35 !important;
-  text-shadow: 0 0 20px rgba(255, 107, 53, 0.8) !important;
-  font-family: 'Segoe UI', sans-serif !important;
+  color: var(--snes-red) !important;
+  text-shadow: 2px 2px 0 var(--snes-dark) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 16px !important;
 }
 
 #overlay-btn {
-  background: rgba(20, 25, 35, 0.9) !important;
-  border: 2px solid #4a90e2 !important;
-  color: #e6f3ff !important;
-  font-family: 'Segoe UI', sans-serif !important;
-  border-radius: 8px !important;
-  transition: all 0.3s ease !important;
+  background: var(--snes-blue) !important;
+  border: 2px solid var(--snes-white) !important;
+  color: var(--snes-white) !important;
+  font-family: 'Press Start 2P', monospace !important;
+  border-radius: 0 !important;
+  font-size: 8px !important;
+  padding: 8px 16px !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
 }
 
 #overlay-btn:hover {
-  border-color: #00ff88 !important;
-  color: #00ff88 !important;
-  box-shadow: 0 0 15px rgba(0, 255, 136, 0.5) !important;
+  background: var(--snes-purple) !important;
+  border-color: var(--snes-yellow) !important;
 }
 
-/* Efectos hover para el HUD */
-#hud:hover {
-  border-color: #00ff88;
-  box-shadow: 0 8px 40px rgba(0, 255, 136, 0.3);
-  transform: translateY(-2px);
-  transition: all 0.3s ease;
+/* Quitar todos los efectos modernos */
+* {
+  backdrop-filter: none !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
 }
 
-/* Animación de entrada para el HUD */
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+#hud, #toast, #charSelect .char, #btnStart, #overlay-btn, canvas {
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
 }
 
+canvas {
+  box-shadow: 4px 4px 0 var(--snes-dark) !important;
+}
+
+/* Animaciones removidas */
 #hud {
-  animation: slideInRight 0.6s ease-out;
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
 }
 
-/* Responsive para pantallas pequeñas */
+#hud:hover {
+  transform: none !important;
+  border-color: var(--snes-white) !important;
+  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+}
+
+/* Responsive 16-bit */
 @media (max-width: 768px) {
   #hud {
-    font-size: 11px;
-    padding: 12px 16px;
-    min-width: 200px;
-    top: 10px;
-    right: 10px;
+    font-size: 7px !important;
+    padding: 6px !important;
+    min-width: 140px !important;
+    top: 4px !important;
+    right: 4px !important;
   }
   
   canvas {
-    border-width: 2px !important;
+    border-width: 3px !important;
+  }
+  
+  #start h1 {
+    font-size: 20px !important;
   }
 }
-
 </style>
 </head>
 <body>
@@ -369,3 +525,4 @@ canvas {
   <script src="optimization.js"></script>
 </body>
 </html>
+
