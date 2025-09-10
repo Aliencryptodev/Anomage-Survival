@@ -666,30 +666,45 @@ window.UPDATE_DIABLO_UI = updateDiablo2UI;
 
 // AÑADIR ESTA FUNCIÓN AQUÍ:
 function drawSpellIcons() {
-  const spells = {
+  const G = $GAME();
+  if (!G || !G.cache) {
+    setTimeout(drawSpellIcons, 200);
+    return;
+  }
+  
+  const spellPaths = {
     fire: 'assets/Sprites/image_spells/fireball_1.png',
-    light: 'assets/Sprites/image_spells/lightning_1.png', 
-    ice: 'assets/Sprites/image_spells/ice_shard_1.png',
+    light: 'assets/Sprites/image_spells/lightning_1.png',
+    ice: 'assets/Sprites/image_spells/ice_shard_1.png', 
     dark: 'assets/Sprites/image_spells/dark_blast_1.png'
   };
   
-  Object.keys(spells).forEach(spell => {
+  Object.keys(spellPaths).forEach(spell => {
     const canvas = document.querySelector(`canvas[data-spell="${spell}"]`);
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     
-    const img = new Image();
-    img.onload = () => {
+    let img = G.cache[spellPaths[spell]];
+    
+    if (img && img.complete && img.naturalWidth > 0) {
       ctx.clearRect(0, 0, 24, 24);
       ctx.drawImage(img, 0, 0, 24, 24);
-    };
-    img.src = spells[spell];
+    } else {
+      // Fallback con colores
+      ctx.clearRect(0, 0, 24, 24);
+      const colors = { fire: '#ff4444', light: '#ffff44', ice: '#44aaff', dark: '#8844ff' };
+      ctx.fillStyle = colors[spell];
+      ctx.fillRect(2, 2, 20, 20);
+      ctx.strokeStyle = '#000';
+      ctx.strokeRect(2, 2, 20, 20);
+    }
   });
 }
 
   </script>
 </body>
 </html>
+
 
