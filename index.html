@@ -150,55 +150,40 @@
   100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
 }
 
-/* Reemplazar TODAS las mejoras anteriores con esto - Estilo 16-bit SNES auténtico */
-
-/* Fuente pixel art 16-bit */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-/* Paleta de colores 16-bit SNES */
-:root {
-  --snes-blue: #0038a8;
-  --snes-purple: #7038a8;
-  --snes-white: #fcfcfc;
-  --snes-yellow: #fcfc00;
-  --snes-red: #f83800;
-  --snes-green: #00b800;
-  --snes-dark: #181818;
-  --snes-gray: #9c9c9c;
-  --snes-border: #606060;
-}
+/* Reemplazar toda la sección de mejoras con esto - Estilo Diablo 2 auténtico */
 
 /* Ocultar topbar */
 #topbar {
   display: none !important;
 }
 
-/* HUD estilo 16-bit SNES */
+/* HUD estilo Diablo 2 - panel superior derecho */
 #hud {
   position: fixed !important;
   top: 8px !important;
   right: 8px !important;
-  background: var(--snes-blue) !important;
-  border: 2px solid var(--snes-white) !important;
-  padding: 8px !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 8px !important;
-  color: var(--snes-white) !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  background: linear-gradient(135deg, #2a1f1a 0%, #1a1410 50%, #0f0c08 100%) !important;
+  border: 2px solid #8b6914 !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  font-size: 11px !important;
+  color: #d4af37 !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(139, 105, 20, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.8) !important;
   z-index: 1000 !important;
-  min-width: 160px !important;
+  min-width: 180px !important;
   text-align: left !important;
   opacity: 1 !important;
-  backdrop-filter: none !important;
-  border-radius: 0 !important;
 }
 
 #hud div {
-  margin-bottom: 4px !important;
-  padding: 2px 0 !important;
-  border-bottom: 1px solid var(--snes-gray) !important;
+  margin-bottom: 3px !important;
+  padding: 1px 0 !important;
+  border-bottom: 1px solid rgba(139, 105, 20, 0.3) !important;
   display: block !important;
-  line-height: 12px !important;
+  line-height: 14px !important;
 }
 
 #hud div:last-child {
@@ -206,266 +191,237 @@
   margin-bottom: 0 !important;
 }
 
-/* Quitar iconos, solo texto 16-bit */
-#hud div::before {
-  content: none !important;
-}
-
-/* Valores destacados estilo 16-bit */
+/* Valores con colores Diablo 2 */
 #biome {
-  color: var(--snes-yellow) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #fff !important;
+  font-weight: bold !important;
 }
 
 #hp {
-  color: var(--snes-red) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #ff4444 !important;
+  font-weight: bold !important;
 }
 
 #kills {
-  color: var(--snes-white) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #fff !important;
 }
 
 #boss {
-  color: var(--snes-red) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #ff8888 !important;
+  font-weight: bold !important;
 }
 
 #pts {
-  color: var(--snes-yellow) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #d4af37 !important;
+  font-weight: bold !important;
 }
 
 #wname {
-  color: var(--snes-green) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #88ff88 !important;
+  font-weight: bold !important;
 }
 
 #wlv {
-  color: var(--snes-white) !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
+  color: #88ff88 !important;
 }
 
-/* Canvas estilo 16-bit */
+/* Canvas con marco dorado */
 canvas {
-  border: 4px solid var(--snes-white) !important;
+  border: 3px solid #8b6914 !important;
   border-radius: 0 !important;
-  box-shadow: 4px 4px 0 var(--snes-dark) !important;
-  image-rendering: pixelated !important;
+  box-shadow: 
+    inset 0 0 0 1px #d4af37,
+    0 4px 8px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Toast estilo 16-bit */
+/* Toast estilo Diablo 2 */
 #toast {
-  background: var(--snes-purple) !important;
-  border: 2px solid var(--snes-white) !important;
-  color: var(--snes-white) !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 8px !important;
-  text-shadow: none !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
-  border-radius: 0 !important;
-  padding: 8px !important;
-  backdrop-filter: none !important;
+  background: linear-gradient(135deg, #2a1f1a 0%, #1a1410 100%) !important;
+  border: 2px solid #8b6914 !important;
+  color: #d4af37 !important;
+  font-family: 'Segoe UI', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(139, 105, 20, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.8) !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
 }
 
-/* Pantalla de inicio 16-bit */
+/* Pantalla de inicio estilo Diablo 2 */
 #start {
-  background: var(--snes-dark) !important;
-  color: var(--snes-white) !important;
-  font-family: 'Press Start 2P', monospace !important;
+  background: linear-gradient(135deg, #0f0c08 0%, #1a1410 50%, #2a1f1a 100%) !important;
+  color: #d4af37 !important;
+  font-family: 'Segoe UI', serif !important;
 }
 
 #start h1 {
-  color: var(--snes-yellow) !important;
-  font-size: 24px !important;
-  margin: 0 0 16px 0 !important;
-  letter-spacing: 1px !important;
-  text-shadow: 2px 2px 0 var(--snes-dark) !important;
-  font-weight: normal !important;
+  color: #d4af37 !important;
+  font-size: 42px !important;
+  font-weight: bold !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+  margin: 0 0 20px 0 !important;
+  letter-spacing: 2px !important;
 }
 
 #start > div {
-  color: var(--snes-white) !important;
-  font-size: 8px !important;
-  margin-bottom: 16px !important;
+  color: #c4a484 !important;
+  font-size: 16px !important;
+  margin-bottom: 25px !important;
   opacity: 1 !important;
 }
 
 #charSelect .char {
-  background: var(--snes-blue) !important;
-  border: 2px solid var(--snes-white) !important;
-  color: var(--snes-white) !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 8px !important;
-  padding: 12px 16px !important;
-  gap: 8px !important;
-  border-radius: 0 !important;
+  background: linear-gradient(135deg, #2a1f1a 0%, #1a1410 100%) !important;
+  border: 2px solid #8b6914 !important;
+  color: #d4af37 !important;
+  font-family: 'Segoe UI', serif !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  padding: 16px 20px !important;
+  gap: 10px !important;
+  border-radius: 6px !important;
   cursor: pointer !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(139, 105, 20, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.6) !important;
+  transition: all 0.2s ease !important;
 }
 
 #charSelect .char:hover {
-  background: var(--snes-purple) !important;
-  border-color: var(--snes-yellow) !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  background: linear-gradient(135deg, #3a2f2a 0%, #2a1f1a 100%) !important;
+  border-color: #d4af37 !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(212, 175, 55, 0.3),
+    0 0 8px rgba(212, 175, 55, 0.4) !important;
 }
 
 #charSelect .char.selected {
-  border: 2px solid var(--snes-yellow) !important;
-  background: var(--snes-purple) !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  border: 2px solid #d4af37 !important;
+  background: linear-gradient(135deg, #3a2f1a 0%, #2a1f0a 100%) !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(212, 175, 55, 0.5),
+    0 0 12px rgba(212, 175, 55, 0.6) !important;
 }
 
 #charSelect canvas {
-  border: 2px solid var(--snes-white) !important;
-  background: var(--snes-dark) !important;
-  box-shadow: 1px 1px 0 var(--snes-gray) !important;
+  border: 2px solid #8b6914 !important;
+  background: #0f0c08 !important;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8) !important;
 }
 
 #chosen {
-  color: var(--snes-white) !important;
-  font-size: 8px !important;
-  margin-bottom: 16px !important;
+  color: #c4a484 !important;
+  font-size: 16px !important;
+  margin-bottom: 20px !important;
   opacity: 1 !important;
 }
 
 #chosenName {
-  color: var(--snes-yellow) !important;
-  font-weight: normal !important;
+  color: #d4af37 !important;
+  font-weight: bold !important;
 }
 
 #btnStart {
-  background: var(--snes-green) !important;
-  border: 2px solid var(--snes-white) !important;
-  color: var(--snes-white) !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 8px !important;
-  padding: 8px 16px !important;
-  border-radius: 0 !important;
+  background: linear-gradient(135deg, #2a1f1a 0%, #1a1410 100%) !important;
+  border: 2px solid #8b6914 !important;
+  color: #d4af37 !important;
+  font-family: 'Segoe UI', serif !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  padding: 12px 24px !important;
+  border-radius: 6px !important;
   cursor: pointer !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(139, 105, 20, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.6) !important;
+  transition: all 0.2s ease !important;
 }
 
 #btnStart:hover {
-  background: var(--snes-yellow) !important;
-  color: var(--snes-dark) !important;
+  background: linear-gradient(135deg, #3a2f2a 0%, #2a1f1a 100%) !important;
+  border-color: #d4af37 !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(212, 175, 55, 0.3),
+    0 0 8px rgba(212, 175, 55, 0.4) !important;
 }
 
 #btnStart.ready {
-  background: var(--snes-green) !important;
-  border-color: var(--snes-white) !important;
-  color: var(--snes-white) !important;
-  animation: snes-blink 1s infinite !important;
+  background: linear-gradient(135deg, #4a3f2a 0%, #3a2f1a 100%) !important;
+  border-color: #d4af37 !important;
+  color: #fff !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(212, 175, 55, 0.5),
+    0 0 12px rgba(212, 175, 55, 0.6) !important;
+  animation: diabloGlow 2s ease-in-out infinite !important;
 }
 
-@keyframes snes-blink {
-  0%, 50% { background: var(--snes-green); }
-  51%, 100% { background: var(--snes-yellow); color: var(--snes-dark); }
+@keyframes diabloGlow {
+  0%, 100% { 
+    box-shadow: 
+      inset 0 1px 0 rgba(212, 175, 55, 0.5),
+      0 0 12px rgba(212, 175, 55, 0.6);
+  }
+  50% { 
+    box-shadow: 
+      inset 0 1px 0 rgba(212, 175, 55, 0.7),
+      0 0 20px rgba(212, 175, 55, 0.8);
+  }
 }
 
-/* Overlay estilo 16-bit */
+/* Overlay estilo Diablo 2 */
 #overlay {
-  background: var(--snes-dark) !important;
-  backdrop-filter: none !important;
-  font-family: 'Press Start 2P', monospace !important;
+  background: linear-gradient(135deg, rgba(15, 12, 8, 0.95) 0%, rgba(26, 20, 16, 0.95) 100%) !important;
+  font-family: 'Segoe UI', serif !important;
 }
 
 #overlay-text {
-  color: var(--snes-red) !important;
-  text-shadow: 2px 2px 0 var(--snes-dark) !important;
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 16px !important;
+  color: #ff4444 !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+  font-family: 'Segoe UI', serif !important;
+  font-weight: bold !important;
 }
 
 #overlay-btn {
-  background: var(--snes-blue) !important;
-  border: 2px solid var(--snes-white) !important;
-  color: var(--snes-white) !important;
-  font-family: 'Press Start 2P', monospace !important;
-  border-radius: 0 !important;
-  font-size: 8px !important;
+  background: linear-gradient(135deg, #2a1f1a 0%, #1a1410 100%) !important;
+  border: 2px solid #8b6914 !important;
+  color: #d4af37 !important;
+  font-family: 'Segoe UI', serif !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
   padding: 8px 16px !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(139, 105, 20, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.6) !important;
 }
 
 #overlay-btn:hover {
-  background: var(--snes-purple) !important;
-  border-color: var(--snes-yellow) !important;
+  background: linear-gradient(135deg, #3a2f2a 0%, #2a1f1a 100%) !important;
+  border-color: #d4af37 !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(212, 175, 55, 0.3),
+    0 0 8px rgba(212, 175, 55, 0.4) !important;
 }
 
-/* Quitar todos los efectos modernos */
-* {
-  backdrop-filter: none !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-}
-
-#hud, #toast, #charSelect .char, #btnStart, #overlay-btn, canvas {
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
-}
-
-canvas {
-  box-shadow: 4px 4px 0 var(--snes-dark) !important;
-}
-
-/* Animaciones removidas */
-#hud {
-  animation: none !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-#hud:hover {
-  transform: none !important;
-  border-color: var(--snes-white) !important;
-  box-shadow: 2px 2px 0 var(--snes-dark) !important;
-}
-
-/* Responsive 16-bit */
+/* Responsive */
 @media (max-width: 768px) {
   #hud {
-    font-size: 7px !important;
-    padding: 6px !important;
-    min-width: 140px !important;
+    font-size: 10px !important;
+    padding: 6px 10px !important;
+    min-width: 160px !important;
     top: 4px !important;
     right: 4px !important;
   }
   
-  canvas {
-    border-width: 3px !important;
+  #start h1 {
+    font-size: 32px !important;
   }
   
-  #start h1 {
-    font-size: 20px !important;
+  #charSelect .char {
+    font-size: 12px !important;
+    padding: 12px 16px !important;
   }
 }
 </style>
@@ -525,4 +481,5 @@ canvas {
   <script src="optimization.js"></script>
 </body>
 </html>
+
 
