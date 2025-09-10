@@ -225,7 +225,7 @@ class Enemy{
     this.r = this.boss?28:22;
     this.hpMax = this.boss?900:50; this.hp=this.hpMax;
     this.spdBase = (this.boss?0.08:0.11);
-    this.dmg = this.boss?16:6;
+    this.dmg = this.boss?10:3;
     this.vx=0; this.vy=0; this.facing='left'; this.hitT=0;
     this.slowT=0; this.dotT=0; this.dotDps=0;
     this.stunT=0;
@@ -249,8 +249,10 @@ class Enemy{
     this.facing = (this.vx>0.06)?'right':(this.vx<-0.06?'left':this.facing);
     this.hitT-=dt;
 
-    if(!this.dead && dist2(this.x,this.y,player.x,player.y) < (this.r+18)*(this.r+18))
-      player.hp=Math.max(0,player.hp - dt*0.04*this.dmg/6);
+    if(!this.dead && dist2(this.x,this.y,player.x,player.y) < (this.r+18)*(this.r+18)) {
+    const damageMultiplier = this.boss ? 0.03 : 0.015;
+    player.hp=Math.max(0,player.hp - dt*damageMultiplier*this.dmg);
+    }
 
     if(this.boss){
       this.atkT-=dt;
@@ -511,8 +513,8 @@ function shootPlayer(){
 
 /* ===== IA ataques de jefes ===== */
 function bossAttackPattern(boss,player){
-  const shootAimed=(kind,spread=0,count=1,spd=0.8,dmg=18)=>{ const baseA=Math.atan2(player.y-boss.y,player.x-boss.x); for(let i=0;i<count;i++){ const a=baseA + spread*(i-(count-1)/2); const vx=Math.cos(a),vy=Math.sin(a); const p=makeProj(kind,boss.x+vx*28,boss.y+vy*28,vx,vy,{owner:'enemy'}); p.baseDmg=dmg; GAME.projectiles.push(p);} playSfx(kind, .6); };
-  const shootRing=(kind,n=10,spd=0.55,dmg=14)=>{ for(let i=0;i<n;i++){ const a=i/n*Math.PI*2; const vx=Math.cos(a),vy=Math.sin(a); const p=makeProj(kind,boss.x+vx*24,boss.y+vy*24,vx,vy,{owner:'enemy'}); p.baseDmg=dmg; GAME.projectiles.push(p);} playSfx(kind, .6); };
+  const shootAimed=(kind,spread=0,count=1,spd=0.8,dmg=8)=>{ const baseA=Math.atan2(player.y-boss.y,player.x-boss.x); for(let i=0;i<count;i++){ const a=baseA + spread*(i-(count-1)/2); const vx=Math.cos(a),vy=Math.sin(a); const p=makeProj(kind,boss.x+vx*28,boss.y+vy*28,vx,vy,{owner:'enemy'}); p.baseDmg=dmg; GAME.projectiles.push(p);} playSfx(kind, .6); };
+  const shootRing=(kind,n=10,spd=0.55,dmg=8)=>{ for(let i=0;i<n;i++){ const a=i/n*Math.PI*2; const vx=Math.cos(a),vy=Math.sin(a); const p=makeProj(kind,boss.x+vx*24,boss.y+vy*24,vx,vy,{owner:'enemy'}); p.baseDmg=dmg; GAME.projectiles.push(p);} playSfx(kind, .6); };
 
   switch(BIOME){
     case 0: // Ent: lanza troncos
@@ -520,30 +522,30 @@ function bossAttackPattern(boss,player){
         const baseA=Math.atan2(player.y-boss.y,player.x-boss.x)+ (i-1)*0.18;
         const vx=Math.cos(baseA),vy=Math.sin(baseA);
         const frames=[ GAME.cache["assets/props/log.png"] ];
-        const p=new Proj(frames, boss.x+vx*30, boss.y+vy*30, vx,vy, {owner:'enemy',dmg:26,spd:0.7,r:18,life:1600,kind:'dark'});
+        const p=new Proj(frames, boss.x+vx*30, boss.y+vy*30, vx,vy, {owner:'enemy',dmg:10,spd:0.7,r:18,life:1600,kind:'dark'});
         p.draw=function(){ const im=this.frames[0]; ctx.drawImage(im,this.x-24,this.y-16,48,32); };
         GAME.projectiles.push(p);
       }
       break;
     case 1: // Nécromante: invoca esqueletos + oscuro triple
       for(let i=0;i<2;i++) spawnMinionNear(boss.x,boss.y);
-      shootAimed("dark",0.20,3,0.75,20);
+      shootAimed("dark",0.20,3,0.75,8)
       break;
     case 2: // Golem: slam piedras radial
       for(let i=0;i<12;i++){
         const a=i/12*Math.PI*2; const vx=Math.cos(a),vy=Math.sin(a);
         const frames=[ GAME.cache["assets/props/rock.png"] ];
-        const p=new Proj(frames, boss.x, boss.y, vx,vy, {owner:'enemy',dmg:22,spd:0.65,r:16,life:1800,kind:'ice'});
+        const p=new Proj(frames, boss.x, boss.y, vx,vy, {owner:'enemy',dmg:10,spd:0.65,r:16,life:1800,kind:'ice'});
         p.draw=function(){ const im=this.frames[0]; ctx.drawImage(im,this.x-18,this.y-18,36,36); };
         GAME.projectiles.push(p);
       }
       playSfx("hit");
       break;
     case 3: // Lich: ráfaga rayos
-      shootAimed("light",0.14,5,0.95,18);
+      shootAimed("light",0.14,5,0.95,8)
       break;
     case 4: // Demon: fuego abanico + anillo
-      shootAimed("fire",0.10,4,0.82,22); setTimeout(()=>shootRing("fire",8,0.55,18),180);
+      shootAimed("fire",0.10,4,0.82,8) setTimeout(()=>shootRing("fire",8,0.55,8)
       break;
   }
 }
@@ -738,3 +740,4 @@ cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
+
