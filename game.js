@@ -84,6 +84,23 @@ let GAME = {
 };
 let CURRENT_BOSS=null;
 
+// ——— Exponer estado a la UI externa (barra Diablo 2)
+Object.defineProperty(window, 'GAME', {
+  get: () => GAME,
+  configurable: true
+});
+Object.defineProperty(window, 'BIOME', {
+  get: () => BIOME,
+  set: v => { BIOME = v; },
+  configurable: true
+});
+Object.defineProperty(window, 'CURRENT_BOSS', {
+  get: () => CURRENT_BOSS,
+  set: v => { CURRENT_BOSS = v; },
+  configurable: true
+});
+
+
 /* ===== Input ===== */
 const Input={keys:new Set(),mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false}};
 window.addEventListener('keydown',e=>Input.keys.add(e.key.toLowerCase()));
@@ -715,3 +732,4 @@ cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
+
