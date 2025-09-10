@@ -153,13 +153,8 @@
 /* Reemplazar mejoras anteriores - Barra inferior completa estilo Diablo 2 */
 
 /* Ocultar HUD original */
-#topbar {
-  display: none !important;
-}
-
-#hud {
-  display: none !important;
-}
+#topbar { display: none !important; }
+#hud { display: none !important; }
 
 /* Crear barra inferior completa */
 #gameUI {
@@ -174,7 +169,7 @@
     rgba(40,30,20,0.8) 50%, 
     rgba(60,45,30,0.95) 100%);
   z-index: 1000;
-  pointer-events: none;
+  pointer-events: auto; /* ← IMPORTANTE: antes era none */
 }
 
 /* Orbe de vida (izquierda) */
@@ -310,83 +305,38 @@
   pointer-events: auto;
 }
 
-.skill-slot:hover {
-  border-color: #d4af37;
-  box-shadow: 0 0 8px rgba(212,175,55,0.4);
-}
+.skill-slot:hover { border-color: #d4af37; box-shadow: 0 0 8px rgba(212,175,55,0.4); }
 
 .skill-slot.active {
-  background: linear-gradient(135deg, 
-    rgba(212,175,55,0.3) 0%, 
-    rgba(139,105,20,0.2) 100%);
+  background: linear-gradient(135deg, rgba(212,175,55,0.3) 0%, rgba(139,105,20,0.2) 100%);
   border-color: #d4af37;
-  box-shadow: 
-    inset 0 0 8px rgba(212,175,55,0.3),
-    0 0 12px rgba(212,175,55,0.5);
+  box-shadow: inset 0 0 8px rgba(212,175,55,0.3), 0 0 12px rgba(212,175,55,0.5);
 }
 
-.skill-icon {
-  font-size: 16px;
-  filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
-}
+.skill-icon { font-size: 16px; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)); }
 
 .skill-key {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #8b6914;
-  color: #d4af37;
-  font-size: 8px;
-  font-weight: bold;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d4af37;
+  position: absolute; top: -6px; right: -6px;
+  background: #8b6914; color: #d4af37; font-size: 8px; font-weight: bold;
+  width: 12px; height: 12px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; border: 1px solid #d4af37;
 }
 
 .skill-level {
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #cc2936;
-  color: white;
-  font-size: 8px;
-  font-weight: bold;
-  padding: 1px 4px;
-  border-radius: 8px;
-  border: 1px solid #8b6914;
-  min-width: 12px;
-  text-align: center;
+  position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+  background: #cc2936; color: white; font-size: 8px; font-weight: bold;
+  padding: 1px 4px; border-radius: 8px; border: 1px solid #8b6914; min-width: 12px; text-align: center;
 }
 
 /* Info adicional en el panel */
 #gameInfo {
-  margin-left: 12px;
-  padding-left: 12px;
-  border-left: 1px solid #8b6914;
-  color: #d4af37;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 9px;
+  margin-left: 12px; padding-left: 12px; border-left: 1px solid #8b6914;
+  color: #d4af37; font-family: 'Segoe UI', sans-serif; font-size: 9px;
 }
 
-.info-line {
-  margin-bottom: 2px;
-  display: flex;
-  gap: 6px;
-}
-
-.info-label {
-  color: #c4a484;
-}
-
-.info-value {
-  color: #d4af37;
-  font-weight: bold;
-}
+.info-line { margin-bottom: 2px; display: flex; gap: 6px; }
+.info-label { color: #c4a484; }
+.info-value { color: #d4af37; font-weight: bold; }
 
 .info-value.red { color: #ff4444; }
 .info-value.green { color: #88ff88; }
@@ -396,9 +346,7 @@
 canvas {
   border: 3px solid #8b6914 !important;
   border-radius: 0 !important;
-  box-shadow: 
-    inset 0 0 0 1px #d4af37,
-    0 4px 8px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: inset 0 0 0 1px #d4af37, 0 4px 8px rgba(0, 0, 0, 0.6) !important;
   margin-bottom: 100px !important;
 }
 
@@ -410,9 +358,7 @@ canvas {
   font-family: 'Segoe UI', sans-serif !important;
   font-size: 11px !important;
   font-weight: bold !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(139,105,20,0.3),
-    0 2px 8px rgba(0,0,0,0.6) !important;
+  box-shadow: inset 0 1px 0 rgba(139,105,20,0.3), 0 2px 8px rgba(0,0,0,0.6) !important;
   border-radius: 6px !important;
   padding: 8px 12px !important;
   bottom: 120px !important;
@@ -420,42 +366,15 @@ canvas {
 
 /* Responsive */
 @media (max-width: 768px) {
-  #gameUI {
-    height: 80px;
-  }
-  
-  #healthOrb, #manaOrb {
-    width: 60px;
-    height: 60px;
-    bottom: 8px;
-  }
-  
-  #healthOrb { left: 15px; }
-  #manaOrb { right: 15px; }
-  
-  #skillPanel {
-    bottom: 12px;
-    padding: 6px 8px;
-  }
-  
-  .skill-slot {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .skill-icon {
-    font-size: 14px;
-  }
-  
-  #gameInfo {
-    font-size: 8px;
-  }
-  
-  canvas {
-    margin-bottom: 80px !important;
-  }
+  #gameUI { height: 80px; }
+  #healthOrb, #manaOrb { width: 60px; height: 60px; bottom: 8px; }
+  #healthOrb { left: 15px; }  #manaOrb { right: 15px; }
+  #skillPanel { bottom: 12px; padding: 6px 8px; }
+  .skill-slot { width: 28px; height: 28px; }
+  .skill-icon { font-size: 14px; }
+  #gameInfo { font-size: 8px; }
+  canvas { margin-bottom: 80px !important; }
 }
-
 
 #healthOrb, #manaOrb, #skillPanel { pointer-events: auto; }
 </style>
@@ -706,12 +625,9 @@ document.addEventListener('keydown', (e) => {
     selectSkill(keyMap[e.key]);
   }
 });
-  }
-});
 
 // ----- Inicialización robusta -----
 let uiCreated = false;
-
 function ensureUI(){
   if(!document.getElementById('gameUI')){
     createDiablo2UI();
@@ -744,13 +660,13 @@ if (startEl) {
 // 4) Bucle de actualización
 setInterval(() => {
   if (!uiCreated) ensureUI();
-  if (window.GAME && window.GAME.player) updateDiablo2UI();
+  const G = $GAME();                 // ← usar helper, no window.GAME
+  if (G && G.player) updateDiablo2UI();
 }, 100);
 
 // 5) Helpers globales
 window.FORCE_DIABLO_UI = ensureUI;
 window.UPDATE_DIABLO_UI = updateDiablo2UI;
-
   </script>
 </body>
 </html>
