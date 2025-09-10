@@ -672,7 +672,7 @@ function draw(){
   }
   ctx.restore();
 
-  //drawHUD(GAME.player); // HUD superior vida/mana
+  drawHUD(GAME.player); // HUD superior vida/mana
 }
 
 /* ===== Boot + responsive + start ===== */
@@ -732,5 +732,6 @@ cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
+
 
 
