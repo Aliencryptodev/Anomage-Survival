@@ -250,7 +250,7 @@ class Enemy{
     this.hitT-=dt;
 
     if(!this.dead && dist2(this.x,this.y,player.x,player.y) < (this.r+18)*(this.r+18)) {
-    const damageMultiplier = this.boss ? 0.03 : 0.015;
+    const damageMultiplier = this.boss ? 0.03 : 0.008;
     player.hp=Math.max(0,player.hp - dt*damageMultiplier*this.dmg);
     }
 
@@ -741,5 +741,6 @@ cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
+
 
 
