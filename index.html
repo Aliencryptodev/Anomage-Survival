@@ -511,8 +511,202 @@ canvas {
 
   <script src="game.js"></script>
   <script src="optimization.js"></script>
+
+  <!-- Diablo 2 style bottom bar JS -->
+  <script>
+// JavaScript para crear la barra inferior estilo Diablo 2
+// Añadir al final de tu index.html dentro de <script> tags
+
+// Crear la barra inferior cuando el juego inicie
+function createDiablo2UI() {
+  // Solo crear si no existe ya
+  if (document.getElementById('gameUI')) return;
+  
+  // Crear contenedor principal
+  const gameUI = document.createElement('div');
+  gameUI.id = 'gameUI';
+  document.body.appendChild(gameUI);
+  
+  // Crear orbe de vida
+  const healthOrb = document.createElement('div');
+  healthOrb.id = 'healthOrb';
+  healthOrb.innerHTML = `
+    <div id="healthOrbFill" style="height: 100%;"></div>
+    <div id="healthText">100/100</div>
+  `;
+  gameUI.appendChild(healthOrb);
+  
+  // Crear orbe de maná
+  const manaOrb = document.createElement('div');
+  manaOrb.id = 'manaOrb';
+  manaOrb.innerHTML = `
+    <div id="manaOrbFill" style="height: 100%;"></div>
+    <div id="manaText">50/50</div>
+  `;
+  gameUI.appendChild(manaOrb);
+  
+  // Crear panel de habilidades
+  const skillPanel = document.createElement('div');
+  skillPanel.id = 'skillPanel';
+  skillPanel.innerHTML = `
+    <div class="skill-slot active" data-skill="fire">
+      <span class="skill-icon">🔥</span>
+      <div class="skill-key">1</div>
+      <div class="skill-level" id="fireLevel">1</div>
+    </div>
+    <div class="skill-slot" data-skill="light">
+      <span class="skill-icon">⚡</span>
+      <div class="skill-key">2</div>
+      <div class="skill-level" id="lightLevel">1</div>
+    </div>
+    <div class="skill-slot" data-skill="ice">
+      <span class="skill-icon">❄️</span>
+      <div class="skill-key">3</div>
+      <div class="skill-level" id="iceLevel">1</div>
+    </div>
+    <div class="skill-slot" data-skill="dark">
+      <span class="skill-icon">🌑</span>
+      <div class="skill-key">4</div>
+      <div class="skill-level" id="darkLevel">1</div>
+    </div>
+    <div id="gameInfo">
+      <div class="info-line">
+        <span class="info-label">Map:</span>
+        <span class="info-value" id="mapValue">1</span>
+      </div>
+      <div class="info-line">
+        <span class="info-label">Kills:</span>
+        <span class="info-value" id="killsValue">0</span><span style="color:#666;">/50</span>
+      </div>
+      <div class="info-line">
+        <span class="info-label">Boss:</span>
+        <span class="info-value red" id="bossValue">—</span>
+      </div>
+      <div class="info-line">
+        <span class="info-label">Essence:</span>
+        <span class="info-value yellow" id="essenceValue">0</span>
+      </div>
+    </div>
+  `;
+  gameUI.appendChild(skillPanel);
+  
+  // Añadir eventos de clic a las habilidades
+  document.querySelectorAll('.skill-slot').forEach(slot => {
+    slot.addEventListener('click', () => {
+      const skill = slot.dataset.skill;
+      selectSkill(skill);
+    });
+  });
+  
+  console.log('UI Diablo 2 creada');
+}
+
+// Función para seleccionar habilidad
+function selectSkill(skillType) {
+  // Actualizar UI
+  document.querySelectorAll('.skill-slot').forEach(slot => {
+    slot.classList.remove('active');
+  });
+  
+  const activeSlot = document.querySelector(`[data-skill="${skillType}"]`);
+  if (activeSlot) {
+    activeSlot.classList.add('active');
+  }
+  
+  // Sincronizar con el juego original
+  if (window.GAME) {
+    window.GAME.weapon = skillType;
+  }
+}
+
+// Función para actualizar los orbes
+function updateDiablo2UI() {
+  if (!window.GAME || !window.GAME.player) return;
+  
+  const player = window.GAME.player;
+  
+  // Actualizar orbe de vida
+  const healthFill = document.getElementById('healthOrbFill');
+  const healthText = document.getElementById('healthText');
+  if (healthFill && healthText) {
+    const healthPercent = (player.hp / player.hpMax) * 100;
+    healthFill.style.height = `${healthPercent}%`;
+    healthText.textContent = `${Math.round(player.hp)}/${player.hpMax}`;
+  }
+  
+  // Actualizar orbe de maná
+  const manaFill = document.getElementById('manaOrbFill');
+  const manaText = document.getElementById('manaText');
+  if (manaFill && manaText) {
+    const manaPercent = (player.mana / player.manaMax) * 100;
+    manaFill.style.height = `${manaPercent}%`;
+    manaText.textContent = `${Math.round(player.mana)}/${player.manaMax}`;
+  }
+  
+  // Actualizar info del juego
+  const mapValue = document.getElementById('mapValue');
+  const killsValue = document.getElementById('killsValue');
+  const bossValue = document.getElementById('bossValue');
+  const essenceValue = document.getElementById('essenceValue');
+  
+  if (mapValue && window.BIOME !== undefined) {
+    mapValue.textContent = window.BIOME + 1;
+  }
+  
+  if (killsValue && window.GAME.killed !== undefined) {
+    killsValue.textContent = window.GAME.killed;
+  }
+  
+  if (bossValue) {
+    if (window.CURRENT_BOSS) {
+      bossValue.textContent = window.CURRENT_BOSS.dead ? 'Dead' : 'Alive';
+      bossValue.className = window.CURRENT_BOSS.dead ? 'info-value green' : 'info-value red';
+    } else {
+      bossValue.textContent = '—';
+      bossValue.className = 'info-value';
+    }
+  }
+  
+  if (essenceValue && window.GAME.points !== undefined) {
+    essenceValue.textContent = window.GAME.points;
+  }
+  
+  // Actualizar niveles de habilidades
+  ['fire', 'light', 'ice', 'dark'].forEach(skill => {
+    const levelEl = document.getElementById(`${skill}Level`);
+    if (levelEl && window.GAME.upgrades) {
+      levelEl.textContent = window.GAME.upgrades[skill] || 1;
+    }
+  });
+  
+  // Sincronizar arma activa
+  if (window.GAME.weapon) {
+    selectSkill(window.GAME.weapon);
+  }
+}
+
+// Escuchar teclas para cambiar habilidades
+document.addEventListener('keydown', (e) => {
+  const keyMap = { '1': 'fire', '2': 'light', '3': 'ice', '4': 'dark' };
+  if (keyMap[e.key] && window.GAME && window.GAME.running) {
+    selectSkill(keyMap[e.key]);
+  }
+});
+
+// Inicializar cuando el juego empiece
+let uiCreated = false;
+const gameMonitor = setInterval(() => {
+  if (window.GAME && window.GAME.running && !uiCreated) {
+    createDiablo2UI();
+    uiCreated = true;
+  }
+  
+  if (uiCreated && window.GAME && window.GAME.player) {
+    updateDiablo2UI();
+  }
+}, 100);
+
+console.log('Sistema UI Diablo 2 iniciado');
+  </script>
 </body>
 </html>
-
-
-
