@@ -476,22 +476,22 @@ function createDiablo2UI() {
   skillPanel.id = 'skillPanel';
   skillPanel.innerHTML = `
     <div class="skill-slot active" data-skill="fire">
-      <span class="skill-icon">🔥</span>
+      <canvas class="skill-icon" width="24" height="24" data-spell="fire"></canvas>
       <div class="skill-key">1</div>
       <div class="skill-level" id="fireLevel">1</div>
     </div>
     <div class="skill-slot" data-skill="light">
-      <span class="skill-icon">⚡</span>
+      <canvas class="skill-icon" width="24" height="24" data-spell="light"></canvas>
       <div class="skill-key">2</div>
       <div class="skill-level" id="lightLevel">1</div>
     </div>
     <div class="skill-slot" data-skill="ice">
-      <span class="skill-icon">❄️</span>
+      <canvas class="skill-icon" width="24" height="24" data-spell="ice"></canvas>
       <div class="skill-key">3</div>
       <div class="skill-level" id="iceLevel">1</div>
     </div>
     <div class="skill-slot" data-skill="dark">
-      <span class="skill-icon">🌑</span>
+      <canvas class="skill-icon" width="24" height="24" data-spell="dark"></canvas>
       <div class="skill-key">4</div>
       <div class="skill-level" id="darkLevel">1</div>
     </div>
@@ -638,7 +638,6 @@ function ensureUI(){
 // 1) Crear al cargar DOM / ventana
 document.addEventListener('DOMContentLoaded', ensureUI);
 window.addEventListener('load', ensureUI);
-
 // 2) Hook al botón Play
 const _btnStart = document.getElementById('btnStart');
 if (_btnStart) {
@@ -647,7 +646,6 @@ if (_btnStart) {
     setTimeout(ensureUI, 300);
   });
 }
-
 // 3) Observar pantalla de inicio
 const startEl = document.getElementById('start');
 if (startEl) {
@@ -656,17 +654,42 @@ if (startEl) {
   });
   obs.observe(startEl, { attributes: true, attributeFilter: ['class'] });
 }
-
 // 4) Bucle de actualización
 setInterval(() => {
   if (!uiCreated) ensureUI();
   const G = $GAME();                 // ← usar helper, no window.GAME
   if (G && G.player) updateDiablo2UI();
 }, 100);
-
 // 5) Helpers globales
 window.FORCE_DIABLO_UI = ensureUI;
 window.UPDATE_DIABLO_UI = updateDiablo2UI;
+
+// AÑADIR ESTA FUNCIÓN AQUÍ:
+function drawSpellIcons() {
+  const spells = {
+    fire: 'assets/Sprites/image_spells/fireball_1.png',
+    light: 'assets/Sprites/image_spells/lightning_1.png', 
+    ice: 'assets/Sprites/image_spells/ice_shard_1.png',
+    dark: 'assets/Sprites/image_spells/dark_blast_1.png'
+  };
+  
+  Object.keys(spells).forEach(spell => {
+    const canvas = document.querySelector(`canvas[data-spell="${spell}"]`);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, 24, 24);
+      ctx.drawImage(img, 0, 0, 24, 24);
+    };
+    img.src = spells[spell];
+  });
+}
+
   </script>
 </body>
 </html>
+
