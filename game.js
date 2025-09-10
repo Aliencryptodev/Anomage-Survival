@@ -542,11 +542,11 @@ function bossAttackPattern(boss,player){
       playSfx("hit");
       break;
     case 3: // Lich: ráfaga rayos
-      shootAimed("light",0.14,5,0.95,8)
+      shootAimed("light",0.14,5,0.95,2)
       break;
     case 4: // Demon: fuego abanico + anillo
-      shootAimed("fire",0.10,4,0.82,8); 
-       setTimeout(()=>shootRing("fire",8,0.55,8),180);
+      shootAimed("fire",0.10,5,0.82,2) 
+       setTimeout(()=>shootRing("fire",5,0.55,2),180);
       break;
   }
 }
@@ -741,6 +741,7 @@ cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
+
 
 
 
