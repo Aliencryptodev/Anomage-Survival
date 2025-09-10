@@ -461,6 +461,7 @@ canvas {
 </style>
 </head>
 <body>
+  <!-- TOP -->
   <div id="topbar">
     <div class="pill">WASD/←→↑↓ Move</div>
     <div class="pill">Click shoots — 1🔥 2⚡ 3❄ 4🌑</div>
@@ -517,6 +518,11 @@ canvas {
   <script>
 // JavaScript para crear la barra inferior estilo Diablo 2
 // Añadir al final de tu index.html dentro de <script> tags
+
+// Helpers para acceder al estado aunque no esté en window
+function $GAME(){ try { return (typeof window!=='undefined' && window.GAME) || (typeof GAME!=='undefined' ? GAME : null); } catch(_) { return null; } }
+function $BIOME(){ try { return (typeof window!=='undefined' && typeof window.BIOME!=='undefined') ? window.BIOME : (typeof BIOME!=='undefined' ? BIOME : 0); } catch(_) { return 0; } }
+function $BOSS(){ try { return (typeof window!=='undefined' && typeof window.CURRENT_BOSS!=='undefined') ? window.CURRENT_BOSS : (typeof CURRENT_BOSS!=='undefined' ? CURRENT_BOSS : null); } catch(_) { return null; } }
 
 // Crear la barra inferior cuando el juego inicie
 function createDiablo2UI() {
@@ -615,22 +621,24 @@ function selectSkill(skillType) {
   }
   
   // Sincronizar con el juego original
-  if (window.GAME) {
-    window.GAME.weapon = skillType;
+  const G = $GAME();
+  if (G) {
+    G.weapon = skillType;
   }
 }
 
 // Función para actualizar los orbes
 function updateDiablo2UI() {
-  if (!window.GAME || !window.GAME.player) return;
+  const G = $GAME();
+  if (!G || !G.player) return;
   
-  const player = window.GAME.player;
+  const player = G.player;
   
   // Actualizar orbe de vida
   const healthFill = document.getElementById('healthOrbFill');
   const healthText = document.getElementById('healthText');
   if (healthFill && healthText) {
-    const healthPercent = (player.hp / player.hpMax) * 100;
+    const healthPercent = Math.max(0, Math.min(100, (player.hp / player.hpMax) * 100));
     healthFill.style.height = `${healthPercent}%`;
     healthText.textContent = `${Math.round(player.hp)}/${player.hpMax}`;
   }
@@ -639,7 +647,7 @@ function updateDiablo2UI() {
   const manaFill = document.getElementById('manaOrbFill');
   const manaText = document.getElementById('manaText');
   if (manaFill && manaText) {
-    const manaPercent = (player.mana / player.manaMax) * 100;
+    const manaPercent = Math.max(0, Math.min(100, (player.mana / player.manaMax) * 100));
     manaFill.style.height = `${manaPercent}%`;
     manaText.textContent = `${Math.round(player.mana)}/${player.manaMax}`;
   }
@@ -650,47 +658,54 @@ function updateDiablo2UI() {
   const bossValue = document.getElementById('bossValue');
   const essenceValue = document.getElementById('essenceValue');
   
-  if (mapValue && window.BIOME !== undefined) {
-    mapValue.textContent = window.BIOME + 1;
+  if (mapValue) {
+    mapValue.textContent = ($BIOME()|0) + 1;
   }
   
-  if (killsValue && window.GAME.killed !== undefined) {
-    killsValue.textContent = window.GAME.killed;
+  if (killsValue && typeof G.killed !== 'undefined') {
+    killsValue.textContent = G.killed;
   }
   
+  const B = $BOSS();
   if (bossValue) {
-    if (window.CURRENT_BOSS) {
-      bossValue.textContent = window.CURRENT_BOSS.dead ? 'Dead' : 'Alive';
-      bossValue.className = window.CURRENT_BOSS.dead ? 'info-value green' : 'info-value red';
+    if (B) {
+      bossValue.textContent = B.dead ? 'Dead' : 'Alive';
+      bossValue.className = B.dead ? 'info-value green' : 'info-value red';
     } else {
       bossValue.textContent = '—';
       bossValue.className = 'info-value';
     }
   }
   
-  if (essenceValue && window.GAME.points !== undefined) {
-    essenceValue.textContent = window.GAME.points;
+  if (essenceValue && typeof G.points !== 'undefined') {
+    essenceValue.textContent = G.points;
   }
   
   // Actualizar niveles de habilidades
   ['fire', 'light', 'ice', 'dark'].forEach(skill => {
     const levelEl = document.getElementById(`${skill}Level`);
-    if (levelEl && window.GAME.upgrades) {
-      levelEl.textContent = window.GAME.upgrades[skill] || 1;
+    if (levelEl && G.upgrades) {
+      levelEl.textContent = G.upgrades[skill] || 1;
     }
   });
   
   // Sincronizar arma activa
-  if (window.GAME.weapon) {
-    selectSkill(window.GAME.weapon);
+  if (G.weapon) {
+    const active = document.querySelector(`[data-skill="${G.weapon}"]`);
+    if (active && !active.classList.contains('active')) {
+      selectSkill(G.weapon);
+    }
   }
 }
 
 // Escuchar teclas para cambiar habilidades
 document.addEventListener('keydown', (e) => {
   const keyMap = { '1': 'fire', '2': 'light', '3': 'ice', '4': 'dark' };
-  if (keyMap[e.key] && window.GAME && window.GAME.running) {
+  const G = $GAME();
+  if (keyMap[e.key] && G && G.running) {
     selectSkill(keyMap[e.key]);
+  }
+});
   }
 });
 
@@ -739,4 +754,3 @@ window.UPDATE_DIABLO_UI = updateDiablo2UI;
   </script>
 </body>
 </html>
-
