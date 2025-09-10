@@ -30,6 +30,9 @@ const CHUNK_SIZE = 2048;
 const CAMERA = { x:1024, y:1024, lerp:0.15 };
 const WAVE_KILL_TARGET = 50;
 
+/* ===== Mostrar/ocultar HUD pintado en el canvas (el viejo) ===== */
+const SHOW_CANVAS_HUD = false;
+
 const BIOMES = [
   { key:"forest",   name:"Bosque",  ground:"assets/maps/ground_forest.png",   bossKey:"boss_ent",   music:"assets/audio/music_forest.mp3" },
   { key:"cemetery", name:"Cement.", ground:"assets/maps/ground_swamp.png",    bossKey:"boss_necro", music:"assets/audio/music_cemetery.mp3" },
@@ -84,22 +87,25 @@ let GAME = {
 };
 let CURRENT_BOSS=null;
 
-// ——— Exponer estado a la UI externa (barra Diablo 2)
-Object.defineProperty(window, 'GAME', {
-  get: () => GAME,
-  configurable: true
-});
-Object.defineProperty(window, 'BIOME', {
-  get: () => BIOME,
-  set: v => { BIOME = v; },
-  configurable: true
-});
-Object.defineProperty(window, 'CURRENT_BOSS', {
-  get: () => CURRENT_BOSS,
-  set: v => { CURRENT_BOSS = v; },
-  configurable: true
-});
-
+/* === Exponer estado al objeto window para overlays externos (barra Diablo 2) === */
+try{
+  Object.defineProperty(window, 'GAME', {
+    get: () => GAME,
+    configurable: true
+  });
+  Object.defineProperty(window, 'BIOME', {
+    get: () => BIOME,
+    set: v => { BIOME = v; },
+    configurable: true
+  });
+  Object.defineProperty(window, 'CURRENT_BOSS', {
+    get: () => CURRENT_BOSS,
+    set: v => { CURRENT_BOSS = v; },
+    configurable: true
+  });
+}catch(e){
+  // entornos sin window
+}
 
 /* ===== Input ===== */
 const Input={keys:new Set(),mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false}};
@@ -672,7 +678,7 @@ function draw(){
   }
   ctx.restore();
 
-  drawHUD(GAME.player); // HUD superior vida/mana
+  if (SHOW_CANVAS_HUD) drawHUD(GAME.player); // HUD superior vida/mana (opcional)
 }
 
 /* ===== Boot + responsive + start ===== */
@@ -732,6 +738,3 @@ cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
-
-
-
