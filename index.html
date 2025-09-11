@@ -516,6 +516,10 @@ function createDiablo2UI() {
   `;
   gameUI.appendChild(skillPanel);
   
+  setTimeout(() => {
+  drawSpellIcons();
+}, 1000);
+  
   // Añadir eventos de clic a las habilidades
   document.querySelectorAll('.skill-slot').forEach(slot => {
     slot.addEventListener('click', () => {
@@ -657,8 +661,21 @@ if (startEl) {
 // 4) Bucle de actualización
 setInterval(() => {
   if (!uiCreated) ensureUI();
-  const G = $GAME();                 // ← usar helper, no window.GAME
-  if (G && G.player) updateDiablo2UI();
+  const G = $GAME();
+  if (G && G.player) {
+    updateDiablo2UI();
+    
+    // Verificar si los iconos están vacíos y redibujarlos
+    const fireCanvas = document.querySelector('canvas[data-spell="fire"]');
+    if (fireCanvas) {
+      const ctx = fireCanvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, 24, 24);
+      const isEmpty = imageData.data.every(pixel => pixel === 0);
+      if (isEmpty) {
+        drawSpellIcons();
+      }
+    }
+  }
 }, 100);
 // 5) Helpers globales
 window.FORCE_DIABLO_UI = ensureUI;
@@ -667,38 +684,37 @@ window.UPDATE_DIABLO_UI = updateDiablo2UI;
 // AÑADIR ESTA FUNCIÓN AQUÍ:
 function drawSpellIcons() {
   const G = $GAME();
-  if (!G || !G.cache) {
+  if (!G || !G.cache || !ATLAS) {
     setTimeout(drawSpellIcons, 200);
     return;
   }
   
-  const spellPaths = {
-    fire: 'assets/Sprites/image_spells/fireball_1.png',
-    light: 'assets/Sprites/image_spells/lightning_1.png',
-    ice: 'assets/Sprites/image_spells/ice_shard_1.png', 
-    dark: 'assets/Sprites/image_spells/dark_blast_1.png'
-  };
+  const spells = ['fire', 'light', 'ice', 'dark'];
   
-  Object.keys(spellPaths).forEach(spell => {
+  spells.forEach(spell => {
     const canvas = document.querySelector(`canvas[data-spell="${spell}"]`);
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     
-    let img = G.cache[spellPaths[spell]];
-    
-    if (img && img.complete && img.naturalWidth > 0) {
-      ctx.clearRect(0, 0, 24, 24);
-      ctx.drawImage(img, 0, 0, 24, 24);
-    } else {
-      // Fallback con colores
-      ctx.clearRect(0, 0, 24, 24);
-      const colors = { fire: '#ff4444', light: '#ffff44', ice: '#44aaff', dark: '#8844ff' };
-      ctx.fillStyle = colors[spell];
-      ctx.fillRect(2, 2, 20, 20);
-      ctx.strokeStyle = '#000';
-      ctx.strokeRect(2, 2, 20, 20);
+    // Usar exactamente la misma ruta que usa el juego
+    const spellPaths = ATLAS.spells[spell];
+    if (spellPaths && spellPaths[0]) {
+      const img = G.cache[spellPaths[0]];
+      
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.clearRect(0, 0, 24, 24);
+        ctx.drawImage(img, 0, 0, 24, 24);
+      } else {
+        // Fallback
+        ctx.clearRect(0, 0, 24, 24);
+        const colors = { fire: '#ff4444', light: '#ffff44', ice: '#44aaff', dark: '#8844ff' };
+        ctx.fillStyle = colors[spell];
+        ctx.fillRect(2, 2, 20, 20);
+        ctx.strokeStyle = '#000';
+        ctx.strokeRect(2, 2, 20, 20);
+      }
     }
   });
 }
@@ -706,6 +722,7 @@ function drawSpellIcons() {
   </script>
 </body>
 </html>
+
 
 
 
