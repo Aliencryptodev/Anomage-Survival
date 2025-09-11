@@ -684,7 +684,7 @@ window.UPDATE_DIABLO_UI = updateDiablo2UI;
 // AÑADIR ESTA FUNCIÓN AQUÍ:
 function drawSpellIcons() {
   const G = $GAME();
-  if (!G || !G.cache || !ATLAS) {
+  if (!G || !G.cache) {
     setTimeout(drawSpellIcons, 200);
     return;
   }
@@ -697,31 +697,36 @@ function drawSpellIcons() {
     
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, 24, 24);
     
-    // Usar exactamente la misma ruta que usa el juego
-    const spellPaths = ATLAS.spells[spell];
-    if (spellPaths && spellPaths[0]) {
-      const img = G.cache[spellPaths[0]];
+    // Acceso directo a ATLAS.spells
+    if (ATLAS && ATLAS.spells && ATLAS.spells[spell]) {
+      const spellPath = ATLAS.spells[spell][0]; // Primera imagen del array
+      const img = G.cache[spellPath];
       
       if (img && img.complete && img.naturalWidth > 0) {
-        ctx.clearRect(0, 0, 24, 24);
         ctx.drawImage(img, 0, 0, 24, 24);
+        console.log(`Dibujado sprite para ${spell}:`, spellPath);
+        return;
       } else {
-        // Fallback
-        ctx.clearRect(0, 0, 24, 24);
-        const colors = { fire: '#ff4444', light: '#ffff44', ice: '#44aaff', dark: '#8844ff' };
-        ctx.fillStyle = colors[spell];
-        ctx.fillRect(2, 2, 20, 20);
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(2, 2, 20, 20);
+        console.log(`Imagen no válida para ${spell}:`, spellPath, img);
       }
     }
+    
+    // Fallback con colores
+    const colors = { fire: '#ff4444', light: '#ffff44', ice: '#44aaff', dark: '#8844ff' };
+    ctx.fillStyle = colors[spell];
+    ctx.fillRect(2, 2, 20, 20);
+    ctx.strokeStyle = '#000';
+    ctx.strokeRect(2, 2, 20, 20);
+    console.log(`Usando fallback para ${spell}`);
   });
 }
 
   </script>
 </body>
 </html>
+
 
 
 
