@@ -475,26 +475,26 @@ function createDiablo2UI() {
   const skillPanel = document.createElement('div');
   skillPanel.id = 'skillPanel';
   skillPanel.innerHTML = `
-    <div class="skill-slot active" data-skill="fire">
-      <canvas class="skill-icon" width="24" height="24" data-spell="fire"></canvas>
-      <div class="skill-key">1</div>
-      <div class="skill-level" id="fireLevel">1</div>
-    </div>
-    <div class="skill-slot" data-skill="light">
-      <canvas class="skill-icon" width="24" height="24" data-spell="light"></canvas>
-      <div class="skill-key">2</div>
-      <div class="skill-level" id="lightLevel">1</div>
-    </div>
-    <div class="skill-slot" data-skill="ice">
-      <canvas class="skill-icon" width="24" height="24" data-spell="ice"></canvas>
-      <div class="skill-key">3</div>
-      <div class="skill-level" id="iceLevel">1</div>
-    </div>
-    <div class="skill-slot" data-skill="dark">
-      <canvas class="skill-icon" width="24" height="24" data-spell="dark"></canvas>
-      <div class="skill-key">4</div>
-      <div class="skill-level" id="darkLevel">1</div>
-    </div>
+  <div class="skill-slot active" data-skill="fire">
+    <img class="skill-icon" src="assets/Sprites/image_spells/fireball_1.png" data-spell="fire" style="width: 24px; height: 24px; image-rendering: pixelated;">
+    <div class="skill-key">1</div>
+    <div class="skill-level" id="fireLevel">1</div>
+  </div>
+  <div class="skill-slot" data-skill="light">
+    <img class="skill-icon" src="assets/Sprites/image_spells/lightning_1.png" data-spell="light" style="width: 24px; height: 24px; image-rendering: pixelated;">
+    <div class="skill-key">2</div>
+    <div class="skill-level" id="lightLevel">1</div>
+  </div>
+  <div class="skill-slot" data-skill="ice">
+    <img class="skill-icon" src="assets/Sprites/image_spells/ice_shard_1.png" data-spell="ice" style="width: 24px; height: 24px; image-rendering: pixelated;">
+    <div class="skill-key">3</div>
+    <div class="skill-level" id="iceLevel">1</div>
+  </div>
+  <div class="skill-slot" data-skill="dark">
+    <img class="skill-icon" src="assets/Sprites/image_spells/dark_blast_1.png" data-spell="dark" style="width: 24px; height: 24px; image-rendering: pixelated;">
+    <div class="skill-key">4</div>
+    <div class="skill-level" id="darkLevel">1</div>
+  </div>
     <div id="gameInfo">
       <div class="info-line">
         <span class="info-label">Map:</span>
@@ -723,6 +723,7 @@ function drawSpellIcons() {
   </script>
 </body>
 </html>
+
 
 
 
