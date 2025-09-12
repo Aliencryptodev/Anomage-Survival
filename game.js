@@ -337,12 +337,16 @@ class Proj{
     if (this.life <= 0) this.dead = true;
     this.anim.update(dt);
   }
-  draw(){
-    const img = this.anim.frame; if (!img) return;
-    const s = 32 * (1 + 0.22 * ((GAME.upgrades[this.kind]||1) - 1));
-    const ang = Math.atan2(this.vy, this.vx);
-    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(ang); ctx.drawImage(img, -s/2, -s/2, s, s); ctx.restore();
-  }
+draw(){
+  const img = this.anim.frame;
+  if (!img) return;
+
+  const s = 32 * (1 + 0.22 * ((GAME.upgrades[this.kind]||1) - 1));
+
+  // sin rotación
+  ctx.save();
+  ctx.drawImage(img, this.x - s/2, this.y - s/2, s, s);
+  ctx.restore();
 }
 
 class Pickup{
@@ -762,3 +766,4 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
