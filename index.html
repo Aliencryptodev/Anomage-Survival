@@ -66,6 +66,41 @@
   #btnStart.ready { background: linear-gradient(135deg, #4CAF50, #45a049); border-color:#4CAF50; color:#fff; animation:pulse 2s infinite; }
   @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(76,175,80,.7);} 70%{box-shadow:0 0 0 10px rgba(76,175,80,0);} 100%{box-shadow:0 0 0 0 rgba(76,175,80,0);} }
 
+/* ---- Loading overlay con controles ---- */
+#loading {
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  background: #0e0f13; color: #e6ebef; z-index: 9999;
+}
+#loading.hide { display: none; }
+
+#loading h1 {
+  margin: 0 0 8px 0; letter-spacing: 2px; font-weight: 800; font-size: 42px;
+}
+
+#loading .loadbar {
+  width: min(520px, 80vw); height: 8px;
+  background: #1a1f2a; border: 1px solid #8b6914; border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(212,175,55,.25);
+}
+#loading .loadbar .fill {
+  height: 100%;
+  background: linear-gradient(90deg,#ff6b35,#d4af37,#4CAF50);
+  transition: width .25s ease;
+}
+
+#loading #loadingMsg { opacity: .85; font-size: 14px; }
+
+#loadingControls {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px;
+  padding: 14px 18px; border: 1px solid #8b6914; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(60,45,30,.35), rgba(35,28,20,.35));
+  font-family: system-ui, Segoe UI, Roboto, Arial;
+  font-size: 14px;
+}
+#loadingControls .col > div { margin: 3px 0; white-space: nowrap; }
+
+  
   /* Hide original HUDs (we use Diablo UI) */
   #topbar { display:none !important; }
   #hud { display:none !important; }
@@ -165,6 +200,31 @@
     <button id="overlay-btn" class="btn">Continue</button>
   </div>
 
+<!-- LOADING OVERLAY -->
+<div id="loading" class="show">
+  <h1>ANOMA SURVIVAL</h1>
+
+  <div class="loadbar">
+    <div class="fill" id="loadingFill" style="width:0%"></div>
+  </div>
+
+  <div id="loadingMsg">Preparando…</div>
+
+  <div id="loadingControls">
+    <div class="col">
+      <div><b>WASD / ←↑→↓</b> — move</div>
+      <div><b>Click</b> — shoot</div>
+      <div><b>1 · 2 · 3 · 4</b> — change spell</div>
+    </div>
+    <div class="col">
+      <div><b>Espacio</b> — run</div>
+      <div><b>+ / −</b> — zoom del minimapa</div>
+    </div>
+  </div>
+</div>
+
+
+  
   <!-- START SCREEN (aparece tras preload) -->
   <div id="start">
     <h1>ANOMA SURVIVAL</h1>
@@ -329,3 +389,4 @@ setInterval(()=>{ ensureUI(); updateDiablo2UI(); }, 100);
   </script>
 </body>
 </html>
+
