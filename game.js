@@ -389,39 +389,69 @@ function drawPlayerHPBar(p){
 }
 
 /* ===== Minimapa ===== */
-const MINIMAP = { x: 14, y: 14, w: 170, h: 110, radius: 900 };
+const MINIMAP = { x: 24, y: 24, w: 220, h: 140, radius: 950, pad: 8, border: 2, enabled: true };
+
 function drawMinimap(){
-  const p = GAME.player; if(!p) return;
-  const {x,y,w,h,radius} = MINIMAP;
-  const cx = x + w/2, cy = y + h/2;
-  const scaleX = w / (radius*2), scaleY = h / (radius*2);
+  const G = GAME; if (!G || !G.player) return;
+  const { x, y, w, h, radius, pad = 6, border = 2 } = MINIMAP;
+
+  // Centro del mundo (NO del panel)
+  const cxWorld = CAMERA.x;
+  const cyWorld = CAMERA.y;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(12,12,14,0.75)'; ctx.fillRect(x-2,y-2,w+4,h+4);
-  ctx.strokeStyle = '#8b6914'; ctx.strokeRect(x-2,y-2,w+4,h+4);
-  ctx.fillStyle = '#0f0f14'; ctx.fillRect(x,y,w,h);
+  ctx.globalAlpha = 0.96;
 
-  // jugador
-  ctx.fillStyle='#d4af37'; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+  // Panel
+  ctx.fillStyle = "#090b10";
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = "#d4af37";
+  ctx.lineWidth = border;
+  ctx.strokeRect(x, y, w, h);
 
-  // enemigos
-  ctx.fillStyle='#ff4d4d';
-  const r2 = radius*radius;
-  for(const e of GAME.enemies){
-    if(e.dead) continue;
-    const dx = e.x - p.x, dy = e.y - p.y, d2 = dx*dx+dy*dy;
-    if(d2>r2) continue;
-    const mx = cx + dx*scaleX, my = cy + dy*scaleY;
-    if (mx>=x && mx<=x+w && my>=y && my<=y+h) ctx.fillRect(mx-1,my-1,2,2);
+  // Clip interior (evita que puntos salgan del marco)
+  ctx.beginPath();
+  ctx.rect(x + border, y + border, w - 2*border, h - 2*border);
+  ctx.clip();
+
+  // Zona útil interna
+  const innerW = w - 2*border - 2*pad;
+  const innerH = h - 2*border - 2*pad;
+
+  // Escalas
+  const sx = innerW / (radius * 2);
+  const sy = innerH / (radius * 2);
+
+  // Conversión mundo → minimapa
+  const toMini = (wx, wy) => ({
+    mx: x + border + pad + (wx - cxWorld + radius) * sx,
+    my: y + border + pad + (wy - cyWorld + radius) * sy
+  });
+
+  // Jugador
+  const mp = toMini(G.player.x, G.player.y);
+  ctx.fillStyle = "#ffd65a";
+  ctx.beginPath(); ctx.arc(mp.mx, mp.my, 3, 0, Math.PI*2); ctx.fill();
+
+  // Enemigos
+  ctx.fillStyle = "#ff5a5a";
+  for (const e of G.enemies) {
+    if (e.dead) continue;
+    const m = toMini(e.x, e.y);
+    if (m.mx >= x && m.mx <= x + w && m.my >= y && m.my <= y + h)
+      ctx.fillRect(m.mx - 2, m.my - 2, 4, 4);
   }
 
-  // portal
-  if (GAME.portal){
-    const dx = GAME.portal.x - p.x, dy = GAME.portal.y - p.y, d2 = dx*dx+dy*dy;
-    if (d2<=r2){ const mx = cx + dx*scaleX, my = cy + dy*scaleY; ctx.fillStyle='#5df5ff'; ctx.fillRect(mx-2,my-2,4,4); }
+  // Portal
+  if (G.portal) {
+    const m = toMini(G.portal.x, G.portal.y);
+    ctx.fillStyle = "#6cf";
+    ctx.beginPath(); ctx.arc(m.mx, m.my, 3, 0, Math.PI*2); ctx.fill();
   }
+
   ctx.restore();
 }
+
 
 /* ===== Mundo / props / chunks ===== */
 function ensureChunk(cx,cy){
@@ -767,5 +797,6 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
