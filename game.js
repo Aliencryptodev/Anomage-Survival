@@ -110,14 +110,13 @@ try {
 
 /* ===== Input ===== */
 const Input = {
-  keys: new Set(),
-  mouse: { x: VIRT_W/2, y: VIRT_H/2, down: false },
-  dash: false,
-  // joystick virtual (lo setea el script del index en móviles)
-  stick: { active: false, x: 0, y: 0 }
+  keys:new Set(),
+  mouse:{x:VIRT_W/2, y:VIRT_H/2, down:false},
+  dash:false,
+  // joystick virtual (lo maneja el script del index)
+  stick:{ active:false, x:0, y:0 }
 };
-
-// Referencia tardía (después de declarar Input) para evitar TDZ
+// referencia para el script móvil
 GAME._inputRef = Input;
 
 
@@ -222,57 +221,84 @@ class Player{
       right: new Animator(H.walk_right.map(p=>cache[p]), 8)
     };
   }
+
   update(dt){
-      let vx=0,vy=0;
-  if(Input.keys.has('w')||Input.keys.has('arrowup'))vy-=1;
-  if(Input.keys.has('s')||Input.keys.has('arrowdown'))vy+=1;
-  if(Input.keys.has('a')||Input.keys.has('arrowleft'))vx-=1;
-  if(Input.keys.has('d')||Input.keys.has('arrowright'))vx+=1;
+    let vx=0, vy=0;
 
-  // ⬇️ joystick virtual
-  if (Input.stick && Input.stick.active) {
-    vx += Input.stick.x; vy += Input.stick.y;
-  }
+    // Teclado
+    if (Input.keys.has('w')||Input.keys.has('arrowup'))    vy-=1;
+    if (Input.keys.has('s')||Input.keys.has('arrowdown'))  vy+=1;
+    if (Input.keys.has('a')||Input.keys.has('arrowleft'))  vx-=1;
+    if (Input.keys.has('d')||Input.keys.has('arrowright')) vx+=1;
 
-  this.moving=(vx||vy);
-  if(this.moving){
-    const l=Math.hypot(vx,vy); vx/=l; vy/=l;
-    this.lastMove.x = vx; this.lastMove.y = vy;
-  }
+    // Joystick virtual (suma con WASD)
+    if (Input.stick && Input.stick.active) {
+      vx += Input.stick.x;
+      vy += Input.stick.y;
+    }
+
+    // ¿Hay movimiento? (filtra ruido muy pequeño)
+    this.moving = (Math.abs(vx) > 0.001 || Math.abs(vy) > 0.001);
+    if (this.moving){
+      const l = Math.hypot(vx, vy);
+      if (l > 0){
+        vx /= l; vy /= l;
+        this.lastMove.x = vx; this.lastMove.y = vy;
+      }
+    }
 
     // Dash
     this.dashCd = Math.max(0, this.dashCd - dt);
-    if (Input.dash && this.dashCd<=0) {
+    if (Input.dash && this.dashCd <= 0) {
       this.dashT = this.dashDur;
       this.dashCd = this.dashCdMax;
       Input.dash = false;
-      // playSfx('hit', .2); // opcional feedback
     }
-    let speedMul = (this.dashT>0) ? this.dashMul : 1;
-    if (this.dashT>0) this.dashT -= dt;
+    let speedMul = (this.dashT > 0) ? this.dashMul : 1;
+    if (this.dashT > 0) this.dashT -= dt;
 
-    if(this.moving){
-      this.x+=vx*this.spd*speedMul*dt; this.y+=vy*this.spd*speedMul*dt;
-      if(Math.abs(vx)>Math.abs(vy))this.dir=(vx<0)?'left':'right'; else if(vy!==0)this.dir=(vy<0)?'up':'down';
-    } else if (this.dashT>0) {
-      // dash en la última dirección aunque no haya input
-      this.x+=this.lastMove.x*this.spd*speedMul*dt; this.y+=this.lastMove.y*this.spd*speedMul*dt;
+    // Movimiento
+    if (this.moving){
+      this.x += vx * this.spd * speedMul * dt;
+      this.y += vy * this.spd * speedMul * dt;
+      if (Math.abs(vx) > Math.abs(vy)) this.dir = (vx < 0) ? 'left' : 'right';
+      else if (vy !== 0)               this.dir = (vy < 0) ? 'up' : 'down';
+    } else if (this.dashT > 0){
+      // Continuar dash en la última dirección
+      this.x += this.lastMove.x * this.spd * speedMul * dt;
+      this.y += this.lastMove.y * this.spd * speedMul * dt;
     }
 
-    // regen mana
-    if (this.mana < this.manaMax) this.mana = Math.min(this.manaMax, this.mana + (MANA_REGEN_PER_SEC/1000)*dt);
+    // Regen de maná
+    if (this.mana < this.manaMax) {
+      this.mana = Math.min(this.manaMax, this.mana + (MANA_REGEN_PER_SEC/1000) * dt);
+    }
 
-    this.animIdle.update(dt); for(const k of ['up','down','left','right'])this.anim[k].update(dt); this.fireCd-=dt;
+    // Animaciones + cadencia
+    this.animIdle.update(dt);
+    for (const k of ['up','down','left','right']) this.anim[k].update(dt);
+    this.fireCd -= dt;
   }
+
   draw(){
-    if (this.dashT>0) { // pequeño aura
-      ctx.save(); ctx.globalAlpha=0.25; ctx.beginPath(); ctx.arc(this.x,this.y,20,0,Math.PI*2); ctx.fillStyle='#d4af37'; ctx.fill(); ctx.restore();
+    if (this.dashT > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath(); ctx.arc(this.x,this.y,20,0,Math.PI*2);
+      ctx.fillStyle='#d4af37'; ctx.fill();
+      ctx.restore();
     }
-    const img=this.moving?this.anim[this.dir].frame:this.animIdle.frame;
-    if(!this.moving&&this.dir==='left'){ctx.save();ctx.translate(this.x,this.y);ctx.scale(-1,1);ctx.drawImage(img,-32,-32,64,64);ctx.restore();return;}
+    const img = this.moving ? this.anim[this.dir].frame : this.animIdle.frame;
+    if (!this.moving && this.dir === 'left'){
+      ctx.save(); ctx.translate(this.x,this.y); ctx.scale(-1,1);
+      ctx.drawImage(img,-32,-32,64,64);
+      ctx.restore();
+      return;
+    }
     ctx.drawImage(img,this.x-32,this.y-32,64,64);
   }
 }
+
 
 /* ===== Enemy ===== */
 class Enemy{
@@ -838,6 +864,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
