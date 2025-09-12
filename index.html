@@ -15,376 +15,128 @@
   #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
   canvas{background:#101014;image-rendering:pixelated;border:1px solid #1f2630;box-shadow:0 0 0 1px #000}
   #overlay,#start{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;color:#fff;font-weight:700;z-index:10;text-align:center}
-  #start h1 {
-  font-size: 48px !important; 
-  margin: 0 0 20px 0 !important;
-  letter-spacing: 2px;
-}
 
-#start > div {
-  font-size: 18px !important;
-  margin-bottom: 30px !important;
-}
+  /* Start screen tweaks */
+  #start h1 { font-size: 48px; margin: 0 0 20px 0; letter-spacing: 2px; }
+  #start > div { font-size: 18px; margin-bottom: 30px; }
+  #charSelect { gap: 40px; margin-bottom: 30px; }
+  #charSelect .char { padding: 20px 24px; font-size: 18px; gap: 12px; }
+  #charSelect canvas { width: 96px; height: 96px; border: 2px solid #444; }
+  #chosen { font-size: 20px; margin-bottom: 20px; }
+  #btnStart { padding: 16px 32px; font-size: 18px; }
 
-#charSelect {
-  gap: 40px !important;
-  margin-bottom: 30px !important;
-}
-
-#charSelect .char {
-  padding: 20px 24px !important;
-  font-size: 18px !important;
-  gap: 12px !important;
-}
-
-#charSelect canvas {
-  width: 96px !important;
-  height: 96px !important;
-  border: 2px solid #444 !important;
-}
-
-#chosen {
-  font-size: 20px !important;
-  margin-bottom: 20px !important;
-}
-
-#btnStart {
-  padding: 16px 32px !important;
-  font-size: 18px !important;
-}
   #overlay.show,#start.show{display:flex}
   .btn{margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #888;background:#151515;color:#fff;cursor:pointer;font:14px/1 monospace}
   #warn{position:fixed;bottom:10px;left:10px;right:10px;padding:10px;border:1px dashed #555;border-radius:8px;background:#111c;display:none;z-index:7}
   #warn.show{display:block}
-  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events: auto;font:12px monospace;z-index:7}
+  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events:auto;font:12px monospace;z-index:7}
   #toast.show{opacity:1}
 
-/* Pantalla de inicio mejorada */
-#start {
-  background: #0e0f13 !important;
-  color: #e6ebef !important;
-  font-family: system-ui, Segoe UI, Roboto, Arial !important;
-}
+  /* Loading Screen */
+  #loading {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+    background: #0e0f13; color: #e6ebef; z-index: 9999;
+  }
+  #loading:not(.show){ display:none; }
+  #loadingTitle { font-size: 28px; letter-spacing: 2px; font-weight: 800; }
+  #loadingBar { width: min(520px, 80vw); height: 10px; border: 1px solid #8b6914;
+    box-shadow: inset 0 1px 0 rgba(139,105,20,.3); background: #1a1510; border-radius: 8px; overflow: hidden; }
+  #loadingBar > #loadingFill { display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg,#ff6b35,#d4af37,#4CAF50); transition: width .2s ease; }
+  #loadingText { opacity: .9; font-family: system-ui, Segoe UI, Roboto, Arial; }
 
-#start h1 {
-  color: #e6ebef !important;
-  font-size: 48px !important;
-  margin: 0 0 20px 0 !important;
-  letter-spacing: 2px !important;
-  text-shadow: none !important;
-  font-weight: 700 !important;
-}
+  /* Start screen (clean) */
+  #start { background: #0e0f13; color: #e6ebef; font-family: system-ui, Segoe UI, Roboto, Arial; }
+  #start h1 { color: #e6ebef; letter-spacing: 2px; font-weight: 700; }
+  #start > div { color: #e6ebef; opacity: 0.9; }
 
-#start > div {
-  color: #e6ebef !important;
-  opacity: 0.9 !important;
-  font-size: 18px !important;
-  margin-bottom: 30px !important;
-}
+  #charSelect .char {
+    background: #151515; border: 1px solid #888; color: #fff;
+    font-family: system-ui, Segoe UI, Roboto, Arial; border-radius: 8px; cursor: pointer;
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+  }
+  #charSelect .char:hover { background:#252525; border-color:#aaa; }
+  #charSelect .char.selected { border:2px solid #9fef00; background:#1a1a1a; box-shadow:0 0 10px rgba(159,239,0,0.3); }
+  #charSelect canvas { border:1px solid #444; background:#111; }
+  #chosen { color:#e6ebef; opacity:.9; }
+  #chosenName { color:#9fef00; font-weight:bold; }
+  #btnStart { background:#151515; border:1px solid #888; color:#fff; border-radius:8px; cursor:pointer; }
+  #btnStart:hover { background:#252525; }
+  #btnStart.ready { background: linear-gradient(135deg, #4CAF50, #45a049); border-color:#4CAF50; color:#fff; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(76,175,80,.7);} 70%{box-shadow:0 0 0 10px rgba(76,175,80,0);} 100%{box-shadow:0 0 0 0 rgba(76,175,80,0);} }
 
-#charSelect .char {
-  background: #151515 !important;
-  border: 1px solid #888 !important;
-  color: #fff !important;
-  font-family: system-ui, Segoe UI, Roboto, Arial !important;
-  font-size: 18px !important;
-  padding: 20px 24px !important;
-  gap: 12px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-}
+  /* Hide original HUDs (we use Diablo UI) */
+  #topbar { display:none !important; }
+  #hud { display:none !important; }
 
-#charSelect .char:hover {
-  background: #252525 !important;
-  border-color: #aaa !important;
-}
+  /* Diablo 2 style bottom bar */
+  #gameUI {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 100px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(20,15,10,0.3) 20%, rgba(40,30,20,0.8) 50%, rgba(60,45,30,0.95) 100%);
+    z-index: 1000; pointer-events:auto;
+  }
+  /* Orbs */
+  #healthOrb, #manaOrb {
+    position:absolute; bottom:10px; width:80px; height:80px; border-radius:50%;
+    border:3px solid #8b6914; box-shadow: inset 0 0 20px rgba(0,0,0,.5), 0 0 15px rgba(139,105,20,.6);
+    overflow:hidden; cursor:pointer;
+  }
+  #healthOrb { left:20px; background: radial-gradient(circle at 30% 30%, rgba(255,100,100,1) 0%, rgba(200,50,50,1) 40%, rgba(150,0,0,1) 80%, rgba(100,0,0,1) 100%); }
+  #manaOrb { right:20px; background: radial-gradient(circle at 30% 30%, rgba(100,150,255,1) 0%, rgba(50,100,200,1) 40%, rgba(0,50,150,1) 80%, rgba(0,25,100,1) 100%); }
+  #healthOrbFill, #manaOrbFill { position:absolute; bottom:0; left:0; right:0; transition:height .3s ease; border-radius:0 0 50px 50px; }
+  #healthOrbFill { background: linear-gradient(to top,#cc2936 0%,#ff4444 30%,#ff6666 70%,#ffaaaa 100%); }
+  #manaOrbFill { background: linear-gradient(to top,#4169e1 0%,#6495ed 30%,#87ceeb 70%,#b0e0e6 100%); }
+  #healthText,#manaText { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#fff; font:700 10px 'Segoe UI',sans-serif; text-shadow:1px 1px 2px rgba(0,0,0,.8); z-index:2 }
 
-#charSelect .char.selected {
-  border: 2px solid #9fef00 !important;
-  background: #1a1a1a !important;
-  box-shadow: 0 0 10px rgba(159, 239, 0, 0.3) !important;
-}
+  /* Skill panel */
+  #skillPanel {
+    position:absolute; bottom:15px; left:50%; transform:translateX(-50%);
+    background: linear-gradient(135deg, rgba(60,45,30,0.95) 0%, rgba(40,30,20,0.9) 100%);
+    border:2px solid #8b6914; border-radius:8px; padding:8px 12px; display:flex; gap:6px; align-items:center;
+    box-shadow: inset 0 1px 0 rgba(139,105,20,.3), 0 2px 8px rgba(0,0,0,.6);
+  }
+  .skill-slot {
+    width:50px; height:50px; background: linear-gradient(135deg, rgba(40,30,20,1) 0%, rgba(20,15,10,1) 100%);
+    border:1px solid #8b6914; border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s; position:relative;
+  }
+  .skill-slot:hover { border-color:#d4af37; box-shadow:0 0 8px rgba(212,175,55,.4); }
+  .skill-slot.active { background: linear-gradient(135deg, rgba(212,175,55,.3) 0%, rgba(139,105,20,.2) 100%); border-color:#d4af37; box-shadow: inset 0 0 8px rgba(212,175,55,.3), 0 0 12px rgba(212,175,55,.5); }
+  .skill-icon { width:36px; height:36px; image-rendering:pixelated; }
+  .skill-key { position:absolute; top:-6px; right:-6px; background:#8b6914; color:#d4af37; font-size:8px; font-weight:700; width:12px; height:12px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid #d4af37; }
+  .skill-level { position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); background:#cc2936; color:#fff; font-size:8px; font-weight:700; padding:1px 4px; border-radius:8px; border:1px solid #8b6914; min-width:12px; text-align:center; }
 
-#charSelect canvas {
-  border: 1px solid #444 !important;
-  background: #111 !important;
-}
+  #gameInfo { margin-left:12px; padding-left:12px; border-left:1px solid #8b6914; color:#d4af37; font-family:'Segoe UI',sans-serif; font-size:9px; }
+  .info-line { margin-bottom:2px; display:flex; gap:6px; }
+  .info-label { color:#c4a484; }
+  .info-value { color:#d4af37; font-weight:700; }
+  .info-value.red { color:#ff4444; }
+  .info-value.green { color:#88ff88; }
+  .info-value.yellow { color:#ffdd44; }
 
-#chosen {
-  color: #e6ebef !important;
-  font-size: 20px !important;
-  margin-bottom: 20px !important;
-  opacity: 0.9 !important;
-}
+  /* Canvas frame & spacing for bottom bar */
+  canvas { border:3px solid #8b6914 !important; border-radius:0 !important; box-shadow: inset 0 0 0 1px #d4af37, 0 4px 8px rgba(0,0,0,.6) !important; margin-bottom:100px !important; }
 
-#chosenName {
-  color: #9fef00 !important;
-  font-weight: bold !important;
-}
+  /* Toast */
+  #toast { background: linear-gradient(135deg, rgba(60,45,30,0.95) 0%, rgba(40,30,20,0.9) 100%) !important; border:2px solid #8b6914 !important; color:#d4af37 !important; font-family:'Segoe UI',sans-serif !important; font-size:11px !important; font-weight:700 !important; box-shadow: inset 0 1px 0 rgba(139,105,20,.3), 0 2px 8px rgba(0,0,0,.6) !important; border-radius:6px !important; padding:8px 12px !important; bottom:120px !important; }
 
-#btnStart {
-  background: #151515 !important;
-  border: 1px solid #888 !important;
-  color: #fff !important;
-  font-family: system-ui, Segoe UI, Roboto, Arial !important;
-  font-size: 18px !important;
-  padding: 16px 32px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-}
+  /* Responsive */
+  @media (max-width: 768px) {
+    #gameUI { height: 80px; }
+    #healthOrb, #manaOrb { width: 60px; height: 60px; bottom: 8px; }
+    #healthOrb { left: 15px; }  #manaOrb { right: 15px; }
+    #skillPanel { bottom: 12px; padding: 6px 8px; }
+    .skill-slot { width: 28px; height: 28px; }
+    .skill-icon { width: 24px; height: 24px; }
+    #gameInfo { font-size: 8px; }
+    canvas { margin-bottom: 80px !important; }
+  }
 
-#btnStart:hover {
-  background: #252525 !important;
-}
-
-#btnStart.ready {
-  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
-  border-color: #4CAF50 !important;
-  color: #fff !important;
-  animation: pulse 2s infinite !important;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-}
-
-/* Reemplazar mejoras anteriores - Barra inferior completa estilo Diablo 2 */
-
-/* Ocultar HUD original */
-#topbar { display: none !important; }
-#hud { display: none !important; }
-
-/* Crear barra inferior completa */
-#gameUI {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100px;
-  background: linear-gradient(to bottom, 
-    rgba(0,0,0,0) 0%, 
-    rgba(20,15,10,0.3) 20%, 
-    rgba(40,30,20,0.8) 50%, 
-    rgba(60,45,30,0.95) 100%);
-  z-index: 1000;
-  pointer-events: auto; /* ← IMPORTANTE: antes era none */
-}
-
-/* Orbe de vida (izquierda) */
-#healthOrb {
-  position: absolute;
-  bottom: 10px;
-  left: 20px;
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle at 30% 30%, 
-    rgba(255,100,100,1) 0%, 
-    rgba(200,50,50,1) 40%, 
-    rgba(150,0,0,1) 80%, 
-    rgba(100,0,0,1) 100%);
-  border-radius: 50%;
-  border: 3px solid #8b6914;
-  box-shadow: 
-    inset 0 0 20px rgba(0,0,0,0.5),
-    0 0 15px rgba(139,105,20,0.6);
-  overflow: hidden;
-  cursor: pointer;
-}
-
-#healthOrbFill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top,
-    #cc2936 0%,
-    #ff4444 30%,
-    #ff6666 70%,
-    #ffaaaa 100%);
-  transition: height 0.3s ease;
-  border-radius: 0 0 50px 50px;
-}
-
-#healthText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 10px;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-  z-index: 2;
-}
-
-/* Orbe de maná (derecha) */
-#manaOrb {
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle at 30% 30%, 
-    rgba(100,150,255,1) 0%, 
-    rgba(50,100,200,1) 40%, 
-    rgba(0,50,150,1) 80%, 
-    rgba(0,25,100,1) 100%);
-  border-radius: 50%;
-  border: 3px solid #8b6914;
-  box-shadow: 
-    inset 0 0 20px rgba(0,0,0,0.5),
-    0 0 15px rgba(139,105,20,0.6);
-  overflow: hidden;
-  cursor: pointer;
-}
-
-#manaOrbFill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top,
-    #4169e1 0%,
-    #6495ed 30%,
-    #87ceeb 70%,
-    #b0e0e6 100%);
-  transition: height 0.3s ease;
-  border-radius: 0 0 50px 50px;
-}
-
-#manaText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 10px;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-  z-index: 2;
-}
-
-/* Panel central de habilidades */
-#skillPanel {
-  position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, 
-    rgba(60,45,30,0.95) 0%, 
-    rgba(40,30,20,0.9) 100%);
-  border: 2px solid #8b6914;
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  box-shadow: 
-    inset 0 1px 0 rgba(139,105,20,0.3),
-    0 2px 8px rgba(0,0,0,0.6);
-}
-
-.skill-slot {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, 
-    rgba(40,30,20,1) 0%, 
-    rgba(20,15,10,1) 100%);
-  border: 1px solid #8b6914;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  pointer-events: auto;
-}
-
-.skill-slot:hover { border-color: #d4af37; box-shadow: 0 0 8px rgba(212,175,55,0.4); }
-
-.skill-slot.active {
-  background: linear-gradient(135deg, rgba(212,175,55,0.3) 0%, rgba(139,105,20,0.2) 100%);
-  border-color: #d4af37;
-  box-shadow: inset 0 0 8px rgba(212,175,55,0.3), 0 0 12px rgba(212,175,55,0.5);
-}
-
-.skill-icon {
-  width: 36px !important;
-  height: 36px !important;
-  image-rendering: pixelated !important;
-}
-
-.skill-key {
-  position: absolute; top: -6px; right: -6px;
-  background: #8b6914; color: #d4af37; font-size: 8px; font-weight: bold;
-  width: 12px; height: 12px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; border: 1px solid #d4af37;
-}
-
-.skill-level {
-  position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-  background: #cc2936; color: white; font-size: 8px; font-weight: bold;
-  padding: 1px 4px; border-radius: 8px; border: 1px solid #8b6914; min-width: 12px; text-align: center;
-}
-
-/* Info adicional en el panel */
-#gameInfo {
-  margin-left: 12px; padding-left: 12px; border-left: 1px solid #8b6914;
-  color: #d4af37; font-family: 'Segoe UI', sans-serif; font-size: 9px;
-}
-
-.info-line { margin-bottom: 2px; display: flex; gap: 6px; }
-.info-label { color: #c4a484; }
-.info-value { color: #d4af37; font-weight: bold; }
-
-.info-value.red { color: #ff4444; }
-.info-value.green { color: #88ff88; }
-.info-value.yellow { color: #ffdd44; }
-
-/* Canvas ajustado para la nueva UI */
-canvas {
-  border: 3px solid #8b6914 !important;
-  border-radius: 0 !important;
-  box-shadow: inset 0 0 0 1px #d4af37, 0 4px 8px rgba(0, 0, 0, 0.6) !important;
-  margin-bottom: 100px !important;
-}
-
-/* Toast mejorado */
-#toast {
-  background: linear-gradient(135deg, rgba(60,45,30,0.95) 0%, rgba(40,30,20,0.9) 100%) !important;
-  border: 2px solid #8b6914 !important;
-  color: #d4af37 !important;
-  font-family: 'Segoe UI', sans-serif !important;
-  font-size: 11px !important;
-  font-weight: bold !important;
-  box-shadow: inset 0 1px 0 rgba(139,105,20,0.3), 0 2px 8px rgba(0,0,0,0.6) !important;
-  border-radius: 6px !important;
-  padding: 8px 12px !important;
-  bottom: 120px !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  #gameUI { height: 80px; }
-  #healthOrb, #manaOrb { width: 60px; height: 60px; bottom: 8px; }
-  #healthOrb { left: 15px; }  #manaOrb { right: 15px; }
-  #skillPanel { bottom: 12px; padding: 6px 8px; }
-  .skill-slot { width: 28px; height: 28px; }
-  .skill-icon { font-size: 14px; }
-  #gameInfo { font-size: 8px; }
-  canvas { margin-bottom: 80px !important; }
-}
-
-#healthOrb, #manaOrb, #skillPanel { pointer-events: auto; }
+  #healthOrb, #manaOrb, #skillPanel { pointer-events: auto; }
 </style>
 </head>
 <body>
- <!-- TOP -->
+  <!-- TOP (oculto por skin) -->
   <div id="topbar">
     <div class="pill">WASD/←→↑↓ Move</div>
     <div class="pill">Click shoots — 1🔥 2⚡ 3❄ 4🌑</div>
@@ -396,8 +148,15 @@ canvas {
     <div>Essence <span id="pts">0</span> · <span id="wname">Fire</span> Lv <span id="wlv">1</span></div>
   </div>
 
-  <!-- VIEWPORT + CANVAS RESPONSIVE -->
+  <!-- VIEWPORT + CANVAS -->
   <div id="viewport"><canvas id="game" width="960" height="540"></canvas></div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loading" class="show" aria-live="polite">
+    <div id="loadingTitle">ANOMA SURVIVAL</div>
+    <div id="loadingBar"><span id="loadingFill"></span></div>
+    <div id="loadingText">Preparando…</div>
+  </div>
 
   <!-- OVERLAY Muerte / Info -->
   <div id="overlay">
@@ -406,333 +165,167 @@ canvas {
     <button id="overlay-btn" class="btn">Continue</button>
   </div>
 
-  <!-- START SCREEN: selección ANOMAGE / SHRIMP -->
-  <div id="start" class="show">
-    <h1 style="margin:0 0 6px 0;">ANOMA SURVIVAL</h1>
-    <div style="opacity:.9;margin-bottom:10px">Choose your character and press <b>Play</b></div>
+  <!-- START SCREEN (aparece tras preload) -->
+  <div id="start">
+    <h1>ANOMA SURVIVAL</h1>
+    <div>Choose your character and press <b>Play</b></div>
 
     <div id="charSelect" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:10px">
-      <button class="char btn" data-hero="anomage" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <button class="char btn" data-hero="anomage">
         <span>ANOMAGE</span>
         <canvas id="prev-anomage" width="64" height="64" style="image-rendering:pixelated;border:1px solid #444;background:#111"></canvas>
       </button>
-      <button class="char btn" data-hero="shrimp" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <button class="char btn" data-hero="shrimp">
         <span>SHRIMP</span>
         <canvas id="prev-shrimp" width="64" height="64" style="image-rendering:pixelated;border:1px solid #444;background:#111"></canvas>
       </button>
     </div>
 
-    <div id="chosen" style="margin-bottom:6px;opacity:.9">Selected: <b id="chosenName">ANOMAGE</b></div>
+    <div id="chosen">Selected: <b id="chosenName">ANOMAGE</b></div>
     <button id="btnStart" class="btn">Play</button>
   </div>
 
   <!-- Sprites.json file loader (CORS en file://) -->
-  <div id="warn" style="display:none !important;">
+  <div id="warn">
     <span>No se pudo cargar <b>assets/Sprites.json</b> (CORS en <code>file://</code>). Usando rutas por defecto.</span>
     <button id="btn-pick" class="btn" style="padding:6px 10px;margin-top:0">Cargar Sprites.json…</button>
     <input id="file-pick" type="file" accept="application/json" style="display:none"/>
   </div>
   <div id="toast"></div>
 
+  <!-- Núcleo + optimizaciones -->
   <script src="game.js"></script>
   <script src="optimization.js"></script>
 
   <!-- Diablo 2 style bottom bar JS -->
   <script>
-// JavaScript para crear la barra inferior estilo Diablo 2
-// Añadir al final de tu index.html dentro de <script> tags
-
-// Helpers para acceder al estado aunque no esté en window
+/* Helpers de estado expuesto */
 function $GAME(){ try { return (typeof window!=='undefined' && window.GAME) || (typeof GAME!=='undefined' ? GAME : null); } catch(_) { return null; } }
 function $BIOME(){ try { return (typeof window!=='undefined' && typeof window.BIOME!=='undefined') ? window.BIOME : (typeof BIOME!=='undefined' ? BIOME : 0); } catch(_) { return 0; } }
 function $BOSS(){ try { return (typeof window!=='undefined' && typeof window.CURRENT_BOSS!=='undefined') ? window.CURRENT_BOSS : (typeof CURRENT_BOSS!=='undefined' ? CURRENT_BOSS : null); } catch(_) { return null; } }
 
-// Crear la barra inferior cuando el juego inicie
+/* Crear barra inferior */
 function createDiablo2UI() {
-  // Solo crear si no existe ya
   if (document.getElementById('gameUI')) return;
-  
-  // Crear contenedor principal
-  const gameUI = document.createElement('div');
-  gameUI.id = 'gameUI';
-  document.body.appendChild(gameUI);
-  
-  // Crear orbe de vida
+  const gameUI = document.createElement('div'); gameUI.id = 'gameUI'; document.body.appendChild(gameUI);
+
   const healthOrb = document.createElement('div');
   healthOrb.id = 'healthOrb';
-  healthOrb.innerHTML = `
-    <div id="healthOrbFill" style="height: 100%;"></div>
-    <div id="healthText">100/100</div>
-  `;
+  healthOrb.innerHTML = `<div id="healthOrbFill" style="height:100%;"></div><div id="healthText">100/100</div>`;
   gameUI.appendChild(healthOrb);
-  
-  // Crear orbe de maná
+
   const manaOrb = document.createElement('div');
   manaOrb.id = 'manaOrb';
-  manaOrb.innerHTML = `
-    <div id="manaOrbFill" style="height: 100%;"></div>
-    <div id="manaText">50/50</div>
-  `;
+  manaOrb.innerHTML = `<div id="manaOrbFill" style="height:100%;"></div><div id="manaText">50/50</div>`;
   gameUI.appendChild(manaOrb);
-  
-  // Crear panel de habilidades
+
   const skillPanel = document.createElement('div');
   skillPanel.id = 'skillPanel';
-skillPanel.innerHTML = `
-  <div class="skill-slot active" data-skill="fire">
-    <img class="skill-icon" src="assets/Sprites/image_spells/fireball_1.png" data-spell="fire" style="width: 50px; height: 50px; image-rendering: pixelated;">
-    <div class="skill-key">1</div>
-    <div class="skill-level" id="fireLevel">1</div>
-  </div>
-  <div class="skill-slot" data-skill="light">
-    <img class="skill-icon" src="assets/Sprites/image_spells/lightning_1.png" data-spell="light" style="width: 50px; height: 50px; image-rendering: pixelated;">
-    <div class="skill-key">2</div>
-    <div class="skill-level" id="lightLevel">1</div>
-  </div>
-  <div class="skill-slot" data-skill="ice">
-    <img class="skill-icon" src="assets/Sprites/image_spells/ice_shard_1.png" data-spell="ice" style="width: 50px; height: 50px; image-rendering: pixelated;">
-    <div class="skill-key">3</div>
-    <div class="skill-level" id="iceLevel">1</div>
-  </div>
-  <div class="skill-slot" data-skill="dark">
-    <img class="skill-icon" src="assets/Sprites/image_spells/dark_blast_1.png" data-spell="dark" style="width: 50px; height: 50px; image-rendering: pixelated;">
-    <div class="skill-key">4</div>
-    <div class="skill-level" id="darkLevel">1</div>
-  </div>
+  skillPanel.innerHTML = `
+    <div class="skill-slot active" data-skill="fire">
+      <img class="skill-icon" src="assets/Sprites/image_spells/fireball_1.png" alt="Fire">
+      <div class="skill-key">1</div>
+      <div class="skill-level" id="fireLevel">1</div>
+    </div>
+    <div class="skill-slot" data-skill="light">
+      <img class="skill-icon" src="assets/Sprites/image_spells/lightning_1.png" alt="Light">
+      <div class="skill-key">2</div>
+      <div class="skill-level" id="lightLevel">1</div>
+    </div>
+    <div class="skill-slot" data-skill="ice">
+      <img class="skill-icon" src="assets/Sprites/image_spells/ice_shard_1.png" alt="Ice">
+      <div class="skill-key">3</div>
+      <div class="skill-level" id="iceLevel">1</div>
+    </div>
+    <div class="skill-slot" data-skill="dark">
+      <img class="skill-icon" src="assets/Sprites/image_spells/dark_blast_1.png" alt="Dark">
+      <div class="skill-key">4</div>
+      <div class="skill-level" id="darkLevel">1</div>
+    </div>
     <div id="gameInfo">
-      <div class="info-line">
-        <span class="info-label">Map:</span>
-        <span class="info-value" id="mapValue">1</span>
-      </div>
-      <div class="info-line">
-        <span class="info-label">Kills:</span>
-        <span class="info-value" id="killsValue">0</span><span style="color:#666;">/50</span>
-      </div>
-      <div class="info-line">
-        <span class="info-label">Boss:</span>
-        <span class="info-value red" id="bossValue">—</span>
-      </div>
-      <div class="info-line">
-        <span class="info-label">Essence:</span>
-        <span class="info-value yellow" id="essenceValue">0</span>
-      </div>
+      <div class="info-line"><span class="info-label">Map:</span><span class="info-value" id="mapValue">1</span></div>
+      <div class="info-line"><span class="info-label">Kills:</span><span class="info-value" id="killsValue">0</span><span style="color:#666;">/50</span></div>
+      <div class="info-line"><span class="info-label">Boss:</span><span class="info-value red" id="bossValue">—</span></div>
+      <div class="info-line"><span class="info-label">Essence:</span><span class="info-value yellow" id="essenceValue">0</span></div>
     </div>
   `;
   gameUI.appendChild(skillPanel);
-  
-  setTimeout(() => {
-  drawSpellIcons();
-}, 1500);
-  
-  // Añadir eventos de clic a las habilidades
-  document.querySelectorAll('.skill-slot').forEach(slot => {
-    slot.addEventListener('click', () => {
-      const skill = slot.dataset.skill;
-      selectSkill(skill);
+
+  // Click para cambiar arma
+  document.querySelectorAll('.skill-slot').forEach(slot=>{
+    slot.addEventListener('click', ()=>{
+      document.querySelectorAll('.skill-slot').forEach(s=>s.classList.remove('active'));
+      slot.classList.add('active');
+      const G=$GAME(); if(G) G.weapon = slot.dataset.skill;
     });
   });
-  
-  console.log('UI Diablo 2 creada');
 }
 
-// Función para seleccionar habilidad
-function selectSkill(skillType) {
-  // Actualizar UI
-  document.querySelectorAll('.skill-slot').forEach(slot => {
-    slot.classList.remove('active');
-  });
-  
-  const activeSlot = document.querySelector(`[data-skill="${skillType}"]`);
-  if (activeSlot) {
-    activeSlot.classList.add('active');
-  }
-  
-  // Sincronizar con el juego original
-  const G = $GAME();
-  if (G) {
-    G.weapon = skillType;
-  }
-}
-
-// Función para actualizar los orbes
+/* Actualizaciones periódicas de UI */
 function updateDiablo2UI() {
-  const G = $GAME();
-  if (!G || !G.player) return;
-  
-  const player = G.player;
-  
-  // Actualizar orbe de vida
+  const G = $GAME(); if (!G || !G.player) return;
+  const p = G.player;
+
   const healthFill = document.getElementById('healthOrbFill');
   const healthText = document.getElementById('healthText');
   if (healthFill && healthText) {
-    const healthPercent = Math.max(0, Math.min(100, (player.hp / player.hpMax) * 100));
-    healthFill.style.height = `${healthPercent}%`;
-    healthText.textContent = `${Math.round(player.hp)}/${player.hpMax}`;
+    const hpPct = Math.max(0, Math.min(100, (p.hp/p.hpMax)*100));
+    healthFill.style.height = `${hpPct}%`;
+    healthText.textContent = `${Math.round(p.hp)}/${p.hpMax}`;
   }
-  
-  // Actualizar orbe de maná
+
   const manaFill = document.getElementById('manaOrbFill');
   const manaText = document.getElementById('manaText');
   if (manaFill && manaText) {
-    const manaPercent = Math.max(0, Math.min(100, (player.mana / player.manaMax) * 100));
-    manaFill.style.height = `${manaPercent}%`;
-    manaText.textContent = `${Math.round(player.mana)}/${player.manaMax}`;
+    const mpPct = Math.max(0, Math.min(100, (p.mana/p.manaMax)*100));
+    manaFill.style.height = `${mpPct}%`;
+    manaText.textContent = `${Math.round(p.mana)}/${p.manaMax}`;
   }
-  
-  // Actualizar info del juego
+
   const mapValue = document.getElementById('mapValue');
   const killsValue = document.getElementById('killsValue');
   const bossValue = document.getElementById('bossValue');
   const essenceValue = document.getElementById('essenceValue');
-  
-  if (mapValue) {
-    mapValue.textContent = ($BIOME()|0) + 1;
-  }
-  
-  if (killsValue && typeof G.killed !== 'undefined') {
-    killsValue.textContent = G.killed;
-  }
-  
+
+  if (mapValue) mapValue.textContent = ($BIOME()|0) + 1;
+  if (killsValue) killsValue.textContent = G.killed|0;
+
   const B = $BOSS();
   if (bossValue) {
-    if (B) {
-      bossValue.textContent = B.dead ? 'Dead' : 'Alive';
-      bossValue.className = B.dead ? 'info-value green' : 'info-value red';
-    } else {
-      bossValue.textContent = '—';
-      bossValue.className = 'info-value';
-    }
+    if (B) { bossValue.textContent = B.dead ? 'Dead' : 'Alive'; bossValue.className = B.dead ? 'info-value green' : 'info-value red'; }
+    else { bossValue.textContent = '—'; bossValue.className = 'info-value'; }
   }
-  
-  if (essenceValue && typeof G.points !== 'undefined') {
-    essenceValue.textContent = G.points;
-  }
-  
-  // Actualizar niveles de habilidades
-  ['fire', 'light', 'ice', 'dark'].forEach(skill => {
-    const levelEl = document.getElementById(`${skill}Level`);
-    if (levelEl && G.upgrades) {
-      levelEl.textContent = G.upgrades[skill] || 1;
-    }
+  if (essenceValue) essenceValue.textContent = G.points|0;
+
+  // Nivel y arma activa
+  ['fire','light','ice','dark'].forEach(k=>{
+    const el=document.getElementById(k+'Level');
+    if (el) el.textContent = (G.upgrades?.[k]||1);
   });
-  
-  // Sincronizar arma activa
   if (G.weapon) {
-    const active = document.querySelector(`[data-skill="${G.weapon}"]`);
-    if (active && !active.classList.contains('active')) {
-      selectSkill(G.weapon);
-    }
+    document.querySelectorAll('.skill-slot').forEach(s=>s.classList.toggle('active', s.dataset.skill===G.weapon));
   }
 }
 
-// Escuchar teclas para cambiar habilidades
-document.addEventListener('keydown', (e) => {
-  const keyMap = { '1': 'fire', '2': 'light', '3': 'ice', '4': 'dark' };
+/* Teclas rápidas 1-4 (arma) */
+document.addEventListener('keydown', (e)=>{
+  const map = { '1':'fire', '2':'light', '3':'ice', '4':'dark' };
   const G = $GAME();
-  if (keyMap[e.key] && G && G.running) {
-    selectSkill(keyMap[e.key]);
-  }
+  if (map[e.key] && G && G.running) { G.weapon = map[e.key]; }
 });
 
-// ----- Inicialización robusta -----
-let uiCreated = false;
+/* Init UI de forma robusta */
 function ensureUI(){
-  if(!document.getElementById('gameUI')){
-    createDiablo2UI();
-    uiCreated = true;
-  }
+  if(!document.getElementById('gameUI')) createDiablo2UI();
 }
-
-// 1) Crear al cargar DOM / ventana
 document.addEventListener('DOMContentLoaded', ensureUI);
 window.addEventListener('load', ensureUI);
-// 2) Hook al botón Play
-const _btnStart = document.getElementById('btnStart');
-if (_btnStart) {
-  _btnStart.addEventListener('click', () => {
-    ensureUI();
-    setTimeout(ensureUI, 300);
-  });
-}
-// 3) Observar pantalla de inicio
 const startEl = document.getElementById('start');
 if (startEl) {
-  const obs = new MutationObserver(() => {
-    if (!startEl.classList.contains('show')) ensureUI();
-  });
-  obs.observe(startEl, { attributes: true, attributeFilter: ['class'] });
+  const obs = new MutationObserver(()=>{ if (!startEl.classList.contains('show')) ensureUI(); });
+  obs.observe(startEl, { attributes:true, attributeFilter:['class'] });
 }
-// 4) Bucle de actualización
-setInterval(() => {
-  if (!uiCreated) ensureUI();
-  const G = $GAME();
-  if (G && G.player) {
-    updateDiablo2UI();
-    
-    // Verificar si los iconos están vacíos y redibujarlos
-    const fireCanvas = document.querySelector('#skillPanel canvas[data-spell="fire"]');
-    if (fireCanvas) {
-      const ctx = fireCanvas.getContext('2d');
-      const imageData = ctx.getImageData(0, 0, 24, 24);
-      const isEmpty = imageData.data.every(pixel => pixel === 0);
-      if (isEmpty) {
-        drawSpellIcons();
-      }
-    }
-  }
-}, 100);
-    
-// 5) Helpers globales
-window.FORCE_DIABLO_UI = ensureUI;
-window.UPDATE_DIABLO_UI = updateDiablo2UI;
-
-// AÑADIR ESTA FUNCIÓN AQUÍ:
-function drawSpellIcons() {
-  const G = $GAME();
-  if (!G || !G.cache) {
-    setTimeout(drawSpellIcons, 200);
-    return;
-  }
-  
-  const spells = ['fire', 'light', 'ice', 'dark'];
-  
-  spells.forEach(spell => {
-    const canvas = document.querySelector(`#skillPanel canvas[data-spell="${spell}"]`);
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    canvas.style.background = 'transparent';
-    canvas.style.border = 'none';
-    ctx.clearRect(0, 0, 24, 24);
-    
-    if (ATLAS && ATLAS.spells && ATLAS.spells[spell]) {
-      const spellPath = ATLAS.spells[spell][0];
-      const img = G.cache[spellPath];
-      
-      if (img && img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, 0, 0, 24, 24);
-        return;
-      }
-    }
-    
-    const colors = { fire: '#ff4444', light: '#ffff44', ice: '#44aaff', dark: '#8844ff' };
-    ctx.fillStyle = colors[spell];
-    ctx.fillRect(2, 2, 20, 20);
-    ctx.strokeStyle = '#000';
-    ctx.strokeRect(2, 2, 20, 20);
-  });
-}
-
+setInterval(()=>{ ensureUI(); updateDiablo2UI(); }, 100);
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
