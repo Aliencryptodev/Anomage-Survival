@@ -164,6 +164,70 @@
     #charSelect{grid-template-columns:repeat(2,minmax(160px,200px)); gap:18px}
     .portrait{width:112px;height:112px}
   }
+/* --- FIX: tarjetas de personaje centradas y con doble marco --- */
+#charSelect{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(240px,260px));
+  gap:28px;
+  align-items:start;
+  justify-content:center;
+}
+
+#charSelect .char{
+  width:260px;
+  padding:18px;
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
+/* el canvas hace de “retrato” */
+#charSelect .char canvas{
+  width:140px; height:140px;
+  background:#0f0f0f;
+  border:2px solid #3a3a3a;      /* marco exterior gris */
+  border-radius:10px;
+  position:relative;              /* necesario para ::after */
+  image-rendering:pixelated;
+}
+
+/* marco interior dorado, centrado */
+#charSelect .char canvas::after{
+  content:"";
+  position:absolute; inset:12px;
+  border:2px solid #8b6914;
+  border-radius:6px;
+  pointer-events:none;
+}
+
+/* estado seleccionado */
+#charSelect .char.selected{
+  border:2px solid #9fef00;
+  box-shadow:0 0 0 2px rgba(159,239,0,.25) inset,
+             0 0 12px rgba(159,239,0,.28);
+  background:#1a1a1a;
+}
+
+/* nombre bajo el retrato */
+#charSelect .char span{
+  font-size:12px; letter-spacing:.6px; opacity:.9;
+}
+
+/* oculta la barra “Diablo” mientras está visible la pantalla de start */
+#start.show ~ #gameUI{ display:none !important; }
+
+/* Responsive para las tarjetas */
+@media (max-width: 768px){
+  #charSelect{
+    grid-template-columns:repeat(2, minmax(180px,200px));
+    gap:20px;
+  }
+  #charSelect .char{ width:200px; padding:14px; }
+  #charSelect .char canvas{ width:112px; height:112px; }
+  #charSelect .char canvas::after{ inset:10px; }
+}
 
   #healthOrb, #manaOrb, #skillPanel { pointer-events:auto; }
 </style>
@@ -377,16 +441,36 @@ document.addEventListener('keydown', (e)=>{
   if (map[e.key] && G && G.running) { G.weapon = map[e.key]; }
 });
 
-/* Init UI robusto */
-function ensureUI(){ if(!document.getElementById('gameUI')) createDiablo2UI(); }
+/* Init UI robusto: no crear la UI si el start está visible */
+function ensureUI(){
+  const start = document.getElementById('start');
+  const startVisible = start && start.classList.contains('show');
+  if (!startVisible && !document.getElementById('gameUI')) {
+    createDiablo2UI();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', ensureUI);
 window.addEventListener('load', ensureUI);
+
 const startEl = document.getElementById('start');
 if (startEl) {
-  const obs = new MutationObserver(()=>{ if (!startEl.classList.contains('show')) ensureUI(); });
-  obs.observe(startEl, { attributes:true, attributeFilter:['class'] });
+  const obs = new MutationObserver(() => {
+    const visible = startEl.classList.contains('show');
+
+    // cuando se cierre el start, crea la UI si aún no existe
+    if (!visible) ensureUI();
+
+    // si el start vuelve a mostrarse, oculta la UI ya creada
+    const ui = document.getElementById('gameUI');
+    if (ui) ui.style.display = visible ? 'none' : '';
+  });
+  obs.observe(startEl, { attributes: true, attributeFilter: ['class'] });
 }
-setInterval(()=>{ ensureUI(); updateDiablo2UI(); }, 100);
-  </script>
+
+/* tick de la UI (no hace falta llamar a ensureUI aquí) */
+setInterval(() => { updateDiablo2UI(); }, 100);
+</script>
 </body>
 </html>
+
