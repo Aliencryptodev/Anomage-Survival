@@ -4,121 +4,173 @@
 <meta charset="utf-8"/>
 <title>Anoma Survival</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<!-- Retro fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+
 <style>
-  :root { --ui-bg: rgba(0,0,0,.55); --ui-pill:#0b1220; --ui-border:#3b4252; }
-  html,body{height:100%;margin:0;background:#0e0f13;color:#e6ebef;font:14px/1.2 system-ui,Segoe UI,Roboto,Arial}
-  #topbar{position:fixed;left:0;right:0;top:0;padding:8px 10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));z-index:6}
-  .pill{padding:2px 6px;border:1px solid var(--ui-border);border-radius:999px;background:var(--ui-pill);font:12px monospace}
-  .ok{color:#9fef00}
-  #hud{position:fixed;top:8px;right:10px;font:13px monospace;opacity:.92;text-align:right;z-index:6}
-  #hud div{margin-bottom:2px}
-  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-  canvas{background:#101014;image-rendering:pixelated;border:1px solid #1f2630;box-shadow:0 0 0 1px #000}
-
-  /* Overlays */
-  #overlay,#start{
-    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-    flex-direction:column; background:#000; color:#fff; font-weight:700; text-align:center;
-    z-index:2000;        /* <-- más alto que #gameUI */
+  :root{
+    --ui-bg: rgba(0,0,0,.55);
+    --ui-pill:#0b1220;
+    --ui-border:#3b4252;
+    --gold:#d4af37;
+    --gold-dark:#8b6914;
+    --title:'Press Start 2P', system-ui, sans-serif;
+    --retro:'Pixelify Sans', system-ui, sans-serif;
   }
+
+  html,body{
+    height:100%; margin:0; background:#0e0f13; color:#e6ebef;
+    font:14px/1.25 var(--retro);
+  }
+
+  /* ===== Top/hud (ocultos por la skin) ===== */
+  #topbar{position:fixed;left:0;right:0;top:0;padding:8px 10px;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.2));z-index:6}
+  .pill{padding:2px 6px;border:1px solid var(--ui-border);border-radius:999px;background:var(--ui-pill);font:12px var(--retro)}
+  .ok{color:#9fef00}
+  #hud{position:fixed;top:8px;right:10px;font:13px var(--retro);opacity:.92;text-align:right;z-index:6}
+  #hud div{margin-bottom:2px}
+  #topbar { display:none !important; }
+  #hud    { display:none !important; }
+
+  /* ===== Canvas ===== */
+  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  canvas{background:#101014;image-rendering:pixelated;border:3px solid var(--gold-dark)!important;border-radius:0!important;box-shadow:inset 0 0 0 1px var(--gold),0 4px 8px rgba(0,0,0,.6)!important;margin-bottom:100px!important}
+
+  /* ===== Overlay / Start ===== */
+  #overlay,#start{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;color:#fff;font-weight:700;z-index:10;text-align:center}
   #overlay.show,#start.show{display:flex}
-
-  /* Start screen tweaks */
-  #start h1 { font-size: 48px; margin: 0 0 20px 0; letter-spacing: 2px; }
-  #start > div { font-size: 18px; margin-bottom: 30px; }
-  #charSelect { gap: 40px; margin-bottom: 30px; }
-  #charSelect .char { padding: 20px 24px; font-size: 18px; gap: 12px; }
-  #charSelect canvas { width: 96px; height: 96px; border: 2px solid #444; }
-  #chosen { font-size: 20px; margin-bottom: 20px; }
-  #btnStart { padding: 16px 32px; font-size: 18px; }
-
-  .btn{margin-top:12px;padding:10px 14px;border-radius:8px;border:1px solid #888;background:#151515;color:#fff;cursor:pointer;font:14px/1 monospace}
+  .btn{
+    margin-top:12px;padding:12px 18px;border-radius:8px;border:2px solid var(--gold-dark);
+    background:#151515;color:#fff;cursor:pointer;font:12px var(--retro); letter-spacing:.5px;
+    box-shadow:0 2px 8px rgba(0,0,0,.6); transition:.15s transform;
+  }
+  .btn:hover{ transform:translateY(-1px); }
   #warn{position:fixed;bottom:10px;left:10px;right:10px;padding:10px;border:1px dashed #555;border-radius:8px;background:#111c;display:none;z-index:7}
   #warn.show{display:block}
-  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--ui-pill);border:1px solid var(--ui-border);padding:6px 10px;border-radius:8px;opacity:0;transition:.2s;pointer-events:auto;font:12px monospace;z-index:7}
-  #toast.show{opacity:1}
-
-  /* Loading Screen */
-  #loading { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #0e0f13; color: #e6ebef; z-index: 1500; }
-  #loading:not(.show){ display:none; }
-  #loading h1 { margin: 0 0 8px 0; letter-spacing: 2px; font-weight: 800; font-size: 42px; }
-  #loading .loadbar { width: min(520px, 80vw); height: 8px; background: #1a1f2a; border: 1px solid #8b6914; border-radius: 10px; box-shadow: inset 0 1px 0 rgba(212,175,55,.25); }
-  #loading .loadbar .fill { height: 100%; background: linear-gradient(90deg,#ff6b35,#d4af37,#4CAF50); transition: width .25s ease; }
-  #loading #loadingMsg { opacity: .85; font-size: 14px; }
-  #loadingControls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; padding: 14px 18px; border: 1px solid #8b6914; border-radius: 8px;
-                     background: linear-gradient(135deg, rgba(60,45,30,.35), rgba(35,28,20,.35)); font-family: system-ui, Segoe UI, Roboto, Arial; font-size: 14px; }
-  #loadingControls .col > div { margin: 3px 0; white-space: nowrap; }
-
-  /* Hide original HUDs (usamos Diablo UI) */
-  #topbar { display:none !important; }
-  #hud { display:none !important; }
-
-  /* Diablo 2 style bottom bar */
-  #gameUI {
-    position: fixed; bottom: 0; left: 0; right: 0; height: 100px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(20,15,10,0.3) 20%, rgba(40,30,20,0.8) 50%, rgba(60,45,30,0.95) 100%);
-    z-index: 1000; pointer-events:auto;
-  }
-  /* Desactiva la barra cuando hay overlay visible */
-  #start.show ~ #gameUI,
-  #overlay.show ~ #gameUI { pointer-events:none; filter: grayscale(.3) opacity(.6); }
-
-  /* Orbs */
-  #healthOrb, #manaOrb {
-    position:absolute; bottom:10px; width:80px; height:80px; border-radius:50%;
-    border:3px solid #8b6914; box-shadow: inset 0 0 20px rgba(0,0,0,.5), 0 0 15px rgba(139,105,20,.6);
-    overflow:hidden; cursor:pointer;
-  }
-  #healthOrb { left:20px; background: radial-gradient(circle at 30% 30%, rgba(255,100,100,1) 0%, rgba(200,50,50,1) 40%, rgba(150,0,0,1) 80%, rgba(100,0,0,1) 100%); }
-  #manaOrb { right:20px; background: radial-gradient(circle at 30% 30%, rgba(100,150,255,1) 0%, rgba(50,100,200,1) 40%, rgba(0,50,150,1) 80%, rgba(0,25,100,1) 100%); }
-  #healthOrbFill, #manaOrbFill { position:absolute; bottom:0; left:0; right:0; transition:height .3s ease; border-radius:0 0 50px 50px; }
-  #healthOrbFill { background: linear-gradient(to top,#cc2936 0%,#ff4444 30%,#ff6666 70%,#ffaaaa 100%); }
-  #manaOrbFill { background: linear-gradient(to top,#4169e1 0%,#6495ed 30%,#87ceeb 70%,#b0e0e6 100%); }
-  #healthText,#manaText { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#fff; font:700 10px 'Segoe UI',sans-serif; text-shadow:1px 1px 2px rgba(0,0,0,.8); z-index:2 }
-
-  /* Skill panel */
-  #skillPanel {
-    position:absolute; bottom:15px; left:50%; transform:translateX(-50%);
+  #toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:120px;
     background: linear-gradient(135deg, rgba(60,45,30,0.95) 0%, rgba(40,30,20,0.9) 100%);
-    border:2px solid #8b6914; border-radius:8px; padding:8px 12px; display:flex; gap:6px; align-items:center;
+    border:2px solid var(--gold-dark); padding:8px 12px;border-radius:6px;opacity:0;transition:.2s;
+    pointer-events:auto;font:11px var(--retro); color:var(--gold); z-index:7;
     box-shadow: inset 0 1px 0 rgba(139,105,20,.3), 0 2px 8px rgba(0,0,0,.6);
   }
-  .skill-slot { width:50px; height:50px; background: linear-gradient(135deg, rgba(40,30,20,1) 0%, rgba(20,15,10,1) 100%); border:1px solid #8b6914; border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s; position:relative; }
-  .skill-slot:hover { border-color:#d4af37; box-shadow:0 0 8px rgba(212,175,55,.4); }
-  .skill-slot.active { background: linear-gradient(135deg, rgba(212,175,55,.3) 0%, rgba(139,105,20,.2) 100%); border-color:#d4af37; box-shadow: inset 0 0 8px rgba(212,175,55,.3), 0 0 12px rgba(212,175,55,.5); }
-  .skill-icon { width:36px; height:36px; image-rendering:pixelated; }
-  .skill-key { position:absolute; top:-6px; right:-6px; background:#8b6914; color:#d4af37; font-size:8px; font-weight:700; width:12px; height:12px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid #d4af37; }
-  .skill-level { position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); background:#cc2936; color:#fff; font-size:8px; font-weight:700; padding:1px 4px; border-radius:8px; border:1px solid #8b6914; min-width:12px; text-align:center; }
+  #toast.show{opacity:1}
 
-  #gameInfo { margin-left:12px; padding-left:12px; border-left:1px solid #8b6914; color:#d4af37; font-family:'Segoe UI',sans-serif; font-size:9px; }
-  .info-line { margin-bottom:2px; display:flex; gap:6px; }
-  .info-label { color:#c4a484; }
-  .info-value { color:#d4af37; font-weight:700; }
-  .info-value.red { color:#ff4444; }
-  .info-value.green { color:#88ff88; }
-  .info-value.yellow { color:#ffdd44; }
+  /* ===== Loading overlay (pulido) ===== */
+  #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0e0f13;color:#e6ebef;z-index:9999}
+  #loading:not(.show){display:none;}
+  #loading h1{
+    margin:0 0 6px 0; font: clamp(20px,3.4vw,38px) var(--title); color:#fff; letter-spacing:2px;
+    text-shadow:0 2px 0 rgba(0,0,0,.4);
+  }
+  .loadbar{width:min(560px,82vw); height:10px; background:#1a1510; border:1px solid var(--gold-dark); border-radius:10px; overflow:hidden; box-shadow: inset 0 1px 0 rgba(212,175,55,.25)}
+  .loadbar .fill{height:100%; width:0%; background: linear-gradient(90deg,#ff6b35,var(--gold),#4CAF50); transition: width .25s ease;}
+  #loadingMsg{opacity:.9; font:12px var(--retro); letter-spacing:.8px}
 
-  /* Canvas frame & spacing for bottom bar */
-  canvas { border:3px solid #8b6914 !important; border-radius:0 !important; box-shadow: inset 0 0 0 1px #d4af37, 0 4px 8px rgba(0,0,0,.6) !important; margin-bottom:100px !important; }
+  /* Pretty controls panel */
+  #loadingControls{
+    display:grid; grid-template-columns:1fr 1fr; gap:12px 32px;
+    padding:14px 18px; border:1px solid var(--gold-dark); border-radius:10px;
+    background:linear-gradient(135deg, rgba(60,45,30,.35), rgba(35,28,20,.35));
+    font:12px var(--retro); color:#e6ebef; width:min(560px,86vw);
+  }
+  #loadingControls .col>div{display:flex;align-items:center;gap:10px;margin:6px 0}
+  kbd.key{
+    min-width:22px;height:22px; padding:0 6px; border:2px solid var(--gold-dark); border-radius:6px;
+    display:inline-flex;align-items:center;justify-content:center;background:#151515; box-shadow: inset 0 1px 0 rgba(212,175,55,.25);
+    font:11px var(--retro); color:#fff; letter-spacing:.5px;
+  }
+  .action{opacity:.85}
 
-  /* Toast */
-  #toast { background: linear-gradient(135deg, rgba(60,45,30,0.95) 0%, rgba(40,30,20,0.9) 100%) !important; border:2px solid #8b6914 !important; color:#d4af37 !important; font-family:'Segoe UI',sans-serif !important; font-size:11px !important; font-weight:700 !important; box-shadow: inset 0 1px 0 rgba(139,105,20,.3), 0 2px 8px rgba(0,0,0,.6) !important; border-radius:6px !important; padding:8px 12px !important; bottom:120px !important; }
+  /* ===== Start screen (alineado/bonito) ===== */
+  #start{background:#0e0f13;color:#e6ebef;font-family:var(--retro)}
+  #start h1{font: clamp(22px,3.2vw,36px) var(--title); margin:0 0 8px 0; letter-spacing:2px}
+  #start>div{opacity:.95; margin-bottom:20px; letter-spacing:.4px}
+  #charSelect{
+    display:grid; grid-template-columns:repeat(2,minmax(220px,260px));
+    gap:26px; justify-content:center; margin-bottom:16px;
+  }
+  .char{
+    background:#151515; border:2px solid #444; color:#fff; border-radius:10px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:12px; padding:18px; transition:.15s transform, .15s border-color, .15s box-shadow;
+  }
+  .char:hover{ transform: translateY(-2px); border-color:#aaa }
+  .char.selected{ border:2px solid #9fef00; background:#1a1a1a; box-shadow:0 0 10px rgba(159,239,0,0.28) }
+  .portrait{
+    width:128px; height:128px; display:grid; place-items:center; background:#0f0f0f;
+    border:2px solid #444; border-radius:8px; box-shadow: inset 0 0 0 1px #222;
+  }
+  #charSelect canvas{ width:96px; height:96px; image-rendering:pixelated; background:transparent; border:none }
+  .char-name{font:12px var(--retro); letter-spacing:.6px; opacity:.9}
+  #chosen{font:13px var(--retro); margin-top:4px; color:#e6ebef}
+  #chosenName{color:#9fef00}
+
+  #btnStart{
+    padding:14px 28px; border:2px solid var(--gold-dark); border-radius:10px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color:#fff; font:12px var(--retro); letter-spacing:.8px; cursor:pointer;
+  }
+  #btnStart.ready{ animation:pulse 2s infinite }
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(76,175,80,.7)}70%{box-shadow:0 0 0 14px rgba(76,175,80,0)}100%{box-shadow:0 0 0 0 rgba(76,175,80,0)}}
+
+  /* ===== Bottom “Diablo” UI (fuente retro) ===== */
+  #gameUI{
+    position:fixed; bottom:0; left:0; right:0; height:100px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(20,15,10,0.3) 20%, rgba(40,30,20,0.8) 50%, rgba(60,45,30,0.95) 100%);
+    z-index:1000; pointer-events:auto; font-family:var(--retro)
+  }
+  #healthOrb,#manaOrb{
+    position:absolute; bottom:10px; width:80px; height:80px; border-radius:50%;
+    border:3px solid var(--gold-dark); box-shadow: inset 0 0 20px rgba(0,0,0,.5), 0 0 15px rgba(139,105,20,.6); overflow:hidden; cursor:pointer;
+  }
+  #healthOrb{left:20px;background: radial-gradient(circle at 30% 30%, rgba(255,100,100,1) 0%, rgba(200,50,50,1) 40%, rgba(150,0,0,1) 80%, rgba(100,0,0,1) 100%)}
+  #manaOrb{right:20px;background: radial-gradient(circle at 30% 30%, rgba(100,150,255,1) 0%, rgba(50,100,200,1) 40%, rgba(0,50,150,1) 80%, rgba(0,25,100,1) 100%)}
+  #healthOrbFill,#manaOrbFill{position:absolute; bottom:0; left:0; right:0; transition:height .3s ease; border-radius:0 0 50px 50px}
+  #healthOrbFill{background: linear-gradient(to top,#cc2936 0%,#ff4444 30%,#ff6666 70%,#ffaaaa 100%)}
+  #manaOrbFill{background: linear-gradient(to top,#4169e1 0%,#6495ed 30%,#87ceeb 70%,#b0e0e6 100%)}
+  #healthText,#manaText{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#fff; font:700 10px var(--retro); text-shadow:1px 1px 2px rgba(0,0,0,.8); z-index:2}
+
+  #skillPanel{
+    position:absolute; bottom:15px; left:50%; transform:translateX(-50%);
+    background: linear-gradient(135deg, rgba(60,45,30,0.95) 0%, rgba(40,30,20,0.9) 100%);
+    border:2px solid var(--gold-dark); border-radius:8px; padding:8px 12px; display:flex; gap:8px; align-items:center;
+    box-shadow: inset 0 1px 0 rgba(139,105,20,.3), 0 2px 8px rgba(0,0,0,.6);
+    font-family:var(--retro)
+  }
+  .skill-slot{width:50px; height:50px; background: linear-gradient(135deg, rgba(40,30,20,1) 0%, rgba(20,15,10,1) 100%); border:1px solid var(--gold-dark); border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s; position:relative}
+  .skill-slot:hover{ border-color:var(--gold); box-shadow:0 0 8px rgba(212,175,55,.4) }
+  .skill-slot.active{ background: linear-gradient(135deg, rgba(212,175,55,.25) 0%, rgba(139,105,20,.15) 100%); border-color:var(--gold); box-shadow: inset 0 0 8px rgba(212,175,55,.25), 0 0 12px rgba(212,175,55,.45) }
+  .skill-icon{ width:36px; height:36px; image-rendering:pixelated }
+  .skill-key{position:absolute; top:-6px; right:-6px; background:var(--gold-dark); color:var(--gold); font:700 9px var(--retro); width:14px; height:14px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid var(--gold)}
+  .skill-level{position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); background:#cc2936; color:#fff; font:700 9px var(--retro); padding:1px 4px; border-radius:8px; border:1px solid var(--gold-dark); min-width:12px; text-align:center}
+  #gameInfo{margin-left:12px; padding-left:12px; border-left:1px solid var(--gold-dark); color:var(--gold); font:9px var(--retro)}
+  .info-line{margin-bottom:2px; display:flex; gap:6px}
+  .info-label{color:#c4a484}
+  .info-value{color:var(--gold); font-weight:700}
+  .info-value.red{color:#ff4444} .info-value.green{color:#88ff88} .info-value.yellow{color:#ffdd44}
 
   /* Responsive */
-  @media (max-width: 768px) {
-    #gameUI { height: 80px; }
-    #healthOrb, #manaOrb { width: 60px; height: 60px; bottom: 8px; }
-    #healthOrb { left: 15px; }  #manaOrb { right: 15px; }
-    #skillPanel { bottom: 12px; padding: 6px 8px; }
-    .skill-slot { width: 28px; height: 28px; }
-    .skill-icon { width: 24px; height: 24px; }
-    #gameInfo { font-size: 8px; }
-    canvas { margin-bottom: 80px !important; }
+  @media (max-width: 768px){
+    #gameUI{height:80px}
+    #healthOrb,#manaOrb{width:60px;height:60px;bottom:8px}
+    #healthOrb{left:15px} #manaOrb{right:15px}
+    #skillPanel{bottom:12px;padding:6px 8px}
+    .skill-slot{width:28px;height:28px} .skill-icon{width:24px;height:24px}
+    #gameInfo{font-size:8px}
+    canvas{margin-bottom:80px!important}
+    #charSelect{grid-template-columns:repeat(2,minmax(160px,200px)); gap:18px}
+    .portrait{width:112px;height:112px}
   }
+
+  #healthOrb, #manaOrb, #skillPanel { pointer-events:auto; }
 </style>
 </head>
 <body>
-  <!-- TOP (oculto por skin) -->
+
+  <!-- (ocultos) -->
   <div id="topbar">
     <div class="pill">WASD/←→↑↓ Move</div>
     <div class="pill">Click shoots — 1🔥 2⚡ 3❄ 4🌑</div>
@@ -133,43 +185,61 @@
   <!-- VIEWPORT + CANVAS -->
   <div id="viewport"><canvas id="game" width="960" height="540"></canvas></div>
 
-  <!-- OVERLAY Muerte / Info -->
+  <!-- OVERLAY muerte -->
   <div id="overlay">
-    <div id="overlay-text" style="font-size:28px;letter-spacing:.5px;"></div>
-    <div id="overlay-sub" style="opacity:.9;margin-top:6px;"></div>
+    <div id="overlay-text" style="font:16px var(--retro);letter-spacing:.5px;"></div>
+    <div id="overlay-sub" style="opacity:.9;margin-top:6px;font:12px var(--retro)"></div>
     <button id="overlay-btn" class="btn">Continue</button>
   </div>
 
-  <!-- LOADING OVERLAY -->
+  <!-- LOADING -->
   <div id="loading" class="show">
     <h1>ANOMA SURVIVAL</h1>
     <div class="loadbar"><div class="fill" id="loadingFill" style="width:0%"></div></div>
     <div id="loadingMsg">LOADING</div>
+
+    <!-- Controles bonitos -->
     <div id="loadingControls">
       <div class="col">
-        <div><b>WASD / ←↑→↓</b> — MOVE</div>
-        <div><b>CLICK</b> — SHOOT</div>
-        <div><b>1 · 2 · 3 · 4</b> — CHANGE SPELL</div>
+        <div>
+          <kbd class="key">W</kbd><kbd class="key">A</kbd><kbd class="key">S</kbd><kbd class="key">D</kbd>
+          <span class="action">— MOVE</span>
+        </div>
+        <div>
+          <kbd class="key">CLICK</kbd>
+          <span class="action">— SHOOT</span>
+        </div>
       </div>
       <div class="col">
-        <div><b>Space</b> — RUN</div>
+        <div>
+          <kbd class="key">Space</kbd>
+          <span class="action">— RUN</span>
+        </div>
+        <div>
+          <kbd class="key">1</kbd><kbd class="key">2</kbd><kbd class="key">3</kbd><kbd class="key">4</kbd>
+          <span class="action">— CHANGE SPELL</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- START SCREEN (aparece tras preload) -->
+  <!-- START (selección alineada) -->
   <div id="start">
     <h1>ANOMA SURVIVAL</h1>
     <div>CHOOSE YOUR CHARACTER AND PRESS <b>Play</b></div>
 
-    <div id="charSelect" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:10px">
-      <button class="char btn" data-hero="anomage">
-        <span>ANOMAGE</span>
-        <canvas id="prev-anomage" width="64" height="64" style="image-rendering:pixelated;border:1px solid #444;background:#111"></canvas>
+    <div id="charSelect">
+      <button class="char" data-hero="anomage">
+        <div class="portrait">
+          <canvas id="prev-anomage" width="64" height="64"></canvas>
+        </div>
+        <div class="char-name">ANOMAGE</div>
       </button>
-      <button class="char btn" data-hero="shrimp">
-        <span>SHRIMP</span>
-        <canvas id="prev-shrimp" width="64" height="64" style="image-rendering:pixelated;border:1px solid #444;background:#111"></canvas>
+      <button class="char" data-hero="shrimp">
+        <div class="portrait">
+          <canvas id="prev-shrimp" width="64" height="64"></canvas>
+        </div>
+        <div class="char-name">SHRIMP</div>
       </button>
     </div>
 
@@ -177,19 +247,20 @@
     <button id="btnStart" class="btn">Play</button>
   </div>
 
-  <!-- Sprites.json file loader (CORS en file://) -->
+  <!-- Sprites.json loader -->
   <div id="warn">
     <span>No se pudo cargar <b>assets/Sprites.json</b> (CORS en <code>file://</code>). Usando rutas por defecto.</span>
     <button id="btn-pick" class="btn" style="padding:6px 10px;margin-top:0">Cargar Sprites.json…</button>
     <input id="file-pick" type="file" accept="application/json" style="display:none"/>
   </div>
+
   <div id="toast"></div>
 
   <!-- Núcleo + optimizaciones -->
   <script src="game.js"></script>
   <script src="optimization.js"></script>
 
-  <!-- Diablo 2 style bottom bar JS -->
+  <!-- Diablo-style bottom bar (sin cambios funcionales) -->
   <script>
 /* Helpers de estado expuesto */
 function $GAME(){ try { return (typeof window!=='undefined' && window.GAME) || (typeof GAME!=='undefined' ? GAME : null); } catch(_) { return null; } }
@@ -306,10 +377,8 @@ document.addEventListener('keydown', (e)=>{
   if (map[e.key] && G && G.running) { G.weapon = map[e.key]; }
 });
 
-/* Init UI de forma robusta */
-function ensureUI(){
-  if(!document.getElementById('gameUI')) createDiablo2UI();
-}
+/* Init UI robusto */
+function ensureUI(){ if(!document.getElementById('gameUI')) createDiablo2UI(); }
 document.addEventListener('DOMContentLoaded', ensureUI);
 window.addEventListener('load', ensureUI);
 const startEl = document.getElementById('start');
