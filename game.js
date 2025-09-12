@@ -717,10 +717,7 @@ function draw(){
   ctx.restore();
 
   // HUD overlay
-  drawMinimap();
-
-  if (MINIMAP.enabled) drawMinimap();
-}
+if (MINIMAP.enabled) drawMinimap();
 
 /* ===== Boot + responsive + start ===== */
 btnPick.addEventListener('click',()=>filePick.click());
@@ -758,14 +755,14 @@ async function boot(reuse=false){
     // Loading screen visible
     const loading = document.getElementById('loading');
     const fill = document.getElementById('loadingFill');
-    const ltext = document.getElementById('loadingText');
-    loading?.classList.add('show');
+    const ltext = document.getElementById('loadingMsg'); // id correcto
+    if (loading) loading.classList.add('show');
 
     progressEl.textContent = ""; // sin textos
-    GAME.cache = await preloadAll(ATLAS,(n,t)=>{
-    const p = n/t;
-    if (fill) fill.style.width = (p*100).toFixed(1) + '%';
-    // no tocamos ltext ni progressEl
+    GAME.cache = await preloadAll(ATLAS, (n, t) => {
+    const p = n / t;
+    if (fill) fill.style.width = (p * 100).toFixed(1) + '%';
+    // No tocamos textos para que no aparezca "Cargando sprites (x/y)"
     });
 
 
@@ -780,8 +777,8 @@ async function boot(reuse=false){
     drawHeroPreview('prev-shrimp','shrimp');
     hookCharacterSelection();
 
-    // Oculta loading y muestra selección (ya puedes jugar sin esperas)
-    loading?.classList.remove('show');
+    // Oculta cualquier loader y muestra selección
+    document.querySelectorAll('#loading').forEach(el => el.classList.remove('show'));
     startDiv?.classList.add('show');
     btnStart?.classList.add('ready');
 
@@ -804,6 +801,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
