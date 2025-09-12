@@ -1,5 +1,5 @@
 /* =========================================================
-   ANOMA SURVIVAL — núcleo del juego
+   ANOMA SURVIVAL — núcleo del juego (revisado)
    ========================================================= */
 
 /* ===== Canvas & DOM ===== */
@@ -55,13 +55,13 @@ const PROPS_DEF = {
 };
 
 /* ===== RPG: mana y pociones ===== */
-const MANA_REGEN_PER_SEC = 5;     // mana que regenera por segundo
-const SHOT_MANA_COST     = 2;     // coste por disparo
+const MANA_REGEN_PER_SEC = 5;
+const SHOT_MANA_COST     = 2;
 const POTION_HP_AMOUNT   = 35;
 const POTION_MANA_AMOUNT = 30;
-const DROP_POTION_CHANCE = 0.20;  // 20% de drop de poción si no hay gema
+const DROP_POTION_CHANCE = 0.20;
 
-/* ===== Audio (opcional, si faltan archivos no rompe) ===== */
+/* ===== Audio ===== */
 const SFX = {
   fire: "assets/audio/fire.wav",
   light: "assets/audio/lightning.wav",
@@ -72,7 +72,7 @@ const SFX = {
   portal: "assets/audio/portal.wav",
   bossdeath: "assets/audio/boss_death.wav"
 };
-let bgm=null; // música actual
+let bgm=null;
 function playSfx(name, vol=.8){ const src=SFX[name]; if(!src) return; const a=new Audio(); a.src=src; a.volume=vol; a.play().catch(()=>{}); }
 function playMusic(src){ if(!src) return; if(bgm){ bgm.pause(); bgm=null; } bgm=new Audio(src); bgm.loop=true; bgm.volume=0.35; bgm.play().catch(()=>{}); }
 
@@ -87,32 +87,27 @@ let GAME = {
 };
 let CURRENT_BOSS=null;
 
-/* === Exponer estado al objeto window para overlays externos (barra Diablo 2) === */
+/* Exponer estado */
 try{
-  Object.defineProperty(window, 'GAME', {
-    get: () => GAME,
-    configurable: true
-  });
-  Object.defineProperty(window, 'BIOME', {
-    get: () => BIOME,
-    set: v => { BIOME = v; },
-    configurable: true
-  });
-  Object.defineProperty(window, 'CURRENT_BOSS', {
-    get: () => CURRENT_BOSS,
-    set: v => { CURRENT_BOSS = v; },
-    configurable: true
-  });
-}catch(e){
-  // entornos sin window
-}
+  Object.defineProperty(window, 'GAME', {get: () => GAME, configurable: true});
+  Object.defineProperty(window, 'BIOME', {get: () => BIOME, set: v => { BIOME = v; }, configurable: true});
+  Object.defineProperty(window, 'CURRENT_BOSS', {get: () => CURRENT_BOSS, set: v => { CURRENT_BOSS = v; }, configurable: true});
+}catch(e){}
 
 /* ===== Input ===== */
-const Input={keys:new Set(),mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false}};
+const Input={keys:new Set(),mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false},dash:false};
 window.addEventListener('keydown',e=>Input.keys.add(e.key.toLowerCase()));
 window.addEventListener('keyup',e=>Input.keys.delete(e.key.toLowerCase()));
+// dash una vez por pulsación
+window.addEventListener('keydown', (e)=>{ if (e.code==='Space' || e.key===' ') { Input.dash=true; e.preventDefault(); } }, {passive:false});
+
 cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();Input.mouse.x=(e.clientX-r.left)*(cv.width/r.width);Input.mouse.y=(e.clientY-r.top)*(cv.height/r.height);});
-cv.addEventListener('mousedown',()=>Input.mouse.down=true); window.addEventListener('mouseup',()=>Input.mouse.down=false);
+cv.addEventListener('mousedown',()=>Input.mouse.down=true);
+window.addEventListener('mouseup',()=>Input.mouse.down=false);
+// Soporte táctil básico
+cv.addEventListener('touchstart', (e)=>{ const t=e.touches[0]; const r=cv.getBoundingClientRect(); Input.mouse.x=(t.clientX-r.left)*(cv.width/r.width); Input.mouse.y=(t.clientY-r.top)*(cv.height/r.height); Input.mouse.down=true; e.preventDefault(); }, {passive:false});
+cv.addEventListener('touchmove', (e)=>{ const t=e.touches[0]; const r=cv.getBoundingClientRect(); Input.mouse.x=(t.clientX-r.left)*(cv.width/r.width); Input.mouse.y=(t.clientY-r.top)*(cv.height/r.height); }, {passive:false});
+cv.addEventListener('touchend', ()=>{ Input.mouse.down=false; });
 
 /* ===== Utils ===== */
 function lerp(a,b,t){return a+(b-a)*t}
@@ -124,7 +119,7 @@ function rngRange(r,a,b){return a+r()*(b-a)}
 function worldToChunk(x,y){return {cx:Math.floor(x/CHUNK_SIZE),cy:Math.floor(y/CHUNK_SIZE)}}
 function placeholder(text="MISS"){const c=document.createElement('canvas');c.width=64;c.height=64;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle="#1d1f27";g.fillRect(0,0,64,64);g.strokeStyle="#4f46e5";g.lineWidth=3;g.strokeRect(3,3,58,58);g.fillStyle="#c7d2fe";g.font="bold 10px monospace";g.fillText(text,10,36);const im=new Image();im.src=c.toDataURL();return im}
 
-/* ===== Sprites.json (carga con fallback local) ===== */
+/* ===== Sprites.json (carga con fallback) ===== */
 function normalizeAtlasPaths(json){
   const out={}; for(const g in json){ out[g]={}; for(const a in json[g]){ out[g][a]=json[g][a].map(p=>p.startsWith("assets/")?p:("assets/"+p)); } } return out;
 }
@@ -178,12 +173,20 @@ async function preloadAll(atlas,onProgress){
 /* ===== Animación simple ===== */
 class Animator{constructor(frames,fps=8){this.frames=frames;this.fps=fps;this.t=0;this.i=0}update(dt){const ft=1000/this.fps;this.t+=dt;while(this.t>=ft){this.t-=ft;this.i=(this.i+1)%this.frames.length}}get frame(){return this.frames[this.i]}}
 
-/* ===== Player ===== */
+/* ===== Player (+ Dash) ===== */
 class Player{
   constructor(cache, atlas, heroKey='anomage'){
     this.cache=cache; this.atlas=atlas; this.heroKey=heroKey;
     this.x=1024; this.y=1024; this.spd=0.24; this.hpMax=100; this.hp=100; this.manaMax=50; this.mana=50;
     this.dir='down'; this.moving=false; this.fireCd=0;
+
+    // Dash
+    this.dashCdMax = 900;   // ms
+    this.dashDur   = 160;   // ms
+    this.dashMul   = 2.7;
+    this.dashCd    = 0;
+    this.dashT     = 0;
+    this.lastMove  = {x:0,y:1};
 
     const H = atlas[this.heroKey] || atlas.anomage;
     this.animIdle = new Animator(H.idle.map(p=>cache[p]), 4);
@@ -203,15 +206,37 @@ class Player{
     this.moving=(vx||vy);
     if(this.moving){
       const l=Math.hypot(vx,vy); vx/=l; vy/=l;
-      this.x+=vx*this.spd*dt; this.y+=vy*this.spd*dt;
-      if(Math.abs(vx)>Math.abs(vy))this.dir=(vx<0)?'left':'right'; else if(vy!==0)this.dir=(vy<0)?'up':'down';
+      this.lastMove.x = vx; this.lastMove.y = vy;
     }
+
+    // Dash
+    this.dashCd = Math.max(0, this.dashCd - dt);
+    if (Input.dash && this.dashCd<=0) {
+      this.dashT = this.dashDur;
+      this.dashCd = this.dashCdMax;
+      Input.dash = false;
+      // playSfx('hit', .2); // opcional feedback
+    }
+    let speedMul = (this.dashT>0) ? this.dashMul : 1;
+    if (this.dashT>0) this.dashT -= dt;
+
+    if(this.moving){
+      this.x+=vx*this.spd*speedMul*dt; this.y+=vy*this.spd*speedMul*dt;
+      if(Math.abs(vx)>Math.abs(vy))this.dir=(vx<0)?'left':'right'; else if(vy!==0)this.dir=(vy<0)?'up':'down';
+    } else if (this.dashT>0) {
+      // dash en la última dirección aunque no haya input
+      this.x+=this.lastMove.x*this.spd*speedMul*dt; this.y+=this.lastMove.y*this.spd*speedMul*dt;
+    }
+
     // regen mana
     if (this.mana < this.manaMax) this.mana = Math.min(this.manaMax, this.mana + (MANA_REGEN_PER_SEC/1000)*dt);
 
     this.animIdle.update(dt); for(const k of ['up','down','left','right'])this.anim[k].update(dt); this.fireCd-=dt;
   }
   draw(){
+    if (this.dashT>0) { // pequeño aura
+      ctx.save(); ctx.globalAlpha=0.25; ctx.beginPath(); ctx.arc(this.x,this.y,20,0,Math.PI*2); ctx.fillStyle='#d4af37'; ctx.fill(); ctx.restore();
+    }
     const img=this.moving?this.anim[this.dir].frame:this.animIdle.frame;
     if(!this.moving&&this.dir==='left'){ctx.save();ctx.translate(this.x,this.y);ctx.scale(-1,1);ctx.drawImage(img,-32,-32,64,64);ctx.restore();return;}
     ctx.drawImage(img,this.x-32,this.y-32,64,64);
@@ -221,7 +246,7 @@ class Player{
 /* ===== Enemy ===== */
 class Enemy{
   constructor(opts){
-    Object.assign(this,opts); // x,y,type,boss,frames,idleFrames,attackFrames,deathFrame
+    Object.assign(this,opts);
     this.r = this.boss?28:22;
     this.hpMax = this.boss?900:50; this.hp=this.hpMax;
     this.spdBase = (this.boss?0.08:0.11);
@@ -250,8 +275,10 @@ class Enemy{
     this.hitT-=dt;
 
     if(!this.dead && dist2(this.x,this.y,player.x,player.y) < (this.r+18)*(this.r+18)) {
-    const damageMultiplier = this.boss ? 0.03 : 0.008;
-    player.hp=Math.max(0,player.hp - dt*damageMultiplier*this.dmg);
+      const damageMultiplier = this.boss ? 0.03 : 0.008;
+      player.hp=Math.max(0,player.hp - dt*damageMultiplier*this.dmg);
+      // knockback opcional:
+      // const k = this.boss ? 0.025 : 0.015; player.x += (dx/d)*k*dt; player.y += (dy/d)*k*dt;
     }
 
     if(this.boss){
@@ -281,22 +308,16 @@ class Enemy{
   }
 }
 
-// === Proyectil animado (4 frames) ===
-function projFps(kind){
-  // FPS por elemento (ajusta si quieres)
-  return ({ fire:12, light:18, ice:10, dark:8 }[kind] || 12);
-}
+/* ===== Proyectil (animado) ===== */
+function projFps(kind){ return ({ fire:12, light:18, ice:10, dark:8 }[kind] || 12); }
 
 class Proj{
   constructor(frames,x,y,vx,vy,opts={}){
-    // frames: array de 4 imágenes del hechizo
     this.frames = (frames && frames.length) ? frames : [placeholder("PRJ")];
-    this.anim = new Animator(this.frames, projFps(opts.kind)); // ← animación
-
+    this.anim = new Animator(this.frames, projFps(opts.kind));
     this.x=x; this.y=y;
     const spd=opts.spd||0.75;
     this.vx=vx*spd; this.vy=vy*spd;
-
     this.life=opts.life||900;
     this.baseDmg=opts.dmg||18;
     this.r=opts.r||12;
@@ -307,39 +328,24 @@ class Proj{
     this.scale=opts.scale||1;
     this.owner=opts.owner||'player';
   }
-
   get dmg(){
     const lv=GAME.upgrades[this.kind]||1;
     return Math.round(this.baseDmg * (1 + 0.28*(lv-1)));
   }
-
   update(dt){
-    this.x += this.vx*dt;
-    this.y += this.vy*dt;
-    this.life -= dt;
+    this.x += this.vx*dt; this.y += this.vy*dt; this.life -= dt;
     if (this.life <= 0) this.dead = true;
-    this.anim.update(dt); // ← avanza animación
+    this.anim.update(dt);
   }
-
   draw(){
-    const img = this.anim.frame; // ← frame animado
-    if (!img) return;
-
-    // tamaño escala con el nivel
+    const img = this.anim.frame; if (!img) return;
     const s = 32 * (1 + 0.22 * ((GAME.upgrades[this.kind]||1) - 1));
-
-    // orientar hacia la dirección de movimiento
     const ang = Math.atan2(this.vy, this.vx);
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(ang);
-    ctx.drawImage(img, -s/2, -s/2, s, s);
-    ctx.restore();
+    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(ang); ctx.drawImage(img, -s/2, -s/2, s, s); ctx.restore();
   }
 }
 
 class Pickup{
-  // kind: "fire"|"light"|"ice"|"dark"|"potion_hp"|"potion_mana"
   constructor(x,y,kind){
     this.x=x; this.y=y; this.kind=kind; this.r=16; this.bounce=0;
     if (kind==="potion_hp")      { this.img=GAME.cache[ITEM_IMAGES.potion_hp]||null; this.size=28; }
@@ -353,45 +359,13 @@ class Pickup{
   }
 }
 class Portal{ 
-  constructor(x,y){ 
-    this.x=x; 
-    this.y=y; 
-    this.r=28; 
-    this.t=0; 
-    this.bounce=0;
-    // Cargar imagen del portal
-    this.img = GAME.cache[ITEM_IMAGES.portal] || null;
-  } 
-  
-  update(dt){ 
-    this.t+=dt; 
-    this.bounce+=dt*0.003; // Animación de rebote
-  } 
-  
+  constructor(x,y){ this.x=x; this.y=y; this.r=28; this.t=0; this.bounce=0; this.img = GAME.cache[ITEM_IMAGES.portal] || null; } 
+  update(dt){ this.t+=dt; this.bounce+=dt*0.003; } 
   draw(){ 
-    const bob = Math.sin(this.bounce) * 1; // Efecto de flotación
-    const pulse = 1 + Math.sin(this.t * 0.008) * 0.1; // Efecto de pulsación
-    
-    ctx.save(); 
-    ctx.translate(this.x, this.y - bob);
-    ctx.scale(pulse, pulse);
-    
-    if(this.img) {
-      // Dibujar la imagen del portal
-      const size = 128;
-      ctx.drawImage(this.img, -size/2, -size/2, size, size);
-    } else {
-      // Fallback: círculos animados (código original)
-      const t=this.t*0.005; 
-      for(let i=0;i<3;i++){ 
-        ctx.beginPath(); 
-        ctx.arc(0,0,this.r+i*8+Math.sin(t+i)*2,0,Math.PI*2); 
-        ctx.strokeStyle=i===0?"#5df5ff":(i===1?"#78ffc6":"#d9a6ff"); 
-        ctx.lineWidth=3; 
-        ctx.stroke(); 
-      }
-    }
-    
+    const bob = Math.sin(this.bounce) * 1; const pulse = 1 + Math.sin(this.t * 0.008) * 0.1;
+    ctx.save(); ctx.translate(this.x, this.y - bob); ctx.scale(pulse, pulse);
+    if(this.img) { const size = 128; ctx.drawImage(this.img, -size/2, -size/2, size, size); }
+    else { const t=this.t*0.005; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(0,0,this.r+i*8+Math.sin(t+i)*2,0,Math.PI*2); ctx.strokeStyle=i===0?"#5df5ff":(i===1?"#78ffc6":"#d9a6ff"); ctx.lineWidth=3; ctx.stroke(); } }
     ctx.restore(); 
   } 
 }
@@ -408,25 +382,40 @@ function drawPlayerHPBar(p){
   ctx.fillStyle = ratio > 0.5 ? "#5CFF6C" : (ratio > 0.25 ? "#FFD15C" : "#FF5C5C"); ctx.fillRect(x, y, W*ratio, H);
   ctx.strokeStyle="#000"; ctx.strokeRect(x, y, W, H);
 }
-function drawHUD(player){
-  const hpRatio = Math.max(0, player.hp / player.hpMax);
-  const manaRatio = Math.max(0, player.mana / player.manaMax);
-  const barWidth = 260, barHeight = 20; const x = 20, y = 20;
 
-  ctx.fillStyle = "#000"; ctx.fillRect(x-2, y-2, barWidth+4, barHeight+4);
-  ctx.fillStyle = "#333"; ctx.fillRect(x, y, barWidth, barHeight);
-  ctx.fillStyle = hpRatio > 0.5 ? "#4CAF50" : (hpRatio > 0.25 ? "#FFC107" : "#F44336");
-  ctx.fillRect(x, y, barWidth * hpRatio, barHeight);
-  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(x, y, barWidth, barHeight);
-  ctx.fillStyle = "#fff"; ctx.font = "14px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(`HP: ${Math.round(player.hp)} / ${player.hpMax}`, x + barWidth/2, y + barHeight/2);
+/* ===== Minimapa ===== */
+const MINIMAP = { x: 14, y: 14, w: 170, h: 110, radius: 900 };
+function drawMinimap(){
+  const p = GAME.player; if(!p) return;
+  const {x,y,w,h,radius} = MINIMAP;
+  const cx = x + w/2, cy = y + h/2;
+  const scaleX = w / (radius*2), scaleY = h / (radius*2);
 
-  const manaY = y + barHeight + 10;
-  ctx.fillStyle = "#000"; ctx.fillRect(x-2, manaY-2, barWidth+4, barHeight+4);
-  ctx.fillStyle = "#333"; ctx.fillRect(x, manaY, barWidth, barHeight);
-  ctx.fillStyle = "#2196F3"; ctx.fillRect(x, manaY, barWidth * manaRatio, barHeight);
-  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(x, manaY, barWidth, barHeight);
-  ctx.fillStyle = "#fff"; ctx.fillText(`Mana: ${Math.round(player.mana)} / ${player.manaMax}`, x + barWidth/2, manaY + barHeight/2);
+  ctx.save();
+  ctx.fillStyle = 'rgba(12,12,14,0.75)'; ctx.fillRect(x-2,y-2,w+4,h+4);
+  ctx.strokeStyle = '#8b6914'; ctx.strokeRect(x-2,y-2,w+4,h+4);
+  ctx.fillStyle = '#0f0f14'; ctx.fillRect(x,y,w,h);
+
+  // jugador
+  ctx.fillStyle='#d4af37'; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+
+  // enemigos
+  ctx.fillStyle='#ff4d4d';
+  const r2 = radius*radius;
+  for(const e of GAME.enemies){
+    if(e.dead) continue;
+    const dx = e.x - p.x, dy = e.y - p.y, d2 = dx*dx+dy*dy;
+    if(d2>r2) continue;
+    const mx = cx + dx*scaleX, my = cy + dy*scaleY;
+    if (mx>=x && mx<=x+w && my>=y && my<=y+h) ctx.fillRect(mx-1,my-1,2,2);
+  }
+
+  // portal
+  if (GAME.portal){
+    const dx = GAME.portal.x - p.x, dy = GAME.portal.y - p.y, d2 = dx*dx+dy*dy;
+    if (d2<=r2){ const mx = cx + dx*scaleX, my = cy + dy*scaleY; ctx.fillStyle='#5df5ff'; ctx.fillRect(mx-2,my-2,4,4); }
+  }
+  ctx.restore();
 }
 
 /* ===== Mundo / props / chunks ===== */
@@ -480,7 +469,15 @@ function spawnMinionNear(x,y){
 }
 function spawnMinion(){ const R=420; const a=Math.random()*Math.PI*2; const x=CAMERA.x+Math.cos(a)*R, y=CAMERA.y+Math.sin(a)*R; spawnMinionNear(x,y); }
 function spawnBoss(){ const bd=bossData(); const e=new Enemy({frames:bd.idleFrames,idleFrames:bd.idleFrames,attackFrames:bd.attackFrames,deathFrame:bd.deathFrame,x:CAMERA.x,y:CAMERA.y-160,boss:true,type:"boss"}); GAME.enemies.push(e); CURRENT_BOSS=e; bossEl.textContent="Vivo"; }
-function resetWave(){ GAME.killed=0; killsEl.textContent=0; GAME.enemies.length=0; GAME.pickups.length=0; GAME.projectiles.length=0; CURRENT_BOSS=null; GAME.portal=null; bossEl.textContent="—"; let toSpawn=WAVE_KILL_TARGET; const t=setInterval(()=>{ if(toSpawn<=0){clearInterval(t);return;} spawnMinion(); toSpawn--; }, 330); }
+
+/* Spawns por dt (sin setInterval) */
+let spawnT = 0, toSpawn = 0;
+function resetWave(){
+  GAME.killed=0; killsEl.textContent=0;
+  GAME.enemies.length=0; GAME.pickups.length=0; GAME.projectiles.length=0;
+  CURRENT_BOSS=null; GAME.portal=null; bossEl.textContent="—";
+  toSpawn = WAVE_KILL_TARGET; spawnT = 0;
+}
 
 /* ===== Disparos jugador ===== */
 function framesSpellCached(kind){ return framesSpell(kind); }
@@ -501,15 +498,9 @@ function shootPlayer(){
   const a=Math.atan2( (Input.mouse.y - VIRT_H/2) + CAMERA.y - GAME.player.y, (Input.mouse.x - VIRT_W/2) + CAMERA.x - GAME.player.x );
   const vx=Math.cos(a), vy=Math.sin(a); const ox=GAME.player.x+vx*26, oy=GAME.player.y+vy*26;
   const p=makeProj(GAME.weapon,ox,oy,vx,vy,{owner:'player'}); GAME.projectiles.push(p);
-   
-  let weaponVolume = 0.8; // Volumen por defecto
-  if (GAME.weapon === 'light') {
-  weaponVolume = 0.2; // Puedes ajustar este valor, por ejemplo a 0.4
-  }
-  
+  let weaponVolume = (GAME.weapon === 'light') ? 0.2 : 0.8;
   playSfx(GAME.weapon, weaponVolume);
-
-  }
+}
 
 /* ===== IA ataques de jefes ===== */
 function bossAttackPattern(boss,player){
@@ -517,7 +508,7 @@ function bossAttackPattern(boss,player){
   const shootRing=(kind,n=10,spd=0.55,dmg=8)=>{ for(let i=0;i<n;i++){ const a=i/n*Math.PI*2; const vx=Math.cos(a),vy=Math.sin(a); const p=makeProj(kind,boss.x+vx*24,boss.y+vy*24,vx,vy,{owner:'enemy'}); p.baseDmg=dmg; GAME.projectiles.push(p);} playSfx(kind, .6); };
 
   switch(BIOME){
-    case 0: // Ent: lanza troncos
+    case 0: // Ent
       for(let i=0;i<3;i++){
         const baseA=Math.atan2(player.y-boss.y,player.x-boss.x)+ (i-1)*0.18;
         const vx=Math.cos(baseA),vy=Math.sin(baseA);
@@ -527,11 +518,11 @@ function bossAttackPattern(boss,player){
         GAME.projectiles.push(p);
       }
       break;
-    case 1: // Nécromante: invoca esqueletos + oscuro triple
+    case 1: // Nécromante
       for(let i=0;i<2;i++) spawnMinionNear(boss.x,boss.y);
       shootAimed("dark",0.20,3,0.75,8)
       break;
-    case 2: // Golem: slam piedras radial
+    case 2: // Golem
       for(let i=0;i<12;i++){
         const a=i/12*Math.PI*2; const vx=Math.cos(a),vy=Math.sin(a);
         const frames=[ GAME.cache["assets/props/rock.png"] ];
@@ -541,12 +532,12 @@ function bossAttackPattern(boss,player){
       }
       playSfx("hit");
       break;
-    case 3: // Lich: ráfaga rayos
+    case 3: // Lich
       shootAimed("light",0.14,5,0.95,2)
       break;
-    case 4: // Demon: fuego abanico + anillo
-      shootAimed("fire",0.10,5,0.82,2) 
-       setTimeout(()=>shootRing("fire",5,0.55,2),180);
+    case 4: // Demon
+      shootAimed("fire",0.10,5,0.82,2);
+      setTimeout(()=>shootRing("fire",5,0.55,2),180);
       break;
   }
 }
@@ -595,7 +586,7 @@ function projectileHits(){
 function separateEnemies(dt){
   const cell=72; const buckets=new Map();
   function key(x,y){return ((x/cell)|0)+"," + ((y/cell)|0);}
-  for(const e of GAME.enemies){ if(e.dead) continue; const k=key(e.x,e.y); (buckets.get(k)||buckets.set(k,[]).get(k)).push(e); }
+  for(const e of GAME.enemies){ if(e.dead) continue; const k=key(e.x,e.y); if(!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(e); }
   const neigh=[ [0,0],[1,0],[0,1],[1,1],[-1,0],[0,-1],[-1,-1],[1,-1],[-1,1] ];
   for(const [k,list] of buckets){
     const [cx,cy]=k.split(',').map(Number);
@@ -634,6 +625,9 @@ function update(dt){
   if(Input.keys.has('3')){GAME.weapon='ice';}
   if(Input.keys.has('4')){GAME.weapon='dark';}
   wnameEl.textContent={fire:"Fire",light:"Light",ice:"Ice",dark:"Dark"}[GAME.weapon]; wlvEl.textContent=GAME.upgrades[GAME.weapon]||1; ptsEl.textContent=GAME.points;
+
+  // Spawns por dt
+  if (toSpawn > 0) { spawnT -= dt; if (spawnT<=0) { spawnMinion(); toSpawn--; spawnT = 330; } }
 
   handleShooting();
   for(const pr of GAME.projectiles) pr.update(dt);
@@ -681,7 +675,10 @@ function draw(){
   }
   ctx.restore();
 
-  if (SHOW_CANVAS_HUD) drawHUD(GAME.player); // HUD superior vida/mana (opcional)
+  // HUD overlay
+  drawMinimap();
+
+  if (SHOW_CANVAS_HUD) drawHUD(GAME.player);
 }
 
 /* ===== Boot + responsive + start ===== */
@@ -700,6 +697,8 @@ function hookCharacterSelection(){
   const buttons=document.querySelectorAll('#charSelect .char');
   buttons.forEach(btn=>{
     btn.addEventListener('click', ()=>{
+      buttons.forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
       SELECTED_HERO_KEY = btn.dataset.hero;
       SELECTED_HERO_NAME = (SELECTED_HERO_KEY==='shrimp') ? 'SHRIMP' : 'ANOMAGE';
       chosenNameEl.textContent = SELECTED_HERO_NAME;
@@ -709,9 +708,24 @@ function hookCharacterSelection(){
 
 async function boot(reuse=false){
   try{
-    if(!reuse){ try{ ATLAS=normalizeAtlasPaths(await tryFetchSpritesJson()); document.getElementById('spritesState').innerHTML='Sprites <span class="ok">✔</span>'; } catch{ ATLAS=normalizeAtlasPaths(defaultAtlasJson()); warn.classList.add('show'); } }
+    // Cargar atlas (o fallback) — antes de precarga
+    if(!reuse){
+      try{ ATLAS=normalizeAtlasPaths(await tryFetchSpritesJson()); document.getElementById('spritesState').innerHTML='Sprites <span class="ok">✔</span>'; }
+      catch{ ATLAS=normalizeAtlasPaths(defaultAtlasJson()); warn.classList.add('show'); }
+    }
+
+    // Loading screen visible
+    const loading = document.getElementById('loading');
+    const fill = document.getElementById('loadingFill');
+    const ltext = document.getElementById('loadingText');
+    loading?.classList.add('show');
+
     progressEl.textContent="cargando…";
-    GAME.cache = await preloadAll(ATLAS,(n,t)=>progressEl.innerHTML=`<span class="ok">(${n}/${t})</span> ✔`);
+    GAME.cache = await preloadAll(ATLAS,(n,t)=>{
+      const p=n/t; if(fill) fill.style.width=(p*100).toFixed(1)+'%';
+      if(ltext) ltext.textContent = `Cargando sprites (${n}/${t})`;
+      progressEl.innerHTML=`<span class="ok">(${n}/${t})</span> ✔`;
+    });
 
     for(const p of uniquePropSrcs()) WORLD.propsImgs.set(p, GAME.cache[p]);
 
@@ -724,24 +738,27 @@ async function boot(reuse=false){
     drawHeroPreview('prev-shrimp','shrimp');
     hookCharacterSelection();
 
+    // Oculta loading y muestra selección (ya puedes jugar sin esperas)
+    loading?.classList.remove('show');
+    startDiv?.classList.add('show');
+    btnStart?.classList.add('ready');
+
     let last=performance.now();
     (function loop(now){const dt=now-last; last=now; if(GAME.running){ update(dt); draw(); } else { draw(); } requestAnimationFrame(loop);})(last);
   }catch(err){ progressEl.textContent="Error: "+err.message; console.error(err); }
 }
 
-document.getElementById('btnStart').addEventListener('click',async ()=>{
+btnStart.addEventListener('click',async ()=>{
+  // No arrancar si no hay player (seguridad)
+  if(!GAME.player){ toast('Cargando…'); return; }
   startDiv.classList.remove('show');
   try{ if(document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); }catch{}
   playMusic(BIOMES[BIOME].music);
-  // recrea el player con el héroe elegido
+  // recrea con héroe elegido
   GAME.player = new Player(GAME.cache, ATLAS, SELECTED_HERO_KEY);
-  GAME.running=true;
+  CAMERA.x=GAME.player.x; CAMERA.y=GAME.player.y; biomeEl.textContent=BIOME+1;
+  resetWave(); GAME.running=true; toast('¡Juego iniciado!');
 });
-cv.addEventListener('mousedown',()=>{ if(GAME.running) shootPlayer(); });
 
 // inicia
 boot();
-
-
-
-
