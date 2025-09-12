@@ -418,17 +418,16 @@ function drawMinimap(){
   ctx.save();
   ctx.globalAlpha = 0.96;
 
-  // panel y borde (se verá completo gracias al margen top/right)
-  ctx.fillStyle = "#090b10";
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = "#d4af37";
-  ctx.lineWidth = border;
-  ctx.strokeRect(x, y, w, h);
+// panel y borde (borde 100% visible en los 4 lados)
+ctx.fillStyle = "#090b10";
+ctx.fillRect(x, y, w, h);
 
-  // clip interior
-  ctx.beginPath();
-  ctx.rect(x + border, y + border, w - 2*border, h - 2*border);
-  ctx.clip();
+// borde amarillo pintado hacia dentro
+ctx.fillStyle = "#d4af37";
+ctx.fillRect(x, y, w, border);                 // top
+ctx.fillRect(x, y + h - border, w, border);    // bottom
+ctx.fillRect(x, y, border, h);                 // left
+ctx.fillRect(x + w - border, y, border, h);    // right
 
   // caja útil interna
   const innerW = w - 2*border - 2*pad;
@@ -811,6 +810,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
