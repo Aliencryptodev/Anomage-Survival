@@ -752,7 +752,7 @@ async function boot(reuse=false){
     // Cargar atlas (o fallback) — antes de precarga
     if(!reuse){
       try{ ATLAS=normalizeAtlasPaths(await tryFetchSpritesJson()); document.getElementById('spritesState').innerHTML='Sprites <span class="ok">✔</span>'; }
-      catch{ ATLAS=normalizeAtlasPaths(defaultAtlasJson()); warn.classList.add('show'); }
+      catch{ ATLAS=normalizeAtlasPaths(defaultAtlasJson()); /* sin banner */ }
     }
 
     // Loading screen visible
@@ -761,12 +761,13 @@ async function boot(reuse=false){
     const ltext = document.getElementById('loadingText');
     loading?.classList.add('show');
 
-    progressEl.textContent="cargando…";
+    progressEl.textContent = ""; // sin textos
     GAME.cache = await preloadAll(ATLAS,(n,t)=>{
-      const p=n/t; if(fill) fill.style.width=(p*100).toFixed(1)+'%';
-      if(ltext) ltext.textContent = `Cargando sprites (${n}/${t})`;
-      progressEl.innerHTML=`<span class="ok">(${n}/${t})</span> ✔`;
+    const p = n/t;
+    if (fill) fill.style.width = (p*100).toFixed(1) + '%';
+    // no tocamos ltext ni progressEl
     });
+
 
     for(const p of uniquePropSrcs()) WORLD.propsImgs.set(p, GAME.cache[p]);
 
@@ -803,6 +804,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
