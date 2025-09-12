@@ -1,358 +1,200 @@
-// ===== PARCHE DE OPTIMIZACIÓN COMPLETO =====
-// Añadir al final de game.js o como archivo separado
+// ===== OPTIMIZATION.JS — Carga tolerante + optimización en segundo plano =====
+// Seguro con los archivos index.html y game.js entregados. No sobreescribe boot ni duplica listeners.
+// Se auto-inicia cuando GAME y ATLAS están listos, y termina silenciamente si ya está todo cargado.
 
-// Override de la función loadImage original
-const originalLoadImage = window.loadImage || loadImage;
-function loadImage(src, timeout = 5000) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    let loaded = false;
-    
-    const onLoad = () => {
-      if (!loaded) {
-        loaded = true;
-        resolve(img);
-      }
-    };
-    
-    const onError = () => {
-      if (!loaded) {
-        loaded = true;
-        resolve(placeholder("MISS"));
-      }
-    };
-    
-    setTimeout(() => {
-      if (!loaded) {
-        loaded = true;
-        resolve(placeholder("TIMEOUT"));
-      }
-    }, timeout);
-    
-    img.onload = onLoad;
-    img.onerror = onError;
-    img.src = src;
-  });
-}
+(function(){
+  "use strict";
 
-// Sistema de assets críticos
-const CRITICAL_ASSETS = {
-  getPlayerAssets: (heroKey) => {
-    const hero = ATLAS[heroKey] || ATLAS.anomage;
-    return Object.values(hero).flat();
-  },
-  getBasicSpells: () => ATLAS.spells.fire || [],
-  getCurrentBiome: () => [BIOMES[BIOME].ground],
-  getUI: () => [ITEM_IMAGES.potion_hp, ITEM_IMAGES.potion_mana],
-  getBasicEnemy: () => {
-    const enemyByBiome = ["skeleton", "ghost", "orc", "bat", "shrimp"];
-    const type = enemyByBiome[BIOME] || "skeleton";
-    return ATLAS.enemies[type] || [];
-  }
-};
+  // ---------- Utilidades seguras ----------
+  const get = (id)=>document.getElementById(id);
+  const hasWin = typeof window !== "undefined";
+  const NOP = ()=>{};
 
-// Carga crítica
-async function preloadCritical(atlas, heroKey, onProgress) {
-  const criticalUrls = [
-    ...CRITICAL_ASSETS.getPlayerAssets(heroKey),
-    ...CRITICAL_ASSETS.getBasicSpells(),
-    ...CRITICAL_ASSETS.getCurrentBiome(),
-    ...CRITICAL_ASSETS.getUI(),
-    ...CRITICAL_ASSETS.getBasicEnemy()
-  ];
-
-  let done = 0;
-  const total = criticalUrls.length;
-  const cache = {};
-
-  for (const url of criticalUrls) {
-    cache[url] = await loadImage(url);
-    onProgress(++done, total);
+  // Placeholder local por si no existe el de game.js (no interfiere si ya está)
+  function localPlaceholder(text="MISS"){
+    try{
+      if (typeof placeholder === "function") return placeholder(text);
+    }catch{}
+    const c=document.createElement('canvas'); c.width=64; c.height=64;
+    const g=c.getContext('2d');
+    g.fillStyle="#1d1f27"; g.fillRect(0,0,64,64);
+    g.strokeStyle="#4f46e5"; g.lineWidth=3; g.strokeRect(3,3,58,58);
+    g.fillStyle="#c7d2fe"; g.font="bold 10px monospace"; g.fillText(text,8,36);
+    const im=new Image(); im.src=c.toDataURL(); return im;
   }
 
-  cache.__grounds = [];
-  cache.__grounds[BIOME] = await loadImage(BIOMES[BIOME].ground);
-  
-  return cache;
-}
+  // ---------- loadImage con timeout y cleanup (override no intrusivo) ----------
+  const originalLoadImage = (typeof window.loadImage === "function") ? window.loadImage : null;
 
-// Carga secundaria
-async function preloadSecondary(atlas, cache, onProgress) {
-  const allUrls = [];
-  
-  for (const g in atlas) {
-    for (const a in atlas[g]) {
-      allUrls.push(...atlas[g][a]);
-    }
-  }
+  window.loadImage = function loadImageOptimized(src, timeout = 5000){
+    return new Promise((resolve)=>{
+      try{
+        const img = new Image();
+        let done = false;
 
-  const groundUrls = BIOMES.map(b => b.ground);
-  const propUrls = uniquePropSrcs();
-  
-  const secondaryUrls = [
-    ...allUrls.filter(url => !cache[url]),
-    ...groundUrls.filter(url => !cache[url]),
-    ...propUrls.filter(url => !cache[url]),
-    ...Object.values(ITEM_IMAGES).filter(url => !cache[url])
-  ];
+        const cleanup = ()=>{ img.onload = img.onerror = null; clearTimeout(tid); };
+        const finish = (v)=>{ if(!done){ done = true; cleanup(); resolve(v); } };
 
-  let done = 0;
-  const total = secondaryUrls.length;
-
-  for (let i = 0; i < secondaryUrls.length; i += 3) {
-    const chunk = secondaryUrls.slice(i, i + 3);
-    await Promise.all(chunk.map(async url => {
-      if (!cache[url]) {
-        cache[url] = await loadImage(url);
-      }
-      done++;
-      if (onProgress) onProgress(done, total);
-    }));
-    
-    await new Promise(resolve => setTimeout(resolve, 16));
-  }
-
-  if (!cache.__grounds) cache.__grounds = [];
-  for (let i = 0; i < BIOMES.length; i++) {
-    if (!cache.__grounds[i]) {
-      cache.__grounds[i] = await loadImage(BIOMES[i].ground);
-    }
-  }
-
-  for (const src of propUrls) {
-    if (!cache[src]) {
-      cache[src] = await loadImage(src);
-    }
-  }
-
-  return cache;
-}
-
-// Gestor de carga
-class OptimizedGameLoader {
-  constructor() {
-    this.loadingState = 'waiting';
-    this.addProgressBar();
-  }
-
-  addProgressBar() {
-    if (!document.getElementById('loadingProgress')) {
-      const progressBar = document.createElement('div');
-      progressBar.id = 'loadingProgress';
-      progressBar.style.cssText = 'position:fixed;top:0;left:0;width:0%;height:3px;background:linear-gradient(90deg,#ff6b35,#9fef00,#4CAF50);transition:width 0.3s ease;z-index:1000';
-      document.body.appendChild(progressBar);
-    }
-  }
-
-  updateProgress(phase, progress) {
-    const bar = document.getElementById('loadingProgress');
-    if (bar) {
-      const totalProgress = phase === 'critical' ? progress * 0.3 : 0.3 + (progress * 0.7);
-      bar.style.width = `${totalProgress * 100}%`;
-    }
-  }
-
-  async loadGame(heroKey) {
-    try {
-      this.loadingState = 'critical';
-      progressEl.innerHTML = '<span style="color:#ff6b35">Cargando esenciales...</span>';
-      
-      GAME.cache = await preloadCritical(ATLAS, heroKey, (done, total) => {
-        this.updateProgress('critical', done / total);
-        progressEl.innerHTML = `<span style="color:#ff6b35">(${done}/${total}) Esenciales</span>`;
-      });
-
-      // Preparar mundo mínimo
-      for (const p of uniquePropSrcs()) {
-        if (GAME.cache[p]) {
-          WORLD.propsImgs.set(p, GAME.cache[p]);
-        }
-      }
-
-      GAME.player = new Player(GAME.cache, ATLAS, heroKey);
-      CAMERA.x = GAME.player.x; 
-      CAMERA.y = GAME.player.y; 
-      biomeEl.textContent = BIOME + 1;
-
-      progressEl.innerHTML = '<span style="color:#4CAF50">¡Listo para jugar!</span>';
-      this.enableStartButton();
-
-      // Carga secundaria
-      this.loadingState = 'secondary';
-      this.loadSecondary();
-
-    } catch (err) {
-      progressEl.textContent = "Error: " + err.message;
-      console.error(err);
-    }
-  }
-
-  async loadSecondary() {
-    try {
-      await preloadSecondary(ATLAS, GAME.cache, (done, total) => {
-        this.updateProgress('secondary', done / total);
-        const percent = Math.round((done / total) * 100);
-        progressEl.innerHTML = `<span style="color:#4CAF50">Optimizando... ${percent}%</span>`;
-      });
-
-      for (const p of uniquePropSrcs()) {
-        if (!WORLD.propsImgs.has(p) && GAME.cache[p]) {
-          WORLD.propsImgs.set(p, GAME.cache[p]);
-        }
-      }
-
-      this.loadingState = 'complete';
-      progressEl.innerHTML = '<span style="color:#9fef00">Totalmente optimizado ✔</span>';
-      
-      setTimeout(() => {
-        const bar = document.getElementById('loadingProgress');
-        if (bar) bar.style.opacity = '0';
-      }, 1500);
-      
-    } catch (err) {
-      console.warn('Error cargando assets secundarios:', err);
-    }
-  }
-
-  enableStartButton() {
-    const btnStart = document.getElementById('btnStart');
-    btnStart.disabled = false;
-    btnStart.style.opacity = '1';
-    btnStart.style.pointerEvents = 'auto';
-    btnStart.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
-    btnStart.style.borderColor = '#4CAF50';
-    btnStart.innerHTML = 'JUGAR AHORA <span style="color:#9fef00">✓</span>';
-  }
-}
-
-// Carga de previews
-async function loadCharacterPreviews() {
-  const previewCache = {};
-  const previewSprites = [
-    ...(ATLAS.anomage?.idle || []),
-    ...(ATLAS.shrimp?.idle || [])
-  ];
-  
-  for (const sprite of previewSprites) {
-    previewCache[sprite] = await loadImage(sprite);
-  }
-  
-  if (!GAME.cache) GAME.cache = {};
-  Object.assign(GAME.cache, previewCache);
-  
-  setTimeout(() => {
-    drawHeroPreview('prev-anomage', 'anomage');
-    drawHeroPreview('prev-shrimp', 'shrimp');
-  }, 100);
-}
-
-// Setup de selección de personajes
-function setupCharacterSelection() {
-  const buttons = document.querySelectorAll('#charSelect .char');
-  const btnStart = document.getElementById('btnStart');
-  
-  btnStart.disabled = true;
-  btnStart.style.opacity = '0.5';
-  btnStart.style.pointerEvents = 'none';
-  btnStart.textContent = 'Selecciona personaje...';
-  
-  buttons.forEach(btn => {
-    btn.addEventListener('click', async () => {
-      buttons.forEach(b => {
-        b.style.border = '1px solid #888';
-        b.style.background = '#151515';
-      });
-      btn.style.border = '2px solid #9fef00';
-      btn.style.background = '#1a1a1a';
-      
-      SELECTED_HERO_KEY = btn.dataset.hero;
-      SELECTED_HERO_NAME = (SELECTED_HERO_KEY === 'shrimp') ? 'SHRIMP' : 'ANOMAGE';
-      chosenNameEl.textContent = SELECTED_HERO_NAME;
-      
-      if (optimizedLoader.loadingState === 'waiting') {
-        btnStart.textContent = 'Preparando...';
-        await optimizedLoader.loadGame(SELECTED_HERO_KEY);
-      } else {
-        optimizedLoader.enableStartButton();
+        const tid = setTimeout(()=> finish(localPlaceholder("TIMEOUT")), timeout);
+        img.onload  = ()=> finish(img);
+        img.onerror = ()=> finish(localPlaceholder("MISS"));
+        img.src = src;
+      }catch(_){
+        resolve(localPlaceholder("MISS"));
       }
     });
-  });
-  
-  setTimeout(() => buttons[0].click(), 100);
-}
+  };
 
-// Instancia del loader
-const optimizedLoader = new OptimizedGameLoader();
+  // ---------- Recolector de URLs ----------
+  function uniquePropSrcsSafe(){
+    try{ return (typeof uniquePropSrcs === "function") ? uniquePropSrcs() : []; }
+    catch{ return []; }
+  }
+  function collectAllUrls(atlas){
+    const all = new Set();
 
-// Override de la función boot original
-const originalBoot = boot;
-async function boot(reuse = false) {
-  try {
-    if (!reuse) {
-      try {
-        ATLAS = normalizeAtlasPaths(await tryFetchSpritesJson());
-        document.getElementById('spritesState').innerHTML = 'Sprites <span class="ok">✔</span>';
-      } catch {
-        ATLAS = normalizeAtlasPaths(defaultAtlasJson());
-        warn.classList.add('show');
+    if (!atlas) return [];
+    for (const g in atlas){
+      for (const a in atlas[g]){
+        const arr = atlas[g][a] || [];
+        arr.forEach(u => all.add(u));
       }
     }
 
-    setupCharacterSelection();
-    await loadCharacterPreviews();
-    fitCanvas();
-    
-    let last = performance.now();
-    (function loop(now) {
-      const dt = now - last;
-      last = now;
-      
-      if (GAME.running) {
-        update(dt);
-        draw();
-      } else if (GAME.player) {
-        draw();
-      }
-      
-      requestAnimationFrame(loop);
-    })(last);
+    // grounds / props / UI si existen en el entorno
+    try{
+      if (Array.isArray(window.BIOMES)) window.BIOMES.forEach(b => all.add(b.ground));
+    }catch{}
+    try{
+      const props = uniquePropSrcsSafe();
+      props.forEach(u => all.add(u));
+    }catch{}
+    try{
+      if (window.ITEM_IMAGES) Object.values(window.ITEM_IMAGES).forEach(u => all.add(u));
+    }catch{}
 
-  } catch (err) {
-    progressEl.textContent = "Error: " + err.message;
-    console.error(err);
+    return Array.from(all).filter(Boolean);
   }
-}
 
-// Override del botón de inicio
-document.getElementById('btnStart').addEventListener('click', async () => {
-  if (optimizedLoader.loadingState === 'waiting') {
-    toast('Selecciona un personaje primero');
-    return;
-  }
-  
-  startDiv.classList.remove('show');
-  
-  try {
-    if (document.documentElement.requestFullscreen) {
-      await document.documentElement.requestFullscreen();
+  // ---------- Preload secundario (en lotes para no bloquear) ----------
+  async function preloadSecondary(atlas, cache, onProgress = NOP){
+    const urls = collectAllUrls(atlas).filter(u => !cache[u]);
+
+    let done = 0;
+    const total = urls.length;
+
+    // Lotes de 3 (baja presión en el main thread)
+    for (let i = 0; i < urls.length; i += 3) {
+      const slice = urls.slice(i, i + 3);
+      await Promise.all(slice.map(async (u)=>{
+        if (!cache[u]) cache[u] = await window.loadImage(u);
+        done++;
+        onProgress(done, total);
+      }));
+      // Cede ~1 frame
+      await new Promise(r => setTimeout(r, 16));
     }
-  } catch {}
-  
-  if (!GAME.player || GAME.player.heroKey !== SELECTED_HERO_KEY) {
-    GAME.player = new Player(GAME.cache, ATLAS, SELECTED_HERO_KEY);
-  }
-  
-  CAMERA.x = GAME.player.x;
-  CAMERA.y = GAME.player.y;
-  biomeEl.textContent = BIOME + 1;
-  
-  regenerateBiome();
-  resetWave();
-  
-  playMusic(BIOMES[BIOME].music);
-  GAME.running = true;
-  
-  toast('¡Juego iniciado!');
-});
 
-console.log('🚀 Sistema de carga optimizado activado!');
+    // Grounds por índice (compat con game.js)
+    try{
+      if (!cache.__grounds) cache.__grounds = [];
+      if (Array.isArray(window.BIOMES)){
+        for (let i=0;i<window.BIOMES.length;i++){
+          if (!cache.__grounds[i]) {
+            cache.__grounds[i] = await window.loadImage(window.BIOMES[i].ground);
+            onProgress(++done, total);
+            await new Promise(r => setTimeout(r, 0));
+          }
+        }
+      }
+    }catch{}
+
+    // PropsImgs map (para dibujar desde WORLD)
+    try{
+      if (window.WORLD && WORLD.propsImgs && typeof WORLD.propsImgs.set === "function"){
+        uniquePropSrcsSafe().forEach(src=>{
+          if (!WORLD.propsImgs.has(src) && cache[src]) WORLD.propsImgs.set(src, cache[src]);
+        });
+      }
+    }catch{}
+
+    return { done, total };
+  }
+
+  // ---------- UI progreso sutil ----------
+  function showOptimizing(done, total){
+    try{
+      const el = get("progress");
+      if (!el) return;
+      if (total === 0) { el.innerHTML = `<span class="ok">✔</span>`; return; }
+      const pct = Math.round((done/Math.max(total,1))*100);
+      el.innerHTML = `<span style="color:#4CAF50">Optimizando... ${pct}%</span>`;
+    }catch{}
+  }
+
+  function endOptimizing(){
+    try{
+      const el = get("progress");
+      if (el) el.innerHTML = `<span class="ok">✔</span>`;
+    }catch{}
+  }
+
+  // ---------- Arranque en segundo plano ----------
+  let started = false;
+  async function startBackgroundOptimization(){
+    if (started) return;
+    started = true;
+
+    // Espera a que el juego esté listo
+    const ok = await waitFor(()=> hasWin && window.GAME && window.GAME.cache && window.ATLAS, 8000);
+    if (!ok) return; // no hay entorno, salimos silenciosamente
+
+    const atlas = window.ATLAS;
+    const cache = window.GAME.cache;
+
+    // Si ya está todo, no hacemos nada pesado
+    const urlsTotal = collectAllUrls(atlas);
+    const missing = urlsTotal.filter(u => !cache[u]);
+    if (missing.length === 0) { endOptimizing(); return; }
+
+    showOptimizing(0, missing.length);
+    const res = await preloadSecondary(atlas, cache, (d,t)=> showOptimizing(d, missing.length));
+    endOptimizing();
+
+    // Log no intrusivo
+    if (hasWin && window.console) {
+      console.log(`Optimization: precargados ${res.done}/${res.total} assets secundarios.`);
+    }
+  }
+
+  // Espera condicional con timeout (ms)
+  function waitFor(condFn, timeout = 5000, step = 50){
+    return new Promise(resolve=>{
+      const t0 = performance.now();
+      (function tick(){
+        if (condFn()) return resolve(true);
+        if (performance.now() - t0 > timeout) return resolve(false);
+        setTimeout(tick, step);
+      })();
+    });
+  }
+
+  // ---------- API pública mínima ----------
+  window.OptimizedGameLoader = {
+    start: startBackgroundOptimization,
+    preloadSecondary, // por si quieres usarlo manualmente
+  };
+
+  // Auto-inicio cuando el DOM está listo (sin molestar a la pantalla de carga)
+  if (hasWin) {
+    // Arranca apenas el hilo principal quede libre y GAME exista
+    const bootstrap = async ()=>{
+      await waitFor(()=> !!window.GAME, 8000);
+      // no bloquees: cola al siguiente macrotask para no interferir con boot
+      setTimeout(()=> startBackgroundOptimization().catch(NOP), 0);
+    };
+    if (document.readyState === "complete" || document.readyState === "interactive") bootstrap();
+    else window.addEventListener("DOMContentLoaded", bootstrap, { once:true });
+  }
+
+})();
