@@ -386,6 +386,89 @@
   <script src="game.js"></script>
   <script src="optimization.js"></script>
 
+ <script>
+/* ===== Virtual Joystick logic ===== */
+(function(){
+  const joy = document.getElementById('joystick');
+  const knob = joy?.querySelector('.knob');
+  const dashBtn = document.getElementById('dashBtn');
+  if(!joy || !knob) return;
+
+  // acceso a Input seguro
+  function $INPUT(){
+    try { return (window.GAME && window.GAME._inputRef) ? window.GAME._inputRef : window.Input; }
+    catch { return window.Input; }
+  }
+
+  let activeId = null;           // touch identifier
+  const maxRadius = 44;          // desplazamiento máximo del knob
+
+  function setStick(dx, dy){
+    const len = Math.hypot(dx,dy) || 1;
+    const k = Math.min(1, maxRadius/len);
+    const cx = dx * k, cy = dy * k;
+
+    knob.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+
+    const input = $INPUT(); if(!input) return;
+    input.stick.active = true;
+    input.stick.x = cx / maxRadius;
+    input.stick.y = cy / maxRadius; // +y hacia abajo
+  }
+
+  function resetStick(){
+    knob.style.transform = 'translate(-50%,-50%)';
+    const input = $INPUT(); if(!input) return;
+    input.stick.active = false;
+    input.stick.x = 0; input.stick.y = 0;
+  }
+
+  function localPos(e){
+    const rect = joy.getBoundingClientRect();
+    let x, y;
+    if (e.touches && e.touches.length){
+      const t = [...e.touches].find(t => activeId==null || t.identifier===activeId) || e.touches[0];
+      x = t.clientX - (rect.left + rect.width/2);
+      y = t.clientY - (rect.top + rect.height/2);
+    } else {
+      x = e.clientX - (rect.left + rect.width/2);
+      y = e.clientY - (rect.top + rect.height/2);
+    }
+    return {x, y};
+  }
+
+  // TOUCH
+  joy.addEventListener('touchstart', (e)=>{
+    const t = e.changedTouches[0]; activeId = t.identifier;
+    const {x,y} = localPos(e); setStick(x,y); e.preventDefault();
+  }, {passive:false});
+  joy.addEventListener('touchmove', (e)=>{
+    const t = [...e.touches].find(tt=>tt.identifier===activeId); if(!t) return;
+    const {x,y} = localPos(e); setStick(x,y); e.preventDefault();
+  }, {passive:false});
+  function endTouch(e){
+    const ended = [...e.changedTouches].some(tt=>tt.identifier===activeId);
+    if(ended){ activeId=null; resetStick(); }
+  }
+  joy.addEventListener('touchend', endTouch, {passive:false});
+  joy.addEventListener('touchcancel', endTouch, {passive:false});
+
+  // MOUSE (para probar en escritorio)
+  let mouseDown = false;
+  joy.addEventListener('mousedown', (e)=>{ mouseDown = true; const {x,y}=localPos(e); setStick(x,y); });
+  window.addEventListener('mousemove', (e)=>{ if(!mouseDown) return; const {x,y}=localPos(e); setStick(x,y); });
+  window.addEventListener('mouseup', ()=>{ if(mouseDown){ mouseDown=false; resetStick(); } });
+
+  // RUN / DASH
+  if (dashBtn){
+    const fireDash = ()=>{ try { const input = $INPUT(); if(input) input.dash=true; } catch{} };
+    dashBtn.addEventListener('touchstart', (e)=>{ fireDash(); e.preventDefault(); }, {passive:false});
+    dashBtn.addEventListener('click', fireDash);
+  }
+})();
+</script>
+
+
   <!-- Diablo-style bottom bar (sin cambios funcionales) -->
   <script>
 /* Helpers de estado expuesto */
@@ -535,6 +618,7 @@ setInterval(() => { updateDiablo2UI(); }, 100);
 </script>
 </body>
 </html>
+
 
 
 
