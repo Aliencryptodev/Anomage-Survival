@@ -718,7 +718,7 @@ function draw(){
 
   // HUD overlay
 if (MINIMAP.enabled) drawMinimap();
-
+}
 /* ===== Boot + responsive + start ===== */
 btnPick.addEventListener('click',()=>filePick.click());
 filePick.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());ATLAS=normalizeAtlasPaths(j);warn.classList.remove('show');boot(true);}catch(err){alert("Sprites.json inválido: "+err.message);}});
@@ -801,6 +801,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
