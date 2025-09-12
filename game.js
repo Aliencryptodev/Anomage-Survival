@@ -348,6 +348,7 @@ draw(){
   ctx.drawImage(img, this.x - s/2, this.y - s/2, s, s);
   ctx.restore();
 }
+}
 
 class Pickup{
   constructor(x,y,kind){
@@ -766,4 +767,5 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
