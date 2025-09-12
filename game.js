@@ -717,11 +717,17 @@ function draw(){
   ctx.restore();
 
   // HUD overlay
-if (MINIMAP.enabled) drawMinimap();
-}
+  if (MINIMAP.enabled) drawMinimap();
+} // ← CIERRA draw() AQUÍ
+
 /* ===== Boot + responsive + start ===== */
 btnPick.addEventListener('click',()=>filePick.click());
-filePick.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());ATLAS=normalizeAtlasPaths(j);warn.classList.remove('show');boot(true);}catch(err){alert("Sprites.json inválido: "+err.message);}});
+filePick.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{
+  const j=JSON.parse(await f.text());
+  ATLAS=normalizeAtlasPaths(j);
+  warn.classList.remove('show');
+  boot(true);
+}catch(err){ alert("Sprites.json inválido: "+err.message); }});
 
 function fitCanvas(){ const vw=innerWidth, vh=innerHeight, ar=VIRT_W/VIRT_H; let cw=vw, ch=vw/ar; if(ch>vh){ ch=vh; cw=vh*ar; } cv.style.width=cw+"px"; cv.style.height=ch+"px"; }
 window.addEventListener('resize',fitCanvas);
@@ -801,6 +807,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
