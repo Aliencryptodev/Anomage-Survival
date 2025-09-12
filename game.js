@@ -388,61 +388,76 @@ function drawPlayerHPBar(p){
   ctx.strokeStyle="#000"; ctx.strokeRect(x, y, W, H);
 }
 
-/* ===== Minimapa ===== */
-const MINIMAP = { x: 24, y: 24, w: 220, h: 140, radius: 950, pad: 8, border: 2, enabled: true };
+/* ===== Minimapa (anclado a la derecha) ===== */
+const MINIMAP = {
+  right: 18,          // separación al borde derecho del canvas
+  top: 18,            // separación al borde superior
+  w: 180,             // ancho (más pequeño)
+  h: 118,             // alto (más pequeño)
+  radius: 850,        // “zoom” del minimapa (radio en unidades de mundo)
+  pad: 8,
+  border: 2,
+  enabled: true
+};
 
 function drawMinimap(){
   const G = GAME; if (!G || !G.player) return;
-  const { x, y, w, h, radius, pad = 6, border = 2 } = MINIMAP;
 
-  // Centro del mundo (NO del panel)
-  const cxWorld = CAMERA.x;
-  const cyWorld = CAMERA.y;
+  const w = MINIMAP.w, h = MINIMAP.h;
+  const radius = MINIMAP.radius;
+  const pad = MINIMAP.pad || 6;
+  const border = MINIMAP.border || 2;
+
+  // anclado a la derecha/arriba del CANVAS (no de la ventana)
+  const x = (MINIMAP.left != null) ? MINIMAP.left : (cv.width  - MINIMAP.right - w);
+  const y = (MINIMAP.bottom != null) ? (cv.height - MINIMAP.bottom - h) : MINIMAP.top;
+
+  // centro del mundo
+  const cxWorld = CAMERA.x, cyWorld = CAMERA.y;
 
   ctx.save();
   ctx.globalAlpha = 0.96;
 
-  // Panel
+  // panel y borde (se verá completo gracias al margen top/right)
   ctx.fillStyle = "#090b10";
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = "#d4af37";
   ctx.lineWidth = border;
   ctx.strokeRect(x, y, w, h);
 
-  // Clip interior (evita que puntos salgan del marco)
+  // clip interior
   ctx.beginPath();
   ctx.rect(x + border, y + border, w - 2*border, h - 2*border);
   ctx.clip();
 
-  // Zona útil interna
+  // caja útil interna
   const innerW = w - 2*border - 2*pad;
   const innerH = h - 2*border - 2*pad;
 
-  // Escalas
   const sx = innerW / (radius * 2);
   const sy = innerH / (radius * 2);
 
-  // Conversión mundo → minimapa
   const toMini = (wx, wy) => ({
     mx: x + border + pad + (wx - cxWorld + radius) * sx,
     my: y + border + pad + (wy - cyWorld + radius) * sy
   });
 
-  // Jugador
+  // jugador
   const mp = toMini(G.player.x, G.player.y);
   ctx.fillStyle = "#ffd65a";
   ctx.beginPath(); ctx.arc(mp.mx, mp.my, 3, 0, Math.PI*2); ctx.fill();
 
-  // Enemigos
+  // enemigos
   ctx.fillStyle = "#ff5a5a";
   for (const e of G.enemies) {
     if (e.dead) continue;
     const m = toMini(e.x, e.y);
-    if (m.mx >= x && m.mx <= x + w && m.my >= y && m.my <= y + h)
+    if (m.mx >= x && m.mx <= x+w && m.my >= y && m.my <= y+h) {
       ctx.fillRect(m.mx - 2, m.my - 2, 4, 4);
+    }
   }
 
-  // Portal
+  // portal
   if (G.portal) {
     const m = toMini(G.portal.x, G.portal.y);
     ctx.fillStyle = "#6cf";
@@ -451,7 +466,6 @@ function drawMinimap(){
 
   ctx.restore();
 }
-
 
 /* ===== Mundo / props / chunks ===== */
 function ensureChunk(cx,cy){
@@ -713,7 +727,7 @@ function draw(){
   // HUD overlay
   drawMinimap();
 
-  if (SHOW_CANVAS_HUD) drawHUD(GAME.player);
+  if (MINIMAP.enabled) drawMinimap();
 }
 
 /* ===== Boot + responsive + start ===== */
@@ -797,6 +811,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
