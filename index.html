@@ -287,6 +287,28 @@
   #dashBtn{ left:136px; bottom:148px; width:56px; height:56px; font-size:9px }
 }
 
+/* --- Mobile controls --- */
+#mobileControls{position:fixed;inset:0;pointer-events:none;z-index:1200}
+#joyBase{
+  position:absolute;left:18px;bottom:110px;width:128px;height:128px;border-radius:50%;
+  background:#0008;border:2px solid #8b6914;box-shadow:0 0 10px #000;pointer-events:auto
+}
+#joyHat{
+  position:absolute;left:0;top:0;width:56px;height:56px;border-radius:50%;
+  transform:translate(36px,36px);background:#d4af37;box-shadow:inset 0 0 6px #775
+}
+#runBtn{
+  position:absolute; right:22px; bottom:120px;   /* 👉 botón RUN a la derecha */
+  width:84px; height:84px; border-radius:50%; pointer-events:auto;
+  background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
+  border:2px solid #8b6914; box-shadow:0 4px 16px rgba(0,0,0,.45);
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
+}
+@media (max-width:768px){
+  #joyBase{width:110px;height:110px}
+  #joyHat{width:50px;height:50px;transform:translate(30px,30px)}
+  #runBtn{right:18px;bottom:110px;width:72px;height:72px;font-size:11px}
+}
   
   #healthOrb, #manaOrb, #skillPanel { pointer-events:auto; }
 </style>
@@ -307,6 +329,13 @@
 
   <!-- VIEWPORT + CANVAS -->
   <div id="viewport"><canvas id="game" width="960" height="540"></canvas></div>
+  
+  <!-- Controles móviles -->
+  <div id="mobileControls" aria-hidden="true">
+  <div id="joyBase"><div id="joyHat"></div></div>
+  <button id="runBtn" type="button">RUN</button>
+  </div>
+
 
   <!-- OVERLAY muerte -->
   <div id="overlay">
@@ -384,6 +413,117 @@
   <button id="dashBtn">RUN</button>
   <!-- Núcleo + optimizaciones -->
   <script src="game.js"></script>
+  <script>
+(function(){
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+  // — Pantalla completa en primer gesto (mejor UX móvil)
+  function requestFS(){
+    const el=document.documentElement;
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (fn) { try{ fn.call(el); }catch(_){} }
+  }
+  if (isMobile) window.addEventListener('touchend', ()=>requestFS(), { once:true });
+
+  // Referencias UI
+  const cv = document.getElementById('game');
+  const joyBase = document.getElementById('joyBase');
+  const joyHat  = document.getElementById('joyHat');
+  const runBtn  = document.getElementById('runBtn');
+  if (!cv || !joyBase || !joyHat || !runBtn) return;
+
+  // Utilidades
+  function rectCenter(el){ const r=el.getBoundingClientRect(); return { x:r.left+r.width/2, y:r.top+r.height/2, r:Math.min(r.width,r.height)/2 }; }
+  function isIn(el, x, y){ const r=el.getBoundingClientRect(); return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom; }
+  function fromCanvas(e){
+    const r=cv.getBoundingClientRect();
+    return { x:(e.clientX-r.left)*(cv.width/r.width), y:(e.clientY-r.top)*(cv.height/r.height) };
+  }
+
+  // Estado
+  let joy = { id:null, active:false, cx:0, cy:0, r:0 };
+  let shoot = { id:null };
+
+  function setHat(dx,dy){
+    const clamp=(v,m)=>Math.max(-m,Math.min(m,v));
+    const lim=joy.r*0.55;
+    joyHat.style.transform=`translate(${clamp(dx,lim)+joy.r*0.28}px,${clamp(dy,lim)+joy.r*0.28}px)`;
+  }
+  function updateStick(dx,dy){
+    const len = Math.hypot(dx,dy) || 1;
+    const nx = dx/len, ny = dy/len;
+    const frac = Math.min(1, len/(joy.r*0.7));
+    if (window.GAME && GAME._inputRef){
+      GAME._inputRef.stick.active = true;
+      GAME._inputRef.stick.x = nx*frac;
+      GAME._inputRef.stick.y = ny*frac;
+    }
+    setHat(dx,dy);
+  }
+  function endStick(){
+    joy.active=false; joy.id=null;
+    if (window.GAME && GAME._inputRef){
+      GAME._inputRef.stick.active=false; GAME._inputRef.stick.x=0; GAME._inputRef.stick.y=0;
+    }
+    setHat(0,0);
+  }
+
+  // Joystick con Pointer Events
+  joyBase.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    const c=rectCenter(joyBase);
+    joy={ id:e.pointerId, active:true, cx:c.x, cy:c.y, r:c.r };
+    updateStick(e.clientX-c.x, e.clientY-c.y);
+  });
+  window.addEventListener('pointermove', (e)=>{
+    if(!joy.active || e.pointerId!==joy.id) return;
+    updateStick(e.clientX-joy.cx, e.clientY-joy.cy);
+  });
+  window.addEventListener('pointerup', (e)=>{
+    if (e.pointerId===joy.id) endStick();
+    if (e.pointerId===shoot.id){ shoot.id=null; if (GAME && GAME._inputRef) GAME._inputRef.mouse.down=false; }
+  });
+
+  // Botón RUN a la derecha
+  runBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); if (window.GAME) GAME._inputRef.dash=true; });
+
+  // Disparo multitouch (ignora joystick y RUN)
+  cv.addEventListener('pointerdown', (e)=>{
+    if (isIn(joyBase, e.clientX, e.clientY) || isIn(runBtn, e.clientX, e.clientY)) return;
+    if (shoot.id==null){
+      shoot.id = e.pointerId;
+      const p = fromCanvas(e);
+      if (GAME && GAME._inputRef){
+        GAME._inputRef.mouse.x = p.x; GAME._inputRef.mouse.y = p.y;
+        GAME._inputRef.mouse.down = true;
+      }
+    }
+  }, {passive:false});
+  cv.addEventListener('pointermove', (e)=>{
+    if (e.pointerId!==shoot.id) return;
+    const p = fromCanvas(e);
+    if (GAME && GAME._inputRef){
+      GAME._inputRef.mouse.x = p.x; GAME._inputRef.mouse.y = p.y;
+    }
+  });
+  window.addEventListener('pointerup', (e)=>{
+    if (e.pointerId===shoot.id){
+      shoot.id=null; if (GAME && GAME._inputRef) GAME._inputRef.mouse.down=false;
+    }
+  });
+
+  // Cambiar hechizo con toque aunque el joystick esté pulsado
+  document.querySelectorAll('.skill-slot').forEach(slot=>{
+    slot.addEventListener('touchstart', (ev)=>{
+      ev.preventDefault();
+      document.querySelectorAll('.skill-slot').forEach(s=>s.classList.remove('active'));
+      slot.classList.add('active');
+      if (window.GAME) GAME.weapon = slot.dataset.skill;
+    }, {passive:false});
+  });
+})();
+</script>
+
   <script src="optimization.js"></script>
 
  <script>
@@ -618,6 +758,7 @@ setInterval(() => { updateDiablo2UI(); }, 100);
 </script>
 </body>
 </html>
+
 
 
 
