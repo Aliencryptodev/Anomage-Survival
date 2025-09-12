@@ -77,32 +77,50 @@ function playSfx(name, vol=.8){ const src=SFX[name]; if(!src) return; const a=ne
 function playMusic(src){ if(!src) return; if(bgm){ bgm.pause(); bgm=null; } bgm=new Audio(src); bgm.loop=true; bgm.volume=0.35; bgm.play().catch(()=>{}); }
 
 /* ===== Estado general ===== */
-let BIOME=0, ATLAS=null;
-const WORLD={propsImgs:new Map(),chunks:new Map()};
-let GAME = {
-  cache:null, player:null, enemies:[], projectiles:[], pickups:[], portal:null, particles:[],
-  running:false, killed:0, points:0,
-  upgrades:{ fire:1, light:1, ice:1, dark:1 },
-  weapon:'fire'
-};
-GAME._inputRef = Input; // ⬅️ añade esto aquí
-let CURRENT_BOSS=null;
+let BIOME = 0, ATLAS = null;
+const WORLD = { propsImgs: new Map(), chunks: new Map() };
 
-/* Exponer estado */
-try{
-  Object.defineProperty(window, 'GAME', {get: () => GAME, configurable: true});
-  Object.defineProperty(window, 'BIOME', {get: () => BIOME, set: v => { BIOME = v; }, configurable: true});
-  Object.defineProperty(window, 'CURRENT_BOSS', {get: () => CURRENT_BOSS, set: v => { CURRENT_BOSS = v; }, configurable: true});
-}catch(e){}
+let GAME = {
+  cache: null,
+  player: null,
+  enemies: [],
+  projectiles: [],
+  pickups: [],
+  portal: null,
+  particles: [],
+  running: false,
+  killed: 0,
+  points: 0,
+  upgrades: { fire:1, light:1, ice:1, dark:1 },
+  weapon: 'fire'
+};
+
+let CURRENT_BOSS = null;
+
+/* Exponer estado (solo getters/sets seguros) */
+try {
+  Object.defineProperty(window, 'GAME', { get: () => GAME, configurable: true });
+  Object.defineProperty(window, 'BIOME', {
+    get: () => BIOME, set: v => { BIOME = v; }, configurable: true
+  });
+  Object.defineProperty(window, 'CURRENT_BOSS', {
+    get: () => CURRENT_BOSS, set: v => { CURRENT_BOSS = v; }, configurable: true
+  });
+} catch (e) {}
 
 /* ===== Input ===== */
-const Input={
-  keys:new Set(),
-  mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false},
-  dash:false,
-  // ⬇️ joystick virtual (lo setea el script del index)
-  stick:{ active:false, x:0, y:0 }
+const Input = {
+  keys: new Set(),
+  mouse: { x: VIRT_W/2, y: VIRT_H/2, down: false },
+  dash: false,
+  // joystick virtual (lo setea el script del index en móviles)
+  stick: { active: false, x: 0, y: 0 }
 };
+
+// Referencia tardía (después de declarar Input) para evitar TDZ
+GAME._inputRef = Input;
+
+
 window.addEventListener('keydown',e=>Input.keys.add(e.key.toLowerCase()));
 window.addEventListener('keyup',e=>Input.keys.delete(e.key.toLowerCase()));
 // dash una vez por pulsación
@@ -820,6 +838,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
