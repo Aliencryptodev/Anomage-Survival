@@ -389,16 +389,7 @@ function drawPlayerHPBar(p){
 }
 
 /* ===== Minimapa (anclado a la derecha) ===== */
-const MINIMAP = {
-  right: 18,          // separación al borde derecho del canvas
-  top: 18,            // separación al borde superior
-  w: 180,             // ancho (más pequeño)
-  h: 118,             // alto (más pequeño)
-  radius: 850,        // “zoom” del minimapa (radio en unidades de mundo)
-  pad: 8,
-  border: 2,
-  enabled: true
-};
+const MINIMAP = { right: 22, top: 18, w: 180, h: 118, radius: 850, pad: 8, border: 2, enabled: true };
 
 function drawMinimap(){
   const G = GAME; if (!G || !G.player) return;
@@ -810,6 +801,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
