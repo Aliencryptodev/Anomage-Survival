@@ -85,6 +85,7 @@ let GAME = {
   upgrades:{ fire:1, light:1, ice:1, dark:1 },
   weapon:'fire'
 };
+GAME._inputRef = Input; // ⬅️ añade esto aquí
 let CURRENT_BOSS=null;
 
 /* Exponer estado */
@@ -95,7 +96,13 @@ try{
 }catch(e){}
 
 /* ===== Input ===== */
-const Input={keys:new Set(),mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false},dash:false};
+const Input={
+  keys:new Set(),
+  mouse:{x:VIRT_W/2,y:VIRT_H/2,down:false},
+  dash:false,
+  // ⬇️ joystick virtual (lo setea el script del index)
+  stick:{ active:false, x:0, y:0 }
+};
 window.addEventListener('keydown',e=>Input.keys.add(e.key.toLowerCase()));
 window.addEventListener('keyup',e=>Input.keys.delete(e.key.toLowerCase()));
 // dash una vez por pulsación
@@ -198,16 +205,22 @@ class Player{
     };
   }
   update(dt){
-    let vx=0,vy=0;
-    if(Input.keys.has('w')||Input.keys.has('arrowup'))vy-=1;
-    if(Input.keys.has('s')||Input.keys.has('arrowdown'))vy+=1;
-    if(Input.keys.has('a')||Input.keys.has('arrowleft'))vx-=1;
-    if(Input.keys.has('d')||Input.keys.has('arrowright'))vx+=1;
-    this.moving=(vx||vy);
-    if(this.moving){
-      const l=Math.hypot(vx,vy); vx/=l; vy/=l;
-      this.lastMove.x = vx; this.lastMove.y = vy;
-    }
+      let vx=0,vy=0;
+  if(Input.keys.has('w')||Input.keys.has('arrowup'))vy-=1;
+  if(Input.keys.has('s')||Input.keys.has('arrowdown'))vy+=1;
+  if(Input.keys.has('a')||Input.keys.has('arrowleft'))vx-=1;
+  if(Input.keys.has('d')||Input.keys.has('arrowright'))vx+=1;
+
+  // ⬇️ joystick virtual
+  if (Input.stick && Input.stick.active) {
+    vx += Input.stick.x; vy += Input.stick.y;
+  }
+
+  this.moving=(vx||vy);
+  if(this.moving){
+    const l=Math.hypot(vx,vy); vx/=l; vy/=l;
+    this.lastMove.x = vx; this.lastMove.y = vy;
+  }
 
     // Dash
     this.dashCd = Math.max(0, this.dashCd - dt);
@@ -807,6 +820,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
