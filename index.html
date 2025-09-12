@@ -243,6 +243,51 @@
   #charSelect .char canvas::after{ inset:10px; }
 }
 
+/* ===== Virtual Joystick (móvil) ===== */
+#joystick{
+  position:fixed; left:18px; bottom:130px; /* por encima de la barra inferior */
+  width:120px; height:120px; border-radius:50%;
+  background:rgba(20,15,10,.35);
+  border:2px solid var(--gold-dark);
+  box-shadow:inset 0 0 0 1px rgba(212,175,55,.2), 0 6px 16px rgba(0,0,0,.35);
+  touch-action:none; user-select:none;
+  z-index:1200; display:none; /* se muestra sólo en táctil */
+}
+#joystick .knob{
+  position:absolute; left:50%; top:50%;
+  width:56px; height:56px; border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(212,175,55,.25);
+  border:2px solid var(--gold);
+  box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
+  pointer-events:none;
+}
+
+/* Botón RUN/DASH */
+#dashBtn{
+  position:fixed; left:154px; bottom:158px;
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(40,30,20,.85);
+  border:2px solid var(--gold-dark);
+  color:#fff; font:10px var(--retro); letter-spacing:.8px;
+  display:none; z-index:1201; touch-action:none;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+#dashBtn:active{ transform:scale(.98) }
+
+/* Mostrar controles táctiles sólo en dispositivos “coarse” */
+@media (pointer:coarse){
+  #joystick, #dashBtn{ display:block }
+}
+
+/* Ajustes responsive extra pequeños */
+@media (max-width: 480px){
+  #joystick{ width:104px; height:104px; left:14px; bottom:120px }
+  #joystick .knob{ width:50px; height:50px }
+  #dashBtn{ left:136px; bottom:148px; width:56px; height:56px; font-size:9px }
+}
+
+  
   #healthOrb, #manaOrb, #skillPanel { pointer-events:auto; }
 </style>
 </head>
@@ -334,6 +379,9 @@
 
   <div id="toast"></div>
 
+  <!-- Controles táctiles -->
+  <div id="joystick"><div class="knob"></div></div>
+  <button id="dashBtn">RUN</button>
   <!-- Núcleo + optimizaciones -->
   <script src="game.js"></script>
   <script src="optimization.js"></script>
@@ -487,6 +535,7 @@ setInterval(() => { updateDiablo2UI(); }, 100);
 </script>
 </body>
 </html>
+
 
 
 
