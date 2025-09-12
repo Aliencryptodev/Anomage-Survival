@@ -1,16 +1,37 @@
 // ===== OPTIMIZATION.JS — Carga tolerante + optimización en segundo plano =====
-// Seguro con los archivos index.html y game.js entregados. No sobreescribe boot ni duplica listeners.
-// Se auto-inicia cuando GAME y ATLAS están listos, y termina silenciamente si ya está todo cargado.
+// Compatible con index.html y game.js. No sobreescribe boot ni duplica listeners.
+// Se auto-inicia cuando GAME y ATLAS están listos y termina silenciosamente si ya está todo cargado.
 
 (function(){
   "use strict";
 
   // ---------- Utilidades seguras ----------
-  const get = (id)=>document.getElementById(id);
+  const get   = (id)=>document.getElementById(id);
   const hasWin = typeof window !== "undefined";
-  const NOP = ()=>{};
+  const NOP   = ()=>{};
 
-  // Placeholder local por si no existe el de game.js (no interfiere si ya está)
+  // ---------- Barras de progreso (sin texto) ----------
+  function setThinBarProgress(frac){
+    try{
+      const bar = get("loadingProgress"); // barra fina superior (si existe)
+      if (bar) bar.style.width = `${Math.max(0, Math.min(100, Math.round(frac*100)))}%`;
+      const msg = get("progress");        // texto legacy (ocultar/limpiar)
+      if (msg) msg.textContent = "";
+    }catch{}
+  }
+  function setOverlayBarProgress(frac){
+    try{
+      const fill = get("loadingFill"); // barra del overlay de carga (si existe)
+      if (fill) fill.style.width = `${Math.max(0, Math.min(100, Math.round(frac*100)))}%`;
+      const msg = get("loadingMsg");
+      if (msg && msg.textContent) {
+        // mantenemos el mensaje estático (“Preparando…”) si lo has puesto en index.html
+        // no mostramos números
+      }
+    }catch{}
+  }
+
+  // ---------- Placeholder local por si no existe el de game.js (no interfiere si ya está) ----------
   function localPlaceholder(text="MISS"){
     try{
       if (typeof placeholder === "function") return placeholder(text);
@@ -33,7 +54,7 @@
         let done = false;
 
         const cleanup = ()=>{ img.onload = img.onerror = null; clearTimeout(tid); };
-        const finish = (v)=>{ if(!done){ done = true; cleanup(); resolve(v); } };
+        const finish  = (v)=>{ if(!done){ done = true; cleanup(); resolve(v); } };
 
         const tid = setTimeout(()=> finish(localPlaceholder("TIMEOUT")), timeout);
         img.onload  = ()=> finish(img);
@@ -52,8 +73,8 @@
   }
   function collectAllUrls(atlas){
     const all = new Set();
-
     if (!atlas) return [];
+
     for (const g in atlas){
       for (const a in atlas[g]){
         const arr = atlas[g][a] || [];
@@ -102,7 +123,8 @@
         for (let i=0;i<window.BIOMES.length;i++){
           if (!cache.__grounds[i]) {
             cache.__grounds[i] = await window.loadImage(window.BIOMES[i].ground);
-            onProgress(++done, total);
+            done++;
+            onProgress(done, total);
             await new Promise(r => setTimeout(r, 0));
           }
         }
@@ -121,21 +143,23 @@
     return { done, total };
   }
 
-  // ---------- UI progreso sutil ----------
+  // ---------- UI de progreso (sin textos) ----------
   function showOptimizing(done, total){
-    try{
-      const el = get("progress");
-      if (!el) return;
-      if (total === 0) { el.innerHTML = `<span class="ok">✔</span>`; return; }
-      const pct = Math.round((done/Math.max(total,1))*100);
-      el.innerHTML = `<span style="color:#4CAF50">Optimizando... ${pct}%</span>`;
-    }catch{}
+    // Fracción 0..1
+    const frac = (total > 0) ? (done / total) : 1;
+    // Actualiza barras si existen; NO escribe textos
+    setThinBarProgress(frac);
+    setOverlayBarProgress(frac);
   }
 
   function endOptimizing(){
+    // Completa barras; NO escribe textos
+    setThinBarProgress(1);
+    setOverlayBarProgress(1);
+    // Si hay barra fina, puedes desvanecerla suavemente
     try{
-      const el = get("progress");
-      if (el) el.innerHTML = `<span class="ok">✔</span>`;
+      const bar = get("loadingProgress");
+      if (bar) setTimeout(()=>{ bar.style.opacity = "0"; }, 1200);
     }catch{}
   }
 
@@ -154,7 +178,7 @@
 
     // Si ya está todo, no hacemos nada pesado
     const urlsTotal = collectAllUrls(atlas);
-    const missing = urlsTotal.filter(u => !cache[u]);
+    const missing   = urlsTotal.filter(u => !cache[u]);
     if (missing.length === 0) { endOptimizing(); return; }
 
     showOptimizing(0, missing.length);
