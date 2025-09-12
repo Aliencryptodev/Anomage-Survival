@@ -389,7 +389,7 @@ function drawPlayerHPBar(p){
 }
 
 /* ===== Minimapa (anclado a la derecha) ===== */
-const MINIMAP = { right: 22, top: 18, w: 180, h: 118, radius: 850, pad: 8, border: 2, enabled: true };
+const MINIMAP = { right: 22, top: 40, w: 180, h: 118, radius: 850, pad: 8, border: 2, enabled: true };
 
 function drawMinimap(){
   const G = GAME; if (!G || !G.player) return;
@@ -399,9 +399,11 @@ function drawMinimap(){
   const pad = MINIMAP.pad || 6;
   const border = MINIMAP.border || 2;
 
-  // anclado a la derecha/arriba del CANVAS (no de la ventana)
   const x = (MINIMAP.left != null) ? MINIMAP.left : (cv.width  - MINIMAP.right - w);
-  const y = (MINIMAP.bottom != null) ? (cv.height - MINIMAP.bottom - h) : MINIMAP.top;
+  let y   = (MINIMAP.bottom != null) ? (cv.height - MINIMAP.bottom - h) : MINIMAP.top;
+  // Empuje extra en fullscreen para que el borde superior no quede tapado por el overlay del navegador
+  if (document.fullscreenElement) y += 18;
+
 
   // centro del mundo
   const cxWorld = CAMERA.x, cyWorld = CAMERA.y;
@@ -801,6 +803,7 @@ btnStart.addEventListener('click',async ()=>{
 
 // inicia
 boot();
+
 
 
 
