@@ -5,6 +5,9 @@
 <title>Anoma Survival</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
+<!-- Favicon emoji 🧙 -->
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧙</text></svg>' />
+
 <!-- Retro fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +62,7 @@
   }
   #toast.show{opacity:1}
 
-  /* ===== Loading overlay (pulido) ===== */
+  /* ===== Loading overlay ===== */
   #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0e0f13;color:#e6ebef;z-index:9999}
   #loading:not(.show){display:none;}
   #loading h1{
@@ -85,7 +88,7 @@
   }
   .action{opacity:.85}
 
-  /* ===== Start screen (alineado/bonito) ===== */
+  /* ===== Start screen ===== */
   #start{background:#0e0f13;color:#e6ebef;font-family:var(--retro)}
   #start h1{font: clamp(22px,3.2vw,36px) var(--title); margin:0 0 8px 0; letter-spacing:2px}
   #start>div{opacity:.95; margin-bottom:20px; letter-spacing:.4px}
@@ -99,25 +102,17 @@
   }
   .char:hover{ transform: translateY(-2px); border-color:#aaa }
   .char.selected{ border:2px solid #9fef00; background:#1a1a1a; box-shadow:0 0 10px rgba(159,239,0,0.28) }
-  /* Retrato sin borde gris */
-.portrait{
-  width:128px; height:128px;
-  display:grid; place-items:center;
-  background:#0f0f0f;
-  border:none;                  /* quitar marco exterior gris */
-  border-radius:8px;
-  box-shadow: inset 0 0 0 1px #222; /* leve relieve opcional */
-}
 
-/* ÚNICO marco dorado en el sprite */
-#charSelect .char canvas{
-  width:96px; height:96px;
-  image-rendering:pixelated;
-  background:transparent;
-  border:3px solid var(--gold);    /* único marco */
-  border-radius:6px;
-  box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
-}
+  /* Retrato limpio con marco dorado en el sprite */
+  .portrait{
+    width:128px; height:128px; display:grid; place-items:center;
+    background:#0f0f0f; border:none; border-radius:8px; box-shadow: inset 0 0 0 1px #222;
+  }
+  #charSelect .char canvas{
+    width:96px; height:96px; image-rendering:pixelated; background:transparent;
+    border:3px solid var(--gold); border-radius:6px;
+    box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
+  }
   .char-name{font:12px var(--retro); letter-spacing:.6px; opacity:.9}
   #chosen{font:13px var(--retro); margin-top:4px; color:#e6ebef}
   #chosenName{color:#9fef00}
@@ -130,7 +125,7 @@
   #btnStart.ready{ animation:pulse 2s infinite }
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(76,175,80,.7)}70%{box-shadow:0 0 0 14px rgba(76,175,80,0)}100%{box-shadow:0 0 0 0 rgba(76,175,80,0)}}
 
-  /* ===== Bottom “Diablo” UI (fuente retro) ===== */
+  /* ===== Bottom “Diablo” UI ===== */
   #gameUI{
     position:fixed; bottom:0; left:0; right:0; height:100px;
     background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(20,15,10,0.3) 20%, rgba(40,30,20,0.8) 50%, rgba(60,45,30,0.95) 100%);
@@ -166,7 +161,48 @@
   .info-value{color:var(--gold); font-weight:700}
   .info-value.red{color:#ff4444} .info-value.green{color:#88ff88} .info-value.yellow{color:#ffdd44}
 
-  /* Responsive */
+  /* ===== Dual Virtual Joystick (móvil) ===== */
+  /* Controles ocultos por defecto, solo táctil */
+  #dualMobile{position:fixed; inset:0; pointer-events:none; z-index:1200; display:none}
+  .joyBase{
+    position:absolute; width:124px; height:124px; border-radius:50%;
+    background:rgba(20,15,10,.35); border:2px solid var(--gold-dark);
+    box-shadow:inset 0 0 0 1px rgba(212,175,55,.2), 0 6px 16px rgba(0,0,0,.35);
+    touch-action:none; user-select:none; pointer-events:auto;
+  }
+  .joyHat{
+    position:absolute; width:56px; height:56px; border-radius:50%;
+    left:50%; top:50%; transform:translate(-50%,-50%);
+    background:rgba(212,175,55,.25); border:2px solid var(--gold);
+    box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
+    pointer-events:none;
+  }
+  /* RUN button (derecha) */
+  #btnRunR{
+    position:absolute; right:20px; bottom:120px;
+    width:84px; height:84px; border-radius:50%; pointer-events:auto;
+    background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
+    border:2px solid var(--gold-dark); box-shadow:0 4px 16px rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
+  }
+  /* Posición sticks */
+  #joyL{ left:18px; bottom:120px; }
+  #joyR{ right:140px; bottom:120px; }
+
+  /* Mostrar solo en táctiles */
+  @media (pointer:coarse){
+    #dualMobile{ display:block; }
+  }
+  /* Ajustes responsive extras */
+  @media (max-width:480px){
+    .joyBase{ width:110px; height:110px; }
+    .joyHat{ width:50px; height:50px; }
+    #joyR{ right:120px; bottom:110px; }
+    #joyL{ left:14px; bottom:110px; }
+    #btnRunR{ right:16px; bottom:110px; width:72px; height:72px; font-size:11px; }
+  }
+
+  /* Responsive generales */
   @media (max-width: 768px){
     #gameUI{height:80px}
     #healthOrb,#manaOrb{width:60px;height:60px;bottom:8px}
@@ -178,138 +214,10 @@
     #charSelect{grid-template-columns:repeat(2,minmax(160px,200px)); gap:18px}
     .portrait{width:112px;height:112px}
   }
-/* --- FIX: tarjetas de personaje centradas y con doble marco --- */
-#charSelect{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(240px,260px));
-  gap:28px;
-  align-items:start;
-  justify-content:center;
-}
 
-#charSelect .char{
-  width:260px;
-  padding:18px;
-  border-radius:12px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-}
+  /* Oculta la barra “Diablo” mientras está visible la pantalla de start */
+  #start.show ~ #gameUI{ display:none !important; }
 
-/* el canvas hace de “retrato” */
-#charSelect .char canvas{
-  width:140px; height:140px;
-  background:#0f0f0f;
-  border:2px solid #3a3a3a;      /* marco exterior gris */
-  border-radius:10px;
-  position:relative;              /* necesario para ::after */
-  image-rendering:pixelated;
-}
-
-/* marco interior dorado, centrado */
-#charSelect .char canvas::after{
-  content:"";
-  position:absolute; inset:12px;
-  border:2px solid #8b6914;
-  border-radius:6px;
-  pointer-events:none;
-}
-
-/* estado seleccionado */
-#charSelect .char.selected{
-  border:2px solid #9fef00;
-  box-shadow:0 0 0 2px rgba(159,239,0,.25) inset,
-             0 0 12px rgba(159,239,0,.28);
-  background:#1a1a1a;
-}
-
-/* nombre bajo el retrato */
-#charSelect .char span{
-  font-size:12px; letter-spacing:.6px; opacity:.9;
-}
-
-/* oculta la barra “Diablo” mientras está visible la pantalla de start */
-#start.show ~ #gameUI{ display:none !important; }
-
-/* Responsive para las tarjetas */
-@media (max-width: 768px){
-  #charSelect{
-    grid-template-columns:repeat(2, minmax(180px,200px));
-    gap:20px;
-  }
-  #charSelect .char{ width:200px; padding:14px; }
-  #charSelect .char canvas{ width:112px; height:112px; }
-  #charSelect .char canvas::after{ inset:10px; }
-}
-
-/* ===== Virtual Joystick (móvil) ===== */
-#joystick{
-  position:fixed; left:18px; bottom:130px; /* por encima de la barra inferior */
-  width:120px; height:120px; border-radius:50%;
-  background:rgba(20,15,10,.35);
-  border:2px solid var(--gold-dark);
-  box-shadow:inset 0 0 0 1px rgba(212,175,55,.2), 0 6px 16px rgba(0,0,0,.35);
-  touch-action:none; user-select:none;
-  z-index:1200; display:none; /* se muestra sólo en táctil */
-}
-#joystick .knob{
-  position:absolute; left:50%; top:50%;
-  width:56px; height:56px; border-radius:50%;
-  transform:translate(-50%,-50%);
-  background:rgba(212,175,55,.25);
-  border:2px solid var(--gold);
-  box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
-  pointer-events:none;
-}
-
-/* Botón RUN/DASH */
-#dashBtn{
-  position:fixed; left:154px; bottom:158px;
-  width:64px; height:64px; border-radius:50%;
-  background:rgba(40,30,20,.85);
-  border:2px solid var(--gold-dark);
-  color:#fff; font:10px var(--retro); letter-spacing:.8px;
-  display:none; z-index:1201; touch-action:none;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);
-}
-#dashBtn:active{ transform:scale(.98) }
-
-/* Mostrar controles táctiles sólo en dispositivos “coarse” */
-@media (pointer:coarse){
-  #joystick, #dashBtn{ display:block }
-}
-
-/* Ajustes responsive extra pequeños */
-@media (max-width: 480px){
-  #joystick{ width:104px; height:104px; left:14px; bottom:120px }
-  #joystick .knob{ width:50px; height:50px }
-  #dashBtn{ left:136px; bottom:148px; width:56px; height:56px; font-size:9px }
-}
-
-/* --- Mobile controls --- */
-#mobileControls{position:fixed;inset:0;pointer-events:none;z-index:1200}
-#joyBase{
-  position:absolute;left:18px;bottom:110px;width:128px;height:128px;border-radius:50%;
-  background:#0008;border:2px solid #8b6914;box-shadow:0 0 10px #000;pointer-events:auto
-}
-#joyHat{
-  position:absolute;left:0;top:0;width:56px;height:56px;border-radius:50%;
-  transform:translate(36px,36px);background:#d4af37;box-shadow:inset 0 0 6px #775
-}
-#runBtn{
-  position:absolute; right:22px; bottom:120px;   /* 👉 botón RUN a la derecha */
-  width:84px; height:84px; border-radius:50%; pointer-events:auto;
-  background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
-  border:2px solid #8b6914; box-shadow:0 4px 16px rgba(0,0,0,.45);
-  display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
-}
-@media (max-width:768px){
-  #joyBase{width:110px;height:110px}
-  #joyHat{width:50px;height:50px;transform:translate(30px,30px)}
-  #runBtn{right:18px;bottom:110px;width:72px;height:72px;font-size:11px}
-}
-  
   #healthOrb, #manaOrb, #skillPanel { pointer-events:auto; }
 </style>
 </head>
@@ -329,13 +237,13 @@
 
   <!-- VIEWPORT + CANVAS -->
   <div id="viewport"><canvas id="game" width="960" height="540"></canvas></div>
-  
-  <!-- Controles móviles -->
-  <div id="mobileControls" aria-hidden="true">
-  <div id="joyBase"><div id="joyHat"></div></div>
-  <button id="runBtn" type="button">RUN</button>
-  </div>
 
+  <!-- Controles móviles (dual joystick) -->
+  <div id="dualMobile" aria-hidden="true">
+    <div id="joyL" class="joyBase"><div class="joyHat"></div></div>   <!-- movimiento -->
+    <div id="joyR" class="joyBase"><div class="joyHat"></div></div>   <!-- apuntar/disparar -->
+    <button id="btnRunR" type="button">RUN</button>
+  </div>
 
   <!-- OVERLAY muerte -->
   <div id="overlay">
@@ -350,7 +258,6 @@
     <div class="loadbar"><div class="fill" id="loadingFill" style="width:0%"></div></div>
     <div id="loadingMsg">LOADING</div>
 
-    <!-- Controles bonitos -->
     <div id="loadingControls">
       <div class="col">
         <div>
@@ -375,7 +282,7 @@
     </div>
   </div>
 
-  <!-- START (selección alineada) -->
+  <!-- START -->
   <div id="start">
     <h1>ANOMA SURVIVAL</h1>
     <div>CHOOSE YOUR CHARACTER AND PRESS <b>Play</b></div>
@@ -408,208 +315,117 @@
 
   <div id="toast"></div>
 
-  <!-- Controles táctiles -->
-  <div id="joystick"><div class="knob"></div></div>
-  <button id="dashBtn">RUN</button>
   <!-- Núcleo + optimizaciones -->
   <script src="game.js"></script>
+
+  <!-- Controles móviles: fullscreen + dual joystick -->
   <script>
-(function(){
-  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  (function(){
+    const isMobile = matchMedia('(pointer:coarse)').matches;
 
-  // — Pantalla completa en primer gesto (mejor UX móvil)
-  function requestFS(){
-    const el=document.documentElement;
-    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-    if (fn) { try{ fn.call(el); }catch(_){} }
-  }
-  if (isMobile) window.addEventListener('touchend', ()=>requestFS(), { once:true });
-
-  // Referencias UI
-  const cv = document.getElementById('game');
-  const joyBase = document.getElementById('joyBase');
-  const joyHat  = document.getElementById('joyHat');
-  const runBtn  = document.getElementById('runBtn');
-  if (!cv || !joyBase || !joyHat || !runBtn) return;
-
-  // Utilidades
-  function rectCenter(el){ const r=el.getBoundingClientRect(); return { x:r.left+r.width/2, y:r.top+r.height/2, r:Math.min(r.width,r.height)/2 }; }
-  function isIn(el, x, y){ const r=el.getBoundingClientRect(); return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom; }
-  function fromCanvas(e){
-    const r=cv.getBoundingClientRect();
-    return { x:(e.clientX-r.left)*(cv.width/r.width), y:(e.clientY-r.top)*(cv.height/r.height) };
-  }
-
-  // Estado
-  let joy = { id:null, active:false, cx:0, cy:0, r:0 };
-  let shoot = { id:null };
-
-  function setHat(dx,dy){
-    const clamp=(v,m)=>Math.max(-m,Math.min(m,v));
-    const lim=joy.r*0.55;
-    joyHat.style.transform=`translate(${clamp(dx,lim)+joy.r*0.28}px,${clamp(dy,lim)+joy.r*0.28}px)`;
-  }
-  function updateStick(dx,dy){
-    const len = Math.hypot(dx,dy) || 1;
-    const nx = dx/len, ny = dy/len;
-    const frac = Math.min(1, len/(joy.r*0.7));
-    if (window.GAME && GAME._inputRef){
-      GAME._inputRef.stick.active = true;
-      GAME._inputRef.stick.x = nx*frac;
-      GAME._inputRef.stick.y = ny*frac;
+    // Pantalla completa en el primer toque (móvil)
+    if (isMobile) {
+      const reqFS = () => {
+        const el = document.documentElement;
+        const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        if (fn) try { fn.call(el); } catch(_) {}
+      };
+      window.addEventListener('touchend', () => reqFS(), { once:true });
     }
-    setHat(dx,dy);
-  }
-  function endStick(){
-    joy.active=false; joy.id=null;
-    if (window.GAME && GAME._inputRef){
-      GAME._inputRef.stick.active=false; GAME._inputRef.stick.x=0; GAME._inputRef.stick.y=0;
-    }
-    setHat(0,0);
-  }
 
-  // Joystick con Pointer Events
-  joyBase.addEventListener('pointerdown', (e)=>{
-    e.preventDefault();
-    const c=rectCenter(joyBase);
-    joy={ id:e.pointerId, active:true, cx:c.x, cy:c.y, r:c.r };
-    updateStick(e.clientX-c.x, e.clientY-c.y);
-  });
-  window.addEventListener('pointermove', (e)=>{
-    if(!joy.active || e.pointerId!==joy.id) return;
-    updateStick(e.clientX-joy.cx, e.clientY-joy.cy);
-  });
-  window.addEventListener('pointerup', (e)=>{
-    if (e.pointerId===joy.id) endStick();
-    if (e.pointerId===shoot.id){ shoot.id=null; if (GAME && GAME._inputRef) GAME._inputRef.mouse.down=false; }
-  });
+    const cv = document.getElementById('game');
+    const dual = document.getElementById('dualMobile');
+    const joyL = document.getElementById('joyL');
+    const joyR = document.getElementById('joyR');
+    const hatL = joyL?.querySelector('.joyHat');
+    const hatR = joyR?.querySelector('.joyHat');
+    const btnRun = document.getElementById('btnRunR');
+    if (!cv || !dual || !joyL || !joyR || !hatL || !hatR || !btnRun) return;
 
-  // Botón RUN a la derecha
-  runBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); if (window.GAME) GAME._inputRef.dash=true; });
+    // Helper para acceder a Input (de game.js)
+    function $INPUT(){
+      try { return (window.GAME && window.GAME._inputRef) ? window.GAME._inputRef : window.Input; }
+      catch { return window.Input; }
+    }
 
-  // Disparo multitouch (ignora joystick y RUN)
-  cv.addEventListener('pointerdown', (e)=>{
-    if (isIn(joyBase, e.clientX, e.clientY) || isIn(runBtn, e.clientX, e.clientY)) return;
-    if (shoot.id==null){
-      shoot.id = e.pointerId;
-      const p = fromCanvas(e);
-      if (GAME && GAME._inputRef){
-        GAME._inputRef.mouse.x = p.x; GAME._inputRef.mouse.y = p.y;
-        GAME._inputRef.mouse.down = true;
-      }
+    function center(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2, r:Math.min(r.width,r.height)/2}; }
+    function fromCanvasClient(clientX, clientY){
+      const r=cv.getBoundingClientRect();
+      return { x:(clientX-r.left)*(cv.width/r.width), y:(clientY-r.top)*(cv.height/r.height) };
     }
-  }, {passive:false});
-  cv.addEventListener('pointermove', (e)=>{
-    if (e.pointerId!==shoot.id) return;
-    const p = fromCanvas(e);
-    if (GAME && GAME._inputRef){
-      GAME._inputRef.mouse.x = p.x; GAME._inputRef.mouse.y = p.y;
-    }
-  });
-  window.addEventListener('pointerup', (e)=>{
-    if (e.pointerId===shoot.id){
-      shoot.id=null; if (GAME && GAME._inputRef) GAME._inputRef.mouse.down=false;
-    }
-  });
 
-  // Cambiar hechizo con toque aunque el joystick esté pulsado
-  document.querySelectorAll('.skill-slot').forEach(slot=>{
-    slot.addEventListener('touchstart', (ev)=>{
-      ev.preventDefault();
-      document.querySelectorAll('.skill-slot').forEach(s=>s.classList.remove('active'));
-      slot.classList.add('active');
-      if (window.GAME) GAME.weapon = slot.dataset.skill;
-    }, {passive:false});
-  });
-})();
-</script>
+    // === Movimiento (joystick izquierdo) ===
+    let lId=null, L={cx:0,cy:0,r:0};
+    function setHat(hat, dx,dy, radiusFrac=0.55){
+      const lim=(L.r||R.r)*radiusFrac;
+      const k = Math.min(1, lim/(Math.hypot(dx,dy)||1));
+      hat.style.transform = `translate(${dx*k}px, ${dy*k}px) translate(-50%,-50%)`;
+    }
+    function updateLeft(dx,dy){
+      const I=$INPUT(); if(!I) return;
+      const len=Math.hypot(dx,dy)||1, nx=dx/len, ny=dy/len;
+      const frac = Math.min(1, len/(L.r*0.7));
+      I.stick.active = true; I.stick.x = nx*frac; I.stick.y = ny*frac;
+      setHat(hatL, dx,dy);
+    }
+    function endLeft(){
+      const I=$INPUT(); if(!I) return;
+      I.stick.active=false; I.stick.x=0; I.stick.y=0;
+      hatL.style.transform='translate(-50%,-50%)';
+      lId=null;
+    }
+
+    joyL.addEventListener('pointerdown', (e)=>{ e.preventDefault(); const c=center(joyL); L={cx:c.x,cy:c.y,r:c.r}; lId=e.pointerId; updateLeft(e.clientX-c.x, e.clientY-c.y); });
+    window.addEventListener('pointermove', (e)=>{ if(e.pointerId!==lId) return; updateLeft(e.clientX-L.cx, e.clientY-L.cy); });
+    window.addEventListener('pointerup',   (e)=>{ if(e.pointerId===lId) endLeft(); });
+
+    // === Apuntar / Disparar (joystick derecho) ===
+    let rId=null, R={cx:0,cy:0,r:0};
+    function updateRight(dx,dy){
+      // Normaliza dirección y mueve el “hat”
+      const len=Math.hypot(dx,dy)||1, nx=dx/len, ny=dy/len;
+      setHat(hatR, dx,dy);
+
+      const dead = 12; // px de zona muerta
+      const active = Math.hypot(dx,dy) > dead;
+
+      // Simula ratón apuntando desde el centro del canvas hacia la dirección del stick
+      const I=$INPUT(); if(!I) return;
+      const centerX = cv.width/2, centerY = cv.height/2;
+      const aimDist = 300; // distancia “virtual” de puntería
+      I.mouse.x = centerX + nx*aimDist;
+      I.mouse.y = centerY + ny*aimDist;
+      I.mouse.down = active; // mantener disparo mientras se empuja el stick
+    }
+    function endRight(){
+      const I=$INPUT(); if(!I) return;
+      I.mouse.down = false;
+      hatR.style.transform='translate(-50%,-50%)';
+      rId=null;
+    }
+
+    joyR.addEventListener('pointerdown', (e)=>{ e.preventDefault(); const c=center(joyR); R={cx:c.x,cy:c.y,r:c.r}; rId=e.pointerId; updateRight(e.clientX-c.x, e.clientY-c.y); });
+    window.addEventListener('pointermove', (e)=>{ if(e.pointerId!==rId) return; updateRight(e.clientX-R.cx, e.clientY-R.cy); });
+    window.addEventListener('pointerup',   (e)=>{ if(e.pointerId===rId) endRight(); });
+
+    // === RUN / DASH (derecha) ===
+    btnRun.addEventListener('pointerdown', (e)=>{ e.preventDefault(); try{ const I=$INPUT(); if(I) I.dash=true; }catch{} });
+
+    // Cambiar hechizo tocando el panel (funciona aunque el joystick esté activo)
+    document.querySelectorAll('.skill-slot').forEach(slot=>{
+      slot.addEventListener('touchstart', (ev)=>{
+        ev.preventDefault();
+        document.querySelectorAll('.skill-slot').forEach(s=>s.classList.remove('active'));
+        slot.classList.add('active');
+        if (window.GAME) GAME.weapon = slot.dataset.skill;
+      }, {passive:false});
+    });
+  })();
+  </script>
 
   <script src="optimization.js"></script>
 
- <script>
-/* ===== Virtual Joystick logic ===== */
-(function(){
-  const joy = document.getElementById('joystick');
-  const knob = joy?.querySelector('.knob');
-  const dashBtn = document.getElementById('dashBtn');
-  if(!joy || !knob) return;
-
-  // acceso a Input seguro
-  function $INPUT(){
-    try { return (window.GAME && window.GAME._inputRef) ? window.GAME._inputRef : window.Input; }
-    catch { return window.Input; }
-  }
-
-  let activeId = null;           // touch identifier
-  const maxRadius = 44;          // desplazamiento máximo del knob
-
-  function setStick(dx, dy){
-    const len = Math.hypot(dx,dy) || 1;
-    const k = Math.min(1, maxRadius/len);
-    const cx = dx * k, cy = dy * k;
-
-    knob.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
-
-    const input = $INPUT(); if(!input) return;
-    input.stick.active = true;
-    input.stick.x = cx / maxRadius;
-    input.stick.y = cy / maxRadius; // +y hacia abajo
-  }
-
-  function resetStick(){
-    knob.style.transform = 'translate(-50%,-50%)';
-    const input = $INPUT(); if(!input) return;
-    input.stick.active = false;
-    input.stick.x = 0; input.stick.y = 0;
-  }
-
-  function localPos(e){
-    const rect = joy.getBoundingClientRect();
-    let x, y;
-    if (e.touches && e.touches.length){
-      const t = [...e.touches].find(t => activeId==null || t.identifier===activeId) || e.touches[0];
-      x = t.clientX - (rect.left + rect.width/2);
-      y = t.clientY - (rect.top + rect.height/2);
-    } else {
-      x = e.clientX - (rect.left + rect.width/2);
-      y = e.clientY - (rect.top + rect.height/2);
-    }
-    return {x, y};
-  }
-
-  // TOUCH
-  joy.addEventListener('touchstart', (e)=>{
-    const t = e.changedTouches[0]; activeId = t.identifier;
-    const {x,y} = localPos(e); setStick(x,y); e.preventDefault();
-  }, {passive:false});
-  joy.addEventListener('touchmove', (e)=>{
-    const t = [...e.touches].find(tt=>tt.identifier===activeId); if(!t) return;
-    const {x,y} = localPos(e); setStick(x,y); e.preventDefault();
-  }, {passive:false});
-  function endTouch(e){
-    const ended = [...e.changedTouches].some(tt=>tt.identifier===activeId);
-    if(ended){ activeId=null; resetStick(); }
-  }
-  joy.addEventListener('touchend', endTouch, {passive:false});
-  joy.addEventListener('touchcancel', endTouch, {passive:false});
-
-  // MOUSE (para probar en escritorio)
-  let mouseDown = false;
-  joy.addEventListener('mousedown', (e)=>{ mouseDown = true; const {x,y}=localPos(e); setStick(x,y); });
-  window.addEventListener('mousemove', (e)=>{ if(!mouseDown) return; const {x,y}=localPos(e); setStick(x,y); });
-  window.addEventListener('mouseup', ()=>{ if(mouseDown){ mouseDown=false; resetStick(); } });
-
-  // RUN / DASH
-  if (dashBtn){
-    const fireDash = ()=>{ try { const input = $INPUT(); if(input) input.dash=true; } catch{} };
-    dashBtn.addEventListener('touchstart', (e)=>{ fireDash(); e.preventDefault(); }, {passive:false});
-    dashBtn.addEventListener('click', fireDash);
-  }
-})();
-</script>
-
-
-  <!-- Diablo-style bottom bar (sin cambios funcionales) -->
+  <!-- UI inferior “Diablo” -->
   <script>
 /* Helpers de estado expuesto */
 function $GAME(){ try { return (typeof window!=='undefined' && window.GAME) || (typeof GAME!=='undefined' ? GAME : null); } catch(_) { return null; } }
@@ -726,7 +542,7 @@ document.addEventListener('keydown', (e)=>{
   if (map[e.key] && G && G.running) { G.weapon = map[e.key]; }
 });
 
-/* Init UI robusto: no crear la UI si el start está visible */
+/* Init UI robusto */
 function ensureUI(){
   const start = document.getElementById('start');
   const startVisible = start && start.classList.contains('show');
@@ -734,7 +550,6 @@ function ensureUI(){
     createDiablo2UI();
   }
 }
-
 document.addEventListener('DOMContentLoaded', ensureUI);
 window.addEventListener('load', ensureUI);
 
@@ -742,25 +557,15 @@ const startEl = document.getElementById('start');
 if (startEl) {
   const obs = new MutationObserver(() => {
     const visible = startEl.classList.contains('show');
-
-    // cuando se cierre el start, crea la UI si aún no existe
-    if (!visible) ensureUI();
-
-    // si el start vuelve a mostrarse, oculta la UI ya creada
+    if (!visible) ensureUI();                 // cuando se cierre el start, crea la UI si no existe
     const ui = document.getElementById('gameUI');
-    if (ui) ui.style.display = visible ? 'none' : '';
+    if (ui) ui.style.display = visible ? 'none' : ''; // si vuelve a mostrarse el start, oculta la UI
   });
   obs.observe(startEl, { attributes: true, attributeFilter: ['class'] });
 }
 
-/* tick de la UI (no hace falta llamar a ensureUI aquí) */
+/* Tick UI */
 setInterval(() => { updateDiablo2UI(); }, 100);
-</script>
+  </script>
 </body>
 </html>
-
-
-
-
-
-
