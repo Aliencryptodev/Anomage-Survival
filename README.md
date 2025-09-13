@@ -20,7 +20,7 @@ Top-down arcade survivor with a retro look and elemental spells. Move, dodge, wi
 ## Controls
 
 **Desktop**
-- Move: `WASD` or Arrow Keys  
+- Move: `W A S D` or Arrow Keys  
 - Shoot: Mouse Click (hold for burst)  
 - Dash/Run: `Space`  
 - Switch Spell: `1` 🔥, `2` ⚡, `3` ❄️, `4` 🌑
