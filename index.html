@@ -179,15 +179,15 @@
   }
   /* RUN button (derecha) */
   #btnRunR{
-    position:absolute; right:20px; bottom:120px;
-    width:84px; height:84px; border-radius:50%; pointer-events:auto;
-    background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
-    border:2px solid var(--gold-dark); box-shadow:0 4px 16px rgba(0,0,0,.45);
-    display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
+  position:absolute; right:140px; bottom:120px;   /* ← antes 20px; lo movemos donde estaba el joyR */
+  width:84px; height:84px; border-radius:50%; pointer-events:auto;
+  background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
+  border:2px solid var(--gold-dark); box-shadow:0 4px 16px rgba(0,0,0,.45);
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
   }
   /* Posición sticks */
   #joyL{ left:18px; bottom:120px; }
-  #joyR{ right:140px; bottom:120px; }
+  #joyR{ right:20px; bottom:120px; } 
 
   /* Mostrar solo en táctiles */
   @media (pointer:coarse){
@@ -195,11 +195,11 @@
   }
   /* Ajustes responsive extras */
   @media (max-width:480px){
-    .joyBase{ width:110px; height:110px; }
-    .joyHat{ width:50px; height:50px; }
-    #joyR{ right:120px; bottom:110px; }
-    #joyL{ left:14px; bottom:110px; }
-    #btnRunR{ right:16px; bottom:110px; width:72px; height:72px; font-size:11px; }
+  .joyBase{ width:110px; height:110px; }
+  .joyHat{ width:50px; height:50px; }
+  #joyR{ right:16px;  bottom:110px; }   /* ← pegado al borde en móvil */
+  #joyL{ left:14px;   bottom:110px; }
+  #btnRunR{ right:96px; bottom:110px; width:72px; height:72px; font-size:11px; } /* ← donde estaba el joyR */
   }
 
   /* Responsive generales */
@@ -215,6 +215,11 @@
     .portrait{width:112px;height:112px}
   }
 
+/* Ocultar ayudas de teclado en pantallas táctiles */
+@media (pointer:coarse){
+  #loadingControls{ display:none !important; }
+  }
+  
   /* Oculta la barra “Diablo” mientras está visible la pantalla de start */
   #start.show ~ #gameUI{ display:none !important; }
 
@@ -415,6 +420,7 @@
     document.querySelectorAll('.skill-slot').forEach(slot=>{
       slot.addEventListener('touchstart', (ev)=>{
         ev.preventDefault();
+        ev.stopPropagation();
         document.querySelectorAll('.skill-slot').forEach(s=>s.classList.remove('active'));
         slot.classList.add('active');
         if (window.GAME) GAME.weapon = slot.dataset.skill;
@@ -569,3 +575,4 @@ setInterval(() => { updateDiablo2UI(); }, 100);
   </script>
 </body>
 </html>
+
