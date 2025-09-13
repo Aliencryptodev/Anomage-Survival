@@ -12,7 +12,7 @@ Top-down arcade survivor with a retro look and elemental spells. Move, dodge, wi
 - Elemental spells (Fire, Lightning, Ice, Dark) with level-up progression.
 - Enemy waves + biome boss; portal opens after the boss.
 - Potion/essence drops and score.
-- “Diablo-style” bottom UI with health/mana orbs and skill panel.
+- “Retro-style” bottom UI with health/mana orbs and skill panel.
 - Desktop and mobile support (dual virtual joysticks + RUN button).
 
 ---
