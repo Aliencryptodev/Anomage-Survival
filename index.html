@@ -5,9 +5,6 @@
 <title>Anoma Survival</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<!-- Favicon emoji 🧙 -->
-<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧙</text></svg>' />
-
 <!-- Retro fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,7 +59,7 @@
   }
   #toast.show{opacity:1}
 
-  /* ===== Loading overlay ===== */
+  /* ===== Loading overlay (pulido) ===== */
   #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0e0f13;color:#e6ebef;z-index:9999}
   #loading:not(.show){display:none;}
   #loading h1{
@@ -88,7 +85,12 @@
   }
   .action{opacity:.85}
 
-  /* ===== Start screen ===== */
+  /* En móvil ocultamos la tarjeta de “controles” del loading */
+  @media (pointer:coarse){
+    #loadingControls{ display:none !important; }
+  }
+
+  /* ===== Start screen (alineado/bonito) ===== */
   #start{background:#0e0f13;color:#e6ebef;font-family:var(--retro)}
   #start h1{font: clamp(22px,3.2vw,36px) var(--title); margin:0 0 8px 0; letter-spacing:2px}
   #start>div{opacity:.95; margin-bottom:20px; letter-spacing:.4px}
@@ -102,11 +104,10 @@
   }
   .char:hover{ transform: translateY(-2px); border-color:#aaa }
   .char.selected{ border:2px solid #9fef00; background:#1a1a1a; box-shadow:0 0 10px rgba(159,239,0,0.28) }
-
-  /* Retrato limpio con marco dorado en el sprite */
+  /* Retrato sin borde gris; único marco dorado en el canvas */
   .portrait{
-    width:128px; height:128px; display:grid; place-items:center;
-    background:#0f0f0f; border:none; border-radius:8px; box-shadow: inset 0 0 0 1px #222;
+    width:128px; height:128px; display:grid; place-items:center; background:#0f0f0f;
+    border:none; border-radius:8px; box-shadow: inset 0 0 0 1px #222;
   }
   #charSelect .char canvas{
     width:96px; height:96px; image-rendering:pixelated; background:transparent;
@@ -161,48 +162,7 @@
   .info-value{color:var(--gold); font-weight:700}
   .info-value.red{color:#ff4444} .info-value.green{color:#88ff88} .info-value.yellow{color:#ffdd44}
 
-  /* ===== Dual Virtual Joystick (móvil) ===== */
-  /* Controles ocultos por defecto, solo táctil */
-  #dualMobile{position:fixed; inset:0; pointer-events:none; z-index:1200; display:none}
-  .joyBase{
-    position:absolute; width:124px; height:124px; border-radius:50%;
-    background:rgba(20,15,10,.35); border:2px solid var(--gold-dark);
-    box-shadow:inset 0 0 0 1px rgba(212,175,55,.2), 0 6px 16px rgba(0,0,0,.35);
-    touch-action:none; user-select:none; pointer-events:auto;
-  }
-  .joyHat{
-    position:absolute; width:56px; height:56px; border-radius:50%;
-    left:50%; top:50%; transform:translate(-50%,-50%);
-    background:rgba(212,175,55,.25); border:2px solid var(--gold);
-    box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
-    pointer-events:none;
-  }
-  /* RUN button (derecha) */
-  #btnRunR{
-    position:absolute; right:20px; bottom:120px;
-    width:84px; height:84px; border-radius:50%; pointer-events:auto;
-    background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
-    border:2px solid var(--gold-dark); box-shadow:0 4px 16px rgba(0,0,0,.45);
-    display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
-  }
-  /* Posición sticks */
-  #joyL{ left:18px; bottom:120px; }
-  #joyR{ right:140px; bottom:120px; }
-
-  /* Mostrar solo en táctiles */
-  @media (pointer:coarse){
-    #dualMobile{ display:block; }
-  }
-  /* Ajustes responsive extras */
-  @media (max-width:480px){
-    .joyBase{ width:110px; height:110px; }
-    .joyHat{ width:50px; height:50px; }
-    #joyR{ right:120px; bottom:110px; }
-    #joyL{ left:14px; bottom:110px; }
-    #btnRunR{ right:16px; bottom:110px; width:72px; height:72px; font-size:11px; }
-  }
-
-  /* Responsive generales */
+  /* Responsive mínimos del HUD */
   @media (max-width: 768px){
     #gameUI{height:80px}
     #healthOrb,#manaOrb{width:60px;height:60px;bottom:8px}
@@ -215,8 +175,45 @@
     .portrait{width:112px;height:112px}
   }
 
-  /* Oculta la barra “Diablo” mientras está visible la pantalla de start */
-  #start.show ~ #gameUI{ display:none !important; }
+  /* ===== Controles móviles (dos joysticks + RUN) ===== */
+  #mobileControls{ position:fixed; inset:0; pointer-events:none; z-index:1200; display:none; }
+  @media (pointer:coarse){ #mobileControls{ display:block; } }
+
+  /* oculta controles móviles cuando está visible loading o start */
+  #loading.show ~ #mobileControls,
+  #start.show ~ #mobileControls { display:none !important; }
+
+  .joy-base{
+    position:absolute; width:132px; height:132px; border-radius:50%;
+    background:#0008; border:2px solid var(--gold-dark);
+    box-shadow:0 0 10px #000, inset 0 0 0 1px rgba(212,175,55,.25);
+    pointer-events:auto;
+  }
+  .joy-hat{
+    position:absolute; width:56px; height:56px; border-radius:50%;
+    transform:translate(38px,38px);
+    background:rgba(212,175,55,.25); border:2px solid var(--gold);
+    box-shadow:0 0 0 2px #2a2317 inset, 0 6px 18px rgba(212,175,55,.28);
+  }
+
+  /* posiciones por defecto */
+  #joyMove { left:18px;  bottom:110px; }
+  #joyShoot{ right:18px; bottom:110px; }  /* joystick de disparo ocupa el lugar del antiguo RUN */
+
+  /* botón RUN encima del joystick derecho */
+  #runBtn{
+    position:absolute; right:22px; bottom:220px;
+    width:84px; height:84px; border-radius:50%; pointer-events:auto;
+    background:radial-gradient(circle at 35% 35%, #5fd37a, #2a8b3f 70%, #1a5727);
+    border:2px solid var(--gold-dark); box-shadow:0 4px 16px rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--retro); font-size:12px
+  }
+
+  @media (max-width:768px){
+    .joy-base{ width:118px; height:118px; }
+    .joy-hat { width:50px; height:50px; transform:translate(34px,34px) }
+    #runBtn{ right:18px; bottom:200px; width:74px; height:74px; font-size:11px }
+  }
 
   #healthOrb, #manaOrb, #skillPanel { pointer-events:auto; }
 </style>
@@ -238,66 +235,37 @@
   <!-- VIEWPORT + CANVAS -->
   <div id="viewport"><canvas id="game" width="960" height="540"></canvas></div>
 
-  <!-- Controles móviles (dual joystick) -->
-  <div id="dualMobile" aria-hidden="true">
-    <div id="joyL" class="joyBase"><div class="joyHat"></div></div>   <!-- movimiento -->
-    <div id="joyR" class="joyBase"><div class="joyHat"></div></div>   <!-- apuntar/disparar -->
-    <button id="btnRunR" type="button">RUN</button>
-  </div>
-
-  <!-- OVERLAY muerte -->
-  <div id="overlay">
-    <div id="overlay-text" style="font:16px var(--retro);letter-spacing:.5px;"></div>
-    <div id="overlay-sub" style="opacity:.9;margin-top:6px;font:12px var(--retro)"></div>
-    <button id="overlay-btn" class="btn">Continue</button>
-  </div>
-
   <!-- LOADING -->
   <div id="loading" class="show">
     <h1>ANOMA SURVIVAL</h1>
     <div class="loadbar"><div class="fill" id="loadingFill" style="width:0%"></div></div>
     <div id="loadingMsg">LOADING</div>
 
+    <!-- Controles (se ocultan en móvil) -->
     <div id="loadingControls">
       <div class="col">
-        <div>
-          <kbd class="key">W</kbd><kbd class="key">A</kbd><kbd class="key">S</kbd><kbd class="key">D</kbd>
-          <span class="action">— MOVE</span>
-        </div>
-        <div>
-          <kbd class="key">CLICK</kbd>
-          <span class="action">— SHOOT</span>
-        </div>
+        <div><kbd class="key">W</kbd><kbd class="key">A</kbd><kbd class="key">S</kbd><kbd class="key">D</kbd> <span class="action">— MOVE</span></div>
+        <div><kbd class="key">CLICK</kbd> <span class="action">— SHOOT</span></div>
       </div>
       <div class="col">
-        <div>
-          <kbd class="key">Space</kbd>
-          <span class="action">— RUN</span>
-        </div>
-        <div>
-          <kbd class="key">1</kbd><kbd class="key">2</kbd><kbd class="key">3</kbd><kbd class="key">4</kbd>
-          <span class="action">— CHANGE SPELL</span>
-        </div>
+        <div><kbd class="key">Space</kbd> <span class="action">— RUN</span></div>
+        <div><kbd class="key">1</kbd><kbd class="key">2</kbd><kbd class="key">3</kbd><kbd class="key">4</kbd> <span class="action">— CHANGE SPELL</span></div>
       </div>
     </div>
   </div>
 
   <!-- START -->
-  <div id="start">
+  <div id="start" class="show">
     <h1>ANOMA SURVIVAL</h1>
     <div>CHOOSE YOUR CHARACTER AND PRESS <b>Play</b></div>
 
     <div id="charSelect">
       <button class="char" data-hero="anomage">
-        <div class="portrait">
-          <canvas id="prev-anomage" width="64" height="64"></canvas>
-        </div>
+        <div class="portrait"><canvas id="prev-anomage" width="64" height="64"></canvas></div>
         <div class="char-name">ANOMAGE</div>
       </button>
       <button class="char" data-hero="shrimp">
-        <div class="portrait">
-          <canvas id="prev-shrimp" width="64" height="64"></canvas>
-        </div>
+        <div class="portrait"><canvas id="prev-shrimp" width="64" height="64"></canvas></div>
         <div class="char-name">SHRIMP</div>
       </button>
     </div>
@@ -315,117 +283,160 @@
 
   <div id="toast"></div>
 
+  <!-- Controles móviles (dos joysticks + run) -->
+  <div id="mobileControls" aria-hidden="true">
+    <div id="joyMove"  class="joy-base"><div class="joy-hat" id="hatMove"></div></div>
+    <div id="joyShoot" class="joy-base"><div class="joy-hat" id="hatShoot"></div></div>
+    <button id="runBtn" type="button">RUN</button>
+  </div>
+
+  <!-- OVERLAY muerte -->
+  <div id="overlay">
+    <div id="overlay-text" style="font:16px var(--retro);letter-spacing:.5px;"></div>
+    <div id="overlay-sub" style="opacity:.9;margin-top:6px;font:12px var(--retro)"></div>
+    <button id="overlay-btn" class="btn">Continue</button>
+  </div>
+
   <!-- Núcleo + optimizaciones -->
   <script src="game.js"></script>
+  <script src="optimization.js"></script>
 
-  <!-- Controles móviles: fullscreen + dual joystick -->
+  <!-- MÓVIL: pantalla completa + joysticks + run + cambio de spell mientras se mueve -->
   <script>
   (function(){
-    const isMobile = matchMedia('(pointer:coarse)').matches;
+    const isMobile = matchMedia('(pointer:coarse)').matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
-    // Pantalla completa en el primer toque (móvil)
+    // Pantalla completa en el primer toque
     if (isMobile) {
       const reqFS = () => {
         const el = document.documentElement;
         const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-        if (fn) try { fn.call(el); } catch(_) {}
+        if (fn) try{ fn.call(el); }catch(_){}
       };
-      window.addEventListener('touchend', () => reqFS(), { once:true });
+      window.addEventListener('touchend', ()=>reqFS(), { once:true });
     }
 
+    // Helpers
     const cv = document.getElementById('game');
-    const dual = document.getElementById('dualMobile');
-    const joyL = document.getElementById('joyL');
-    const joyR = document.getElementById('joyR');
-    const hatL = joyL?.querySelector('.joyHat');
-    const hatR = joyR?.querySelector('.joyHat');
-    const btnRun = document.getElementById('btnRunR');
-    if (!cv || !dual || !joyL || !joyR || !hatL || !hatR || !btnRun) return;
+    const joyMove  = document.getElementById('joyMove');
+    const hatMove  = document.getElementById('hatMove');
+    const joyShoot = document.getElementById('joyShoot');
+    const hatShoot = document.getElementById('hatShoot');
+    const runBtn   = document.getElementById('runBtn');
 
-    // Helper para acceder a Input (de game.js)
-    function $INPUT(){
-      try { return (window.GAME && window.GAME._inputRef) ? window.GAME._inputRef : window.Input; }
-      catch { return window.Input; }
-    }
+    function inRect(el, x, y){ const r=el.getBoundingClientRect(); return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom; }
+    function center(el){ const r=el.getBoundingClientRect(); return { x:r.left+r.width/2, y:r.top+r.height/2, r:Math.min(r.width,r.height)/2 }; }
 
-    function center(el){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2, r:Math.min(r.width,r.height)/2}; }
-    function fromCanvasClient(clientX, clientY){
-      const r=cv.getBoundingClientRect();
-      return { x:(clientX-r.left)*(cv.width/r.width), y:(clientY-r.top)*(cv.height/r.height) };
-    }
+    // Estado joysticks
+    const stick = {
+      move:  { id:null, cx:0, cy:0, r:0, active:false },
+      shoot: { id:null, cx:0, cy:0, r:0, active:false }
+    };
 
-    // === Movimiento (joystick izquierdo) ===
-    let lId=null, L={cx:0,cy:0,r:0};
-    function setHat(hat, dx,dy, radiusFrac=0.55){
-      const lim=(L.r||R.r)*radiusFrac;
+    // Acceso seguro al Input
+    function $INPUT(){ try { return (window.GAME && window.GAME._inputRef) ? window.GAME._inputRef : window.Input; } catch{return window.Input;} }
+
+    // MOVER
+    function setHat(el, dx, dy){
+      const lim = (stick.move.r||stick.shoot.r)*0.6 || 40;
       const k = Math.min(1, lim/(Math.hypot(dx,dy)||1));
-      hat.style.transform = `translate(${dx*k}px, ${dy*k}px) translate(-50%,-50%)`;
+      const x = dx*k, y = dy*k;
+      el.style.transform = `translate(${(el===hatMove?38:38)+x}px, ${(el===hatMove?38:38)+y}px)`;
+      return { x, y, lim };
     }
-    function updateLeft(dx,dy){
-      const I=$INPUT(); if(!I) return;
-      const len=Math.hypot(dx,dy)||1, nx=dx/len, ny=dy/len;
-      const frac = Math.min(1, len/(L.r*0.7));
-      I.stick.active = true; I.stick.x = nx*frac; I.stick.y = ny*frac;
-      setHat(hatL, dx,dy);
+    function moveUpdate(dx,dy){
+      const input = $INPUT(); if(!input) return;
+      const m = setHat(hatMove, dx, dy);
+      input.stick.active = true;
+      input.stick.x = (m.x / m.lim);
+      input.stick.y = (m.y / m.lim);
     }
-    function endLeft(){
-      const I=$INPUT(); if(!I) return;
-      I.stick.active=false; I.stick.x=0; I.stick.y=0;
-      hatL.style.transform='translate(-50%,-50%)';
-      lId=null;
-    }
-
-    joyL.addEventListener('pointerdown', (e)=>{ e.preventDefault(); const c=center(joyL); L={cx:c.x,cy:c.y,r:c.r}; lId=e.pointerId; updateLeft(e.clientX-c.x, e.clientY-c.y); });
-    window.addEventListener('pointermove', (e)=>{ if(e.pointerId!==lId) return; updateLeft(e.clientX-L.cx, e.clientY-L.cy); });
-    window.addEventListener('pointerup',   (e)=>{ if(e.pointerId===lId) endLeft(); });
-
-    // === Apuntar / Disparar (joystick derecho) ===
-    let rId=null, R={cx:0,cy:0,r:0};
-    function updateRight(dx,dy){
-      // Normaliza dirección y mueve el “hat”
-      const len=Math.hypot(dx,dy)||1, nx=dx/len, ny=dy/len;
-      setHat(hatR, dx,dy);
-
-      const dead = 12; // px de zona muerta
-      const active = Math.hypot(dx,dy) > dead;
-
-      // Simula ratón apuntando desde el centro del canvas hacia la dirección del stick
-      const I=$INPUT(); if(!I) return;
-      const centerX = cv.width/2, centerY = cv.height/2;
-      const aimDist = 300; // distancia “virtual” de puntería
-      I.mouse.x = centerX + nx*aimDist;
-      I.mouse.y = centerY + ny*aimDist;
-      I.mouse.down = active; // mantener disparo mientras se empuja el stick
-    }
-    function endRight(){
-      const I=$INPUT(); if(!I) return;
-      I.mouse.down = false;
-      hatR.style.transform='translate(-50%,-50%)';
-      rId=null;
+    function moveEnd(){
+      const input = $INPUT(); if(!input) return;
+      input.stick.active=false; input.stick.x=0; input.stick.y=0;
+      hatMove.style.transform='translate(38px,38px)';
+      stick.move.active=false; stick.move.id=null;
     }
 
-    joyR.addEventListener('pointerdown', (e)=>{ e.preventDefault(); const c=center(joyR); R={cx:c.x,cy:c.y,r:c.r}; rId=e.pointerId; updateRight(e.clientX-c.x, e.clientY-c.y); });
-    window.addEventListener('pointermove', (e)=>{ if(e.pointerId!==rId) return; updateRight(e.clientX-R.cx, e.clientY-R.cy); });
-    window.addEventListener('pointerup',   (e)=>{ if(e.pointerId===rId) endRight(); });
+    // DISPARAR: apuntamos alrededor del jugador y mantenemos mouse.down = true mientras esté activo
+    function shootUpdate(dx,dy){
+      const G = window.GAME;
+      if (!G || !G.player) return;
+      const len = Math.hypot(dx,dy)||1;
+      const nx=dx/len, ny=dy/len;
+      setHat(hatShoot, dx, dy);
 
-    // === RUN / DASH (derecha) ===
-    btnRun.addEventListener('pointerdown', (e)=>{ e.preventDefault(); try{ const I=$INPUT(); if(I) I.dash=true; }catch{} });
+      const input = $INPUT(); if(!input) return;
+      input.mouse.down = true;
+      // apuntamos un poco por delante del jugador:
+      const R = 200;
+      input.mouse.x = G.player.x + nx*R;
+      input.mouse.y = G.player.y + ny*R;
+    }
+    function shootEnd(){
+      const input = $INPUT(); if(!input) return;
+      hatShoot.style.transform='translate(38px,38px)';
+      input.mouse.down = false;
+      stick.shoot.active=false; stick.shoot.id=null;
+    }
 
-    // Cambiar hechizo tocando el panel (funciona aunque el joystick esté activo)
+    // Pointer handlers genéricos
+    function startJoy(which, e){
+      const base = which==='move' ? joyMove : joyShoot;
+      const s = stick[which];
+      const c=center(base);
+      s.id=e.pointerId; s.cx=c.x; s.cy=c.y; s.r=c.r; s.active=true;
+      const dx=e.clientX-c.x, dy=e.clientY-c.y;
+      which==='move' ? moveUpdate(dx,dy) : shootUpdate(dx,dy);
+    }
+    function moveJoy(e){
+      if (stick.move.active && e.pointerId===stick.move.id){
+        moveUpdate(e.clientX-stick.move.cx, e.clientY-stick.move.cy);
+      }
+      if (stick.shoot.active && e.pointerId===stick.shoot.id){
+        shootUpdate(e.clientX-stick.shoot.cx, e.clientY-stick.shoot.cy);
+      }
+    }
+    function endJoy(e){
+      if (e.pointerId===stick.move.id)  moveEnd();
+      if (e.pointerId===stick.shoot.id) shootEnd();
+    }
+
+    // Bind joysticks
+    ;[joyMove,joyShoot].forEach((base,i)=>{
+      base.addEventListener('pointerdown', (e)=>{ e.preventDefault(); startJoy(i===0?'move':'shoot', e); });
+    });
+    window.addEventListener('pointermove', moveJoy);
+    window.addEventListener('pointerup', endJoy);
+    window.addEventListener('pointercancel', endJoy);
+
+    // RUN (dash)
+    if (runBtn){
+      runBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); const I=$INPUT(); if(I) I.dash=true; });
+    }
+
+    // Cambiar hechizo con toque aunque el joystick esté pulsado
     document.querySelectorAll('.skill-slot').forEach(slot=>{
       slot.addEventListener('touchstart', (ev)=>{
         ev.preventDefault();
         document.querySelectorAll('.skill-slot').forEach(s=>s.classList.remove('active'));
         slot.classList.add('active');
-        if (window.GAME) GAME.weapon = slot.dataset.skill;
+        if (window.GAME) window.GAME.weapon = slot.dataset.skill;
       }, {passive:false});
     });
+
+    // Ocultar controles móviles cuando el START está visible (por si el HTML inicial no lleva .show)
+    const start = document.getElementById('start');
+    const mob   = document.getElementById('mobileControls');
+    if (start && mob){
+      const sync=()=>{ mob.style.display = (matchMedia('(pointer:coarse)').matches && !start.classList.contains('show')) ? 'block' : 'none'; };
+      sync();
+      new MutationObserver(sync).observe(start,{attributes:true,attributeFilter:['class']});
+    }
   })();
   </script>
 
-  <script src="optimization.js"></script>
-
-  <!-- UI inferior “Diablo” -->
+  <!-- Diablo-style bottom bar (sin cambios funcionales) -->
   <script>
 /* Helpers de estado expuesto */
 function $GAME(){ try { return (typeof window!=='undefined' && window.GAME) || (typeof GAME!=='undefined' ? GAME : null); } catch(_) { return null; } }
@@ -542,7 +553,7 @@ document.addEventListener('keydown', (e)=>{
   if (map[e.key] && G && G.running) { G.weapon = map[e.key]; }
 });
 
-/* Init UI robusto */
+/* Init UI robusto: no crear la UI si el start está visible */
 function ensureUI(){
   const start = document.getElementById('start');
   const startVisible = start && start.classList.contains('show');
@@ -557,14 +568,14 @@ const startEl = document.getElementById('start');
 if (startEl) {
   const obs = new MutationObserver(() => {
     const visible = startEl.classList.contains('show');
-    if (!visible) ensureUI();                 // cuando se cierre el start, crea la UI si no existe
+    if (!visible) ensureUI();                 // cuando se cierre el start, crea la UI si aún no existe
     const ui = document.getElementById('gameUI');
-    if (ui) ui.style.display = visible ? 'none' : ''; // si vuelve a mostrarse el start, oculta la UI
+    if (ui) ui.style.display = visible ? 'none' : ''; // si el start vuelve a mostrarse, oculta la UI ya creada
   });
   obs.observe(startEl, { attributes: true, attributeFilter: ['class'] });
 }
 
-/* Tick UI */
+/* tick periodic UI */
 setInterval(() => { updateDiablo2UI(); }, 100);
   </script>
 </body>
