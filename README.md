@@ -4,7 +4,10 @@ Top-down arcade survivor with a retro look and elemental spells. Move, dodge, wi
 
 👉 **Play online:** https://anomage-survival.vercel.app/
 
+<img width="1920" height="1080" alt="anoma2" src="https://github.com/user-attachments/assets/e1e10b9a-a699-496f-959c-de1d8782f52f" />
+
 ---
+<img width="855" height="555" alt="anoma1" src="https://github.com/user-attachments/assets/6fda42de-7b5a-4d5e-a531-d67add4de689" />
 
 ## Features
 
